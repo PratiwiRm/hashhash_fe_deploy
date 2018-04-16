@@ -1,13 +1,22 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-const PurchaseCard = () => (
-  <Card buy>
-    <h2>Pembelian Produk</h2>
-    <h1>50 Bendera Susu Kental Manis Vanilla</h1>
-    <h3>Supplier Tembok Besar</h3>
+import { isEmpty } from 'lodash';
+
+const PurchaseCard = ({ data }) => (
+  <Card buy={!isEmpty(data) && data.type === 'purchase'}>
+    <h2>{!isEmpty(data) && data.type === 'purchase' ? 'Pembelian Produk' : 'Pembatalan Produk'}</h2>
+    <h1>
+      {!isEmpty(data) && data.jumlah} {!isEmpty(data) && data.produk}
+    </h1>
+    <h3>{!isEmpty(data) && data.supplier}</h3>
   </Card>
 );
+
+PurchaseCard.propTypes = {
+  data: PropTypes.object.isRequired,
+};
 
 const Card = styled.button`
   width: 100%;

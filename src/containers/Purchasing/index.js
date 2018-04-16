@@ -12,7 +12,7 @@ import PickerList from 'components/PickerList';
 import { Wrapper, ControlPanel, Controls, Control } from 'components/SharedElements';
 
 import { loadEmployee } from 'reducers/employee';
-import { setDate, setBatch } from 'reducers/purchasing';
+import { setDate, setBatch, loadTasks } from 'reducers/purchasing';
 import { loadSupplier } from 'reducers/supplier';
 
 import Navigation from '../Navigation';
@@ -24,6 +24,7 @@ import Navigation from '../Navigation';
     setBatch,
     loadEmployee,
     loadSupplier,
+    loadTasks,
   }
 )
 export default class Purchasing extends Component {
@@ -35,6 +36,7 @@ export default class Purchasing extends Component {
     setBatch: PropTypes.func.isRequired,
     loadEmployee: PropTypes.func.isRequired,
     loadSupplier: PropTypes.func.isRequired,
+    loadTasks: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -54,10 +56,14 @@ export default class Purchasing extends Component {
     if (this.props.employee.dry) {
       this.props.loadEmployee();
     }
+
+    if (this.props.purchasing.dry) {
+      this.props.loadTasks();
+    }
   }
 
   render() {
-    const { purchasing, supplier } = this.props;
+    const { purchasing, employee, supplier } = this.props;
 
     return (
       <Wrapper>
@@ -134,10 +140,47 @@ export default class Purchasing extends Component {
           </Controls>
         </ControlPanel>
         <PurchaseListWrapper>
-          <PurchaseList />
+          <PurchaseList
+            tasks={purchasing.tasks.filter(value => {
+              let flag = value.assigned === '';
+
+              if (this.state.supplierFilter !== 'all') {
+                flag = flag && value.supplier === this.state.supplierFilter;
+              }
+
+              if (this.state.typeFilter !== 'all') {
+                flag = flag && value.type === this.state.typeFilter;
+              }
+
+              return flag;
+            })}
+          />
         </PurchaseListWrapper>
         <PickerListWrapper>
-          <PickerList />
+          <PickerList
+            tasks={purchasing.tasks.filter(value => {
+              let flag = value.assigned !== '';
+
+              if (this.state.supplierFilter !== 'all') {
+                flag = flag && value.supplier === this.state.supplierFilter;
+              }
+
+              if (this.state.typeFilter !== 'all') {
+                flag = flag && value.type === this.state.typeFilter;
+              }
+
+              return flag;
+            })}
+            employee={employee.employee.filter(value => {
+              let flag = value.type.toLowerCase() === 'picker';
+
+              if (this.state.supplierFilter !== 'all') {
+                flag = flag && value.supplier === this.state.supplierFilter;
+              }
+
+              return flag;
+            })}
+          />
         </PickerListWrapper>
       </Wrapper>
     );

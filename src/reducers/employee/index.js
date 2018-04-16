@@ -59,10 +59,18 @@ export function loadEmployee() {
         name: 'Kenny Reida Dharmawan',
         picture: Dummy,
         type: 'Picker',
+        supplier: 'Supplier GammaBeta',
+      },
+      {
+        phone_num: '087832250320',
+        name: 'Bob Ross',
+        picture:
+          'http://thesource.com/wp-content/uploads/2017/11/Deadpool-2-Tease-Trailer-Parodies-Bob-Ross-Painting-Lessons.png',
+        type: 'Picker',
         supplier: 'Supplier SigmaInt',
       },
       {
-        phone_num: '085728333045',
+        phone_num: '087832250323',
         name: 'Donald Trump',
         picture: Dummy,
         type: 'Driver',

@@ -1,22 +1,23 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import { media } from 'commons/theme';
 
 import PickerCard from 'components/PickerCard';
 
-const PickerList = () => (
+const PickerList = ({ tasks, employee }) => (
   <Wrapper>
     <div className="container">
-      <PickerCard />
-      <PickerCard />
-      <PickerCard />
-      <PickerCard />
-      <PickerCard />
-      <PickerCard />
+      {employee.map(value => <PickerCard employee={value} tasks={tasks} />)}
     </div>
   </Wrapper>
 );
+
+PickerList.propTypes = {
+  tasks: PropTypes.array.isRequired,
+  employee: PropTypes.array.isRequired,
+};
 
 const Wrapper = styled.div`
   position: relative;

@@ -1,30 +1,22 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import PurchaseCard from 'components/PurchaseCard';
 
-export default class PurchaseList extends Component {
-  render() {
-    return (
-      <Wrapper>
-        <Header>Daftar Pembelian</Header>
-        <Content>
-          <ItemList>
-            <PurchaseCard />
-            <PurchaseCard />
-            <PurchaseCard />
-            <PurchaseCard />
-            <PurchaseCard />
-            <PurchaseCard />
-            <PurchaseCard />
-            <PurchaseCard />
-          </ItemList>
-          <AddButton>+ Tambah</AddButton>
-        </Content>
-      </Wrapper>
-    );
-  }
-}
+const PurchaseList = ({ tasks }) => (
+  <Wrapper>
+    <Header>Daftar Pembelian</Header>
+    <Content>
+      <ItemList>{tasks.map(value => <PurchaseCard data={value} />)}</ItemList>
+      <AddButton>+ Tambah</AddButton>
+    </Content>
+  </Wrapper>
+);
+
+PurchaseList.propTypes = {
+  tasks: PropTypes.array.isRequired,
+};
 
 const Wrapper = styled.div`
   display: flex;
@@ -97,3 +89,5 @@ const AddButton = styled.button`
     transition: 0.25s ease all;
   }
 `;
+
+export default PurchaseList;
