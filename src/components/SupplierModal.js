@@ -8,28 +8,33 @@ import { InputWrapper } from 'components/SharedElements';
 
 export default class SupplierModal extends Component {
   static propTypes = {
+    save: PropTypes.func.isRequired,
     close: PropTypes.func.isRequired,
-    visible: PropTypes.bool,
+    data: PropTypes.object,
     create: PropTypes.bool,
   };
 
   static defaultProps = {
-    visible: false,
+    data: {},
     create: false,
   };
 
   constructor(props) {
     super(props);
 
-    if (this.props.create) {
+    const { create, data } = this.props;
+
+    if (create) {
       this.state = {
+        id: '',
         name: '',
         address: '',
       };
     } else {
       this.state = {
-        name: '',
-        address: '',
+        id: data.id,
+        name: data.name,
+        address: data.address,
       };
     }
   }
@@ -39,20 +44,21 @@ export default class SupplierModal extends Component {
   };
 
   save = () => {
-    console.log('abc');
+    this.props.save(this.state);
+    this.props.close();
   };
 
   render() {
-    const { create, visible, close } = this.props;
+    const { create, close, data } = this.props;
 
     return (
-      <ModalWrapper visible={visible}>
+      <ModalWrapper>
         <CloseButton onClick={close}>
           <img src={IconChevronBlue} alt="chevron" />Kembali
         </CloseButton>
         <ModalContent>
           <h1>{create ? 'Tambah Data Supplier' : 'Ubah Data Supplier'}</h1>
-          <h2>Supplier #1</h2>
+          {!create && <h2>Supplier #{data.id}</h2>}
           <InputBox>
             <span>Nama Supplier</span>
             <input
@@ -70,7 +76,7 @@ export default class SupplierModal extends Component {
               placeholder="Jalan Gatot Subroto No. 12 ..."
             />
           </InputBox>
-          <Submit onClick={this.save}>Tambah</Submit>
+          <Submit onClick={this.save}>{create ? 'Tambah' : 'Simpan'}</Submit>
         </ModalContent>
       </ModalWrapper>
     );
@@ -87,8 +93,8 @@ const ModalWrapper = styled.div`
   width: 100%;
   height: 100%;
   background: ${props => props.theme.color.whiteRGBA('0.85')};
-  display: ${props => (props.visible ? 'flex' : 'none')};
-  flex-flow: column wrap;
+  display: flex;
+  flex-flow: row wrap;
   justify-content: flex-start;
   align-items: flex-start;
   align-content: flex-start;

@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { media } from 'commons/theme';
@@ -7,22 +9,57 @@ import SupplierCard from 'components/SupplierCard';
 import SupplierModal from 'components/SupplierModal';
 import { Wrapper, ControlPanel, Controls, Control, PageTitle } from 'components/SharedElements';
 
+import { loadSupplier, addSupplier, editSupplier } from 'reducers/supplier';
+
 import Navigation from '../Navigation';
 
+@connect(
+  state => ({
+    supplier: state.supplier,
+  }),
+  {
+    loadSupplier,
+    addSupplier,
+    editSupplier,
+  }
+)
 export default class Supplier extends Component {
+  static propTypes = {
+    supplier: PropTypes.object.isRequired,
+    loadSupplier: PropTypes.func.isRequired,
+    addSupplier: PropTypes.func.isRequired,
+    editSupplier: PropTypes.func.isRequired,
+  };
+
   constructor() {
     super();
 
     this.state = {
       addModal: false,
+      editModal: false,
+      editIndex: -1,
     };
+  }
+
+  componentDidMount() {
+    this.props.loadSupplier();
   }
 
   toggleAddModal = () => {
     this.setState({ addModal: !this.state.addModal });
   };
 
+  openEditModal = index => {
+    this.setState({ editModal: true, editIndex: index });
+  };
+
+  closeEditModal = () => {
+    this.setState({ editModal: false, editIndex: -1 });
+  };
+
   render() {
+    const { supplier } = this.props;
+
     return (
       <Wrapper>
         <Navigation />
@@ -37,15 +74,24 @@ export default class Supplier extends Component {
           </Controls>
         </ControlPanel>
         <SupplierList>
-          <SupplierCard />
-          <SupplierCard />
-          <SupplierCard />
-          <SupplierCard />
-          <SupplierCard />
-          <SupplierCard />
-          <SupplierCard />
+          {supplier.supplier.map((value, index) => (
+            <SupplierCard
+              key={`${value.id}x${value.name}`}
+              data={value}
+              onClick={() => this.openEditModal(index)}
+            />
+          ))}
         </SupplierList>
-        <SupplierModal create visible={this.state.addModal} close={this.toggleAddModal} />
+        {this.state.addModal && (
+          <SupplierModal create save={this.props.addSupplier} close={this.toggleAddModal} />
+        )}
+        {this.state.editModal && (
+          <SupplierModal
+            data={supplier.supplier[this.state.editIndex]}
+            save={newSupplier => this.props.editSupplier(this.state.editIndex, newSupplier)}
+            close={this.closeEditModal}
+          />
+        )}
       </Wrapper>
     );
   }

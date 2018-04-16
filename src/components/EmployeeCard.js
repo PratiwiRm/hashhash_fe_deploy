@@ -1,17 +1,21 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import Dummy from 'assets/dummy.jpg';
-
-const EmployeeCard = () => (
-  <Card>
-    <img src={Dummy} alt="profpic" />
-    <h1>Kenny Reida Dharmawan</h1>
-    <h2>085 728 333 045</h2>
-    <h6>Supplier Palakuda</h6>
-    <h5>Picker</h5>
+const EmployeeCard = ({ data, onClick }) => (
+  <Card onClick={onClick}>
+    <img src={data.picture} alt="profpic" />
+    <h1>{data.name}</h1>
+    <h2>{data.phone_num}</h2>
+    {data.type.toLowerCase() === 'picker' && <h6>{data.supplier}</h6>}
+    <h5>{data.type}</h5>
   </Card>
 );
+
+EmployeeCard.propTypes = {
+  data: PropTypes.object.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
 
 const Card = styled.button`
   padding: 1.5rem;
@@ -21,10 +25,10 @@ const Card = styled.button`
   transition: 0.25s ease all;
   text-align: left;
   display: flex;
-  flex-flow: row wrap;
-  justify-content: space-between;
-  align-items: center;
-  align-content: center;
+  flex-flow: column wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-content: flex-start;
 
   &:hover,
   &:focus {
@@ -87,6 +91,7 @@ const Card = styled.button`
   }
 
   h5 {
+    margin: 1rem 0 0;
     font-weight: 700;
     padding: 0.25rem 0.5rem;
     color: ${props => props.theme.color.pure};
@@ -97,7 +102,7 @@ const Card = styled.button`
   h6 {
     font-weight: 400;
     color: ${props => props.theme.color.gray};
-    margin: 0 0 1rem;
+    margin: 0;
   }
 
   span {

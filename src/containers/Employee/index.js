@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { media } from 'commons/theme';
@@ -7,22 +9,73 @@ import EmployeeCard from 'components/EmployeeCard';
 import EmployeeModal from 'components/EmployeeModal';
 import { Wrapper, ControlPanel, Controls, Control, PageTitle } from 'components/SharedElements';
 
+import { loadEmployee, addEmployee, editEmployee } from 'reducers/employee';
+import { loadSupplier } from 'reducers/supplier';
+
 import Navigation from '../Navigation';
 
+@connect(
+  state => ({
+    employee: state.employee,
+    supplier: state.supplier,
+  }),
+  {
+    loadEmployee,
+    addEmployee,
+    editEmployee,
+    loadSupplier,
+  }
+)
 export default class Employee extends Component {
+  static propTypes = {
+    employee: PropTypes.object.isRequired,
+    supplier: PropTypes.object.isRequired,
+    loadEmployee: PropTypes.func.isRequired,
+    addEmployee: PropTypes.func.isRequired,
+    editEmployee: PropTypes.func.isRequired,
+    loadSupplier: PropTypes.func.isRequired,
+  };
+
   constructor() {
     super();
 
     this.state = {
+      activeFilter: 0,
       addModal: false,
+      editModal: false,
+      editIndex: -1,
     };
   }
+
+  componentDidMount() {
+    if (this.props.supplier.dry) {
+      this.props.loadSupplier();
+    }
+
+    if (this.props.employee.dry) {
+      this.props.loadEmployee();
+    }
+  }
+
+  setFilter = filter => {
+    this.setState({ activeFilter: filter });
+  };
 
   toggleAddModal = () => {
     this.setState({ addModal: !this.state.addModal });
   };
 
+  openEditModal = index => {
+    this.setState({ editModal: true, editIndex: index });
+  };
+
+  closeEditModal = () => {
+    this.setState({ editModal: false, editIndex: -1 });
+  };
+
   render() {
+    const { employee, supplier } = this.props;
+
     return (
       <Wrapper>
         <Navigation />
@@ -31,9 +84,15 @@ export default class Employee extends Component {
           <Controls>
             <Control flex>
               <span>Tipe Pegawai:</span>
-              <button>Semua</button>
-              <button>Picker</button>
-              <button>Driver</button>
+              <button onClick={() => this.setFilter(0)} disabled={this.state.activeFilter === 0}>
+                Semua
+              </button>
+              <button onClick={() => this.setFilter(1)} disabled={this.state.activeFilter === 1}>
+                Picker
+              </button>
+              <button onClick={() => this.setFilter(2)} disabled={this.state.activeFilter === 2}>
+                Driver
+              </button>
             </Control>
             <button className="primary blue" onClick={this.toggleAddModal}>
               + Tambah Pegawai
@@ -41,14 +100,42 @@ export default class Employee extends Component {
           </Controls>
         </ControlPanel>
         <EmployeeList>
-          <EmployeeCard />
-          <EmployeeCard />
-          <EmployeeCard />
-          <EmployeeCard />
-          <EmployeeCard />
-          <EmployeeCard />
+          {employee.employee
+            .filter(value => {
+              if (this.state.activeFilter === 0) {
+                return true;
+              } else if (this.state.activeFilter === 1 && value.type.toLowerCase() === 'picker') {
+                return true;
+              } else if (this.state.activeFilter === 2 && value.type.toLowerCase() === 'driver') {
+                return true;
+              }
+
+              return false;
+            })
+            .map((value, index) => (
+              <EmployeeCard
+                key={`${value.name}x${value.phone_num}`}
+                data={value}
+                onClick={() => this.openEditModal(index)}
+              />
+            ))}
         </EmployeeList>
-        <EmployeeModal create visible={this.state.addModal} close={this.toggleAddModal} />
+        {this.state.addModal && (
+          <EmployeeModal
+            create
+            supplier={supplier.supplier}
+            save={this.props.addEmployee}
+            close={this.toggleAddModal}
+          />
+        )}
+        {this.state.editModal && (
+          <EmployeeModal
+            data={employee.employee[this.state.editIndex]}
+            supplier={supplier.supplier}
+            save={newEmployeeData => this.props.editEmployee(this.state.editIndex, newEmployeeData)}
+            close={this.closeEditModal}
+          />
+        )}
       </Wrapper>
     );
   }

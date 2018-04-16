@@ -1,14 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const SupplierCard = () => (
-  <Card>
-    <h1>#1</h1>
-    <h2>Supplier Palakuda</h2>
-    <p>
-      Jl. Mayjen DI Panjaitan No. 1C, Kebon Pala, Makasar, RT. 001 RW. 006, RT.1/RW.6, Kb. Pala,
-      Makasar, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13650
-    </p>
+const SupplierCard = ({ data, onClick }) => (
+  <Card onClick={onClick}>
+    <h1>#{data.id}</h1>
+    <h2>{data.name}</h2>
+    <p>{data.address}</p>
   </Card>
 );
 
@@ -20,10 +17,10 @@ const Card = styled.button`
   transition: 0.25s ease all;
   text-align: left;
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: column wrap;
   justify-content: flex-start;
-  align-items: center;
-  align-content: center;
+  align-items: flex-start;
+  align-content: flex-start;
 
   &:hover,
   &:focus {

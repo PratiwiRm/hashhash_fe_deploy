@@ -46,7 +46,8 @@ injectGlobal`
     }
   }
 
-  input {
+  input,
+  textarea {
     font-family: ${theme.font.heading};
   }
 `;

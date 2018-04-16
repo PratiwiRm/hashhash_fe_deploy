@@ -8,34 +8,40 @@ import { InputWrapper } from 'components/SharedElements';
 
 export default class EmployeeModal extends Component {
   static propTypes = {
+    supplier: PropTypes.array.isRequired,
+    save: PropTypes.func.isRequired,
     close: PropTypes.func.isRequired,
-    visible: PropTypes.bool,
+    data: PropTypes.object,
     create: PropTypes.bool,
   };
 
   static defaultProps = {
-    visible: false,
+    data: {},
     create: false,
   };
 
   constructor(props) {
     super(props);
 
-    if (this.props.create) {
+    const { create, data } = this.props;
+
+    if (create) {
       this.state = {
+        picture: '',
         phone_num: '',
         name: '',
+        type: 'Picker',
+        supplier: '',
         password: '',
-        isPicker: true,
-        supplierId: '',
       };
     } else {
       this.state = {
-        phone_num: '',
-        name: '',
+        picture: data.picture,
+        phone_num: data.phone_num,
+        name: data.name,
+        type: data.type,
+        supplier: data.type.toLowerCase() === 'picker' ? data.supplier : '',
         password: '',
-        isPicker: true,
-        supplierId: '',
       };
     }
   }
@@ -45,14 +51,15 @@ export default class EmployeeModal extends Component {
   };
 
   save = () => {
-    console.log('abc');
+    this.props.save(this.state);
+    this.props.close();
   };
 
   render() {
-    const { create, visible, close } = this.props;
+    const { supplier, create, close } = this.props;
 
     return (
-      <ModalWrapper visible={visible}>
+      <ModalWrapper>
         <CloseButton onClick={close}>
           <img src={IconChevronBlue} alt="chevron" />Kembali
         </CloseButton>
@@ -77,6 +84,15 @@ export default class EmployeeModal extends Component {
             />
           </InputBox>
           <InputBox>
+            <span>Profile Picture</span>
+            <input
+              type="text"
+              value={this.state.picture}
+              onChange={evt => this.setInput('picture', evt.target.value)}
+              placeholder="http..."
+            />
+          </InputBox>
+          <InputBox>
             <span>Password</span>
             <input
               type="password"
@@ -87,34 +103,38 @@ export default class EmployeeModal extends Component {
           </InputBox>
           <Switcher>
             <span>Role</span>
-            <button disabled={this.state.isPicker} onClick={() => this.setInput('isPicker', true)}>
+            <button
+              disabled={this.state.type.toLowerCase() === 'picker'}
+              onClick={() => this.setInput('type', 'Picker')}
+            >
               Picker
             </button>
             <button
-              disabled={!this.state.isPicker}
-              onClick={() => this.setInput('isPicker', false)}
+              disabled={!this.state.type.toLowerCase() === 'picker'}
+              onClick={() => this.setInput('type', 'Driver')}
             >
               Driver
             </button>
           </Switcher>
-          {this.state.isPicker && (
+          {this.state.type.toLowerCase() === 'picker' && (
             <InputBox>
               <span>Supplier:</span>
               <select
-                value={this.state.supplierId}
-                onChange={evt => this.setInput('supplierId', evt.target.value)}
+                value={this.state.supplier}
+                onChange={evt => this.setInput('supplier', evt.target.value)}
               >
                 <option selected disabled>
                   Pilih Supplier
                 </option>
-                <option value="supplier1">Supplier 1</option>
-                <option value="supplier2">Supplier 2</option>
-                <option value="supplier3">Supplier 3</option>
-                <option value="supplier4">Supplier 4</option>
+                {supplier.map(value => (
+                  <option key={`${value.name}${value.address}`} value={value.name}>
+                    {value.name}
+                  </option>
+                ))}
               </select>
             </InputBox>
           )}
-          <Submit onClick={this.save}>Tambah</Submit>
+          <Submit onClick={this.save}>{create ? 'Tambah' : 'Simpan'}</Submit>
         </ModalContent>
       </ModalWrapper>
     );
@@ -131,11 +151,13 @@ const ModalWrapper = styled.div`
   width: 100%;
   height: 100%;
   background: ${props => props.theme.color.whiteRGBA('0.85')};
-  display: ${props => (props.visible ? 'flex' : 'none')};
-  flex-flow: column wrap;
+  display: flex;
+  flex-flow: row wrap;
   justify-content: flex-start;
   align-items: flex-start;
   align-content: flex-start;
+  overflow-x: hidden;
+  overflow-y: auto;
 `;
 
 const CloseButton = styled.button`
