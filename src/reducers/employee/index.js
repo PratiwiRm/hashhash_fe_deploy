@@ -58,6 +58,7 @@ export function loadEmployee() {
         phone_num: '085728333045',
         name: 'Kenny Reida Dharmawan',
         picture: Dummy,
+        identity_number: '3374111102970002',
         type: 'Picker',
         supplier: 'Supplier GammaBeta',
       },
@@ -66,6 +67,7 @@ export function loadEmployee() {
         name: 'Bob Ross',
         picture:
           'http://thesource.com/wp-content/uploads/2017/11/Deadpool-2-Tease-Trailer-Parodies-Bob-Ross-Painting-Lessons.png',
+        identity_number: '3374111102970002',
         type: 'Picker',
         supplier: 'Supplier SigmaInt',
       },
@@ -73,6 +75,7 @@ export function loadEmployee() {
         phone_num: '087832250323',
         name: 'Donald Trump',
         picture: Dummy,
+        identity_number: '3374111102970002',
         type: 'Driver',
       },
     ];
@@ -87,6 +90,7 @@ export function addEmployee(newEmployee) {
       phone_num: newEmployee.phone_num,
       name: newEmployee.name,
       picture: newEmployee.picture,
+      identity_number: newEmployee.identity_number,
       type: newEmployee.type,
     };
 
@@ -104,6 +108,7 @@ export function editEmployee(index, updatedEmployee) {
       phone_num: updatedEmployee.phone_num,
       name: updatedEmployee.name,
       picture: updatedEmployee.picture,
+      identity_number: updatedEmployee.identity_number,
       type: updatedEmployee.type,
     };
 

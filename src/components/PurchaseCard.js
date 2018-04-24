@@ -8,7 +8,7 @@ const PurchaseCard = ({ data }) => (
   <Card buy={!isEmpty(data) && data.type === 'purchase'}>
     <h2>{!isEmpty(data) && data.type === 'purchase' ? 'Pembelian Produk' : 'Pembatalan Produk'}</h2>
     <h1>
-      {!isEmpty(data) && data.jumlah} {!isEmpty(data) && data.produk}
+      {!isEmpty(data) && data.quantity} {!isEmpty(data) && data.product}
     </h1>
     <h3>{!isEmpty(data) && data.supplier}</h3>
   </Card>
@@ -18,7 +18,7 @@ PurchaseCard.propTypes = {
   data: PropTypes.object.isRequired,
 };
 
-const Card = styled.button`
+const Card = styled.div`
   width: 100%;
   padding: 1.5rem;
   background: ${props => props.theme.color.pure};

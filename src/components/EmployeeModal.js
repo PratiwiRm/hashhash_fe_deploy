@@ -30,9 +30,18 @@ export default class EmployeeModal extends Component {
         picture: '',
         phone_num: '',
         name: '',
+        identity_number: '',
         type: 'Picker',
         supplier: '',
         password: '',
+        validation: {
+          picture: '',
+          phone_num: '',
+          name: '',
+          identity_number: '',
+          supplier: '',
+          password: '',
+        },
       };
     } else {
       this.state = {
@@ -40,8 +49,17 @@ export default class EmployeeModal extends Component {
         phone_num: data.phone_num,
         name: data.name,
         type: data.type,
+        identity_number: data.identity_number,
         supplier: data.type.toLowerCase() === 'picker' ? data.supplier : '',
         password: '',
+        validation: {
+          picture: '',
+          phone_num: '',
+          name: '',
+          identity_number: '',
+          supplier: '',
+          password: '',
+        },
       };
     }
   }
@@ -51,8 +69,62 @@ export default class EmployeeModal extends Component {
   };
 
   save = () => {
-    this.props.save(this.state);
-    this.props.close();
+    if (this.validate()) {
+      this.props.save(this.state);
+      this.props.close();
+    }
+  };
+
+  validate = () => {
+    const validation = {
+      picture: '',
+      phone_num: '',
+      name: '',
+      identity_number: '',
+      supplier: '',
+      password: '',
+    };
+
+    let invalid = false;
+    const numberRegExp = /^\d+$/;
+
+    if (this.state.picture.length <= 4 || !this.state.picture.startsWith('http')) {
+      validation.picture = 'URL tidak valid';
+      invalid = true;
+    }
+
+    if (this.state.phone_num.length <= 8 || !numberRegExp.test(this.state.phone_num)) {
+      validation.phone_num =
+        'Nomor Telpon harus lebih panjang dari 8 karakter dan hanya terdiri dari angka';
+      invalid = true;
+    }
+
+    if (this.state.name.length === 0) {
+      validation.name = 'Nama tidak boleh kosong';
+      invalid = true;
+    }
+
+    if (
+      this.state.identity_number.length !== 16 ||
+      !numberRegExp.test(this.state.identity_number)
+    ) {
+      validation.identity_number =
+        'Nomor KTP harus sepanjang 16 karakter dan hanya terdiri dari angka';
+      invalid = true;
+    }
+
+    if (this.state.type.toLowerCase() === 'picker' && this.state.supplier.length === 0) {
+      validation.supplier = 'Supplier tidak boleh kosong';
+      invalid = true;
+    }
+
+    if (this.state.password.length <= 8) {
+      validation.password = 'Password harus lebih dari 8 karakter';
+      invalid = true;
+    }
+
+    this.setState({ validation });
+    return !invalid;
   };
 
   render() {
@@ -73,6 +145,7 @@ export default class EmployeeModal extends Component {
               onChange={evt => this.setInput('phone_num', evt.target.value)}
               placeholder="085XXXXXX..."
             />
+            {this.state.validation.phone_num && <h6>{this.state.validation.phone_num}</h6>}
           </InputBox>
           <InputBox>
             <span>Nama Lengkap</span>
@@ -82,6 +155,7 @@ export default class EmployeeModal extends Component {
               onChange={evt => this.setInput('name', evt.target.value)}
               placeholder="John Doe"
             />
+            {this.state.validation.name && <h6>{this.state.validation.name}</h6>}
           </InputBox>
           <InputBox>
             <span>Profile Picture</span>
@@ -91,6 +165,19 @@ export default class EmployeeModal extends Component {
               onChange={evt => this.setInput('picture', evt.target.value)}
               placeholder="http..."
             />
+            {this.state.validation.picture && <h6>{this.state.validation.picture}</h6>}
+          </InputBox>
+          <InputBox>
+            <span>Nomor KTP</span>
+            <input
+              type="text"
+              value={this.state.identity_number}
+              onChange={evt => this.setInput('identity_number', evt.target.value)}
+              placeholder="3374..."
+            />
+            {this.state.validation.identity_number && (
+              <h6>{this.state.validation.identity_number}</h6>
+            )}
           </InputBox>
           <InputBox>
             <span>Password</span>
@@ -100,6 +187,7 @@ export default class EmployeeModal extends Component {
               onChange={evt => this.setInput('password', evt.target.value)}
               placeholder="Password"
             />
+            {this.state.validation.password && <h6>{this.state.validation.password}</h6>}
           </InputBox>
           <Switcher>
             <span>Role</span>
@@ -132,6 +220,7 @@ export default class EmployeeModal extends Component {
                   </option>
                 ))}
               </select>
+              {this.state.validation.supplier && <h6>{this.state.validation.supplier}</h6>}
             </InputBox>
           )}
           <Submit onClick={this.save}>{create ? 'Tambah' : 'Simpan'}</Submit>

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 import PurchaseCard from 'components/PurchaseCard';
 
@@ -8,14 +9,46 @@ const PurchaseList = ({ tasks }) => (
   <Wrapper>
     <Header>Daftar Pembelian</Header>
     <Content>
-      <ItemList>{tasks.map(value => <PurchaseCard data={value} />)}</ItemList>
+      <Droppable droppableId="purchasing-unassigned">
+        {(provided, snapshot) => (
+          <ItemList
+            innerRef={provided.innerRef}
+            active={snapshot.isDraggingOver}
+            {...provided.droppableProps}
+          >
+            {tasks.map((task, index) => (
+              <Draggable
+                key={`purchasing-${task.supplier}-${task.order_id}-${task.product}`}
+                draggableId={`purchasing-${task.supplier}-${task.order_id}-${task.product}`}
+                index={index}
+              >
+                {(innerProvided, innerSnapshot) => (
+                  <div
+                    ref={innerProvided.innerRef}
+                    {...innerProvided.draggableProps}
+                    {...innerProvided.dragHandleProps}
+                    style={innerProvided.draggableProps.style}
+                  >
+                    <PurchaseCard data={task} />
+                  </div>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </ItemList>
+        )}
+      </Droppable>
       <AddButton>+ Tambah</AddButton>
     </Content>
   </Wrapper>
 );
 
 PurchaseList.propTypes = {
-  tasks: PropTypes.array.isRequired,
+  tasks: PropTypes.array,
+};
+
+PurchaseList.defaultProps = {
+  tasks: [],
 };
 
 const Wrapper = styled.div`
@@ -61,12 +94,8 @@ const ItemList = styled.div`
   overflow-y: auto;
   padding: 0 1rem 1rem;
 
-  button {
+  div {
     margin: 0 0 1rem;
-
-    &:last-of-type {
-      margin: 0;
-    }
   }
 `;
 

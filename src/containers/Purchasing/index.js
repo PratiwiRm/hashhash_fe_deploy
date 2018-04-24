@@ -2,17 +2,20 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import Papa from 'papaparse';
+import { isEqual } from 'lodash';
 
 import IconUploadWhite from 'assets/icon_upload_white.svg';
 
 import { media } from 'commons/theme';
+import { PICKER_TASK_HEADER_FIELDS } from 'commons/structure';
 
 import PurchaseList from 'components/PurchaseList';
 import PickerList from 'components/PickerList';
 import { Wrapper, ControlPanel, Controls, Control } from 'components/SharedElements';
 
 import { loadEmployee } from 'reducers/employee';
-import { setDate, setBatch, loadTasks } from 'reducers/purchasing';
+import { setDate, setBatch, loadTasks, addTasks } from 'reducers/purchasing';
 import { loadSupplier } from 'reducers/supplier';
 
 import Navigation from '../Navigation';
@@ -25,6 +28,7 @@ import Navigation from '../Navigation';
     loadEmployee,
     loadSupplier,
     loadTasks,
+    addTasks,
   }
 )
 export default class Purchasing extends Component {
@@ -37,6 +41,7 @@ export default class Purchasing extends Component {
     loadEmployee: PropTypes.func.isRequired,
     loadSupplier: PropTypes.func.isRequired,
     loadTasks: PropTypes.func.isRequired,
+    addTasks: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -61,6 +66,29 @@ export default class Purchasing extends Component {
       this.props.loadTasks();
     }
   }
+
+  handleCSV = event => {
+    event.preventDefault();
+    Papa.parse(event.target.files[0], {
+      header: true,
+      skipEmptyLines: true,
+      complete: results => {
+        const { data, meta } = results;
+        const { fields } = meta;
+
+        if (isEqual([...fields].sort(), [...PICKER_TASK_HEADER_FIELDS].sort())) {
+          this.props.addTasks(data);
+        } else {
+          console.log('wrong data format!');
+        }
+        this.csvInput.value = '';
+      },
+      error: errors => {
+        console.log(errors);
+        this.csvInput.value = '';
+      },
+    });
+  };
 
   render() {
     const { purchasing, employee, supplier } = this.props;
@@ -98,9 +126,16 @@ export default class Purchasing extends Component {
           <Controls>
             <Control flex>
               <span>Data:</span>
-              <button className="blue">
+              <label htmlFor="purchasing-csv">
                 <img src={IconUploadWhite} alt="upload" />Upload CSV
-              </button>
+                <input
+                  ref={e => (this.csvInput = e)}
+                  type="file"
+                  id="purchasing-csv"
+                  onChange={this.handleCSV}
+                  accept=".csv"
+                />
+              </label>
             </Control>
             <Control>
               <span>Supplier:</span>
@@ -141,15 +176,18 @@ export default class Purchasing extends Component {
         </ControlPanel>
         <PurchaseListWrapper>
           <PurchaseList
-            tasks={purchasing.tasks.filter(value => {
-              let flag = value.assigned === '';
+            tasks={purchasing.tasks.unassigned.filter(value => {
+              let flag = true;
 
-              if (this.state.supplierFilter !== 'all') {
-                flag = flag && value.supplier === this.state.supplierFilter;
+              if (this.state.typeFilter !== 'all' && this.state.typeFilter !== value.type) {
+                flag = false;
               }
 
-              if (this.state.typeFilter !== 'all') {
-                flag = flag && value.type === this.state.typeFilter;
+              if (
+                this.state.supplierFilter !== 'all' &&
+                this.state.supplierFilter !== value.supplier
+              ) {
+                flag = false;
               }
 
               return flag;
@@ -158,24 +196,17 @@ export default class Purchasing extends Component {
         </PurchaseListWrapper>
         <PickerListWrapper>
           <PickerList
-            tasks={purchasing.tasks.filter(value => {
-              let flag = value.assigned !== '';
-
-              if (this.state.supplierFilter !== 'all') {
-                flag = flag && value.supplier === this.state.supplierFilter;
-              }
-
-              if (this.state.typeFilter !== 'all') {
-                flag = flag && value.type === this.state.typeFilter;
-              }
-
-              return flag;
-            })}
+            tasks={purchasing.tasks}
+            dragFilter={purchasing.dragFilter}
+            typeFilter={this.state.typeFilter}
             employee={employee.employee.filter(value => {
               let flag = value.type.toLowerCase() === 'picker';
 
-              if (this.state.supplierFilter !== 'all') {
-                flag = flag && value.supplier === this.state.supplierFilter;
+              if (
+                this.state.supplierFilter !== 'all' &&
+                this.state.supplierFilter !== value.supplier
+              ) {
+                flag = false;
               }
 
               return flag;

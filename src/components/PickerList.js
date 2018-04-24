@@ -6,17 +6,26 @@ import { media } from 'commons/theme';
 
 import PickerCard from 'components/PickerCard';
 
-const PickerList = ({ tasks, employee }) => (
+const PickerList = ({ tasks, dragFilter, typeFilter, employee }) => (
   <Wrapper>
     <div className="container">
-      {employee.map(value => <PickerCard employee={value} tasks={tasks} />)}
+      {employee.map(value => (
+        <PickerCard
+          tasks={tasks[value.phone_num]}
+          dragFilter={dragFilter}
+          typeFilter={typeFilter}
+          employee={value}
+        />
+      ))}
     </div>
   </Wrapper>
 );
 
 PickerList.propTypes = {
-  tasks: PropTypes.array.isRequired,
+  tasks: PropTypes.object.isRequired,
   employee: PropTypes.array.isRequired,
+  dragFilter: PropTypes.string.isRequired,
+  typeFilter: PropTypes.string.isRequired,
 };
 
 const Wrapper = styled.div`

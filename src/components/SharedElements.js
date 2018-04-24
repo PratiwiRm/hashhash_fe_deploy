@@ -32,6 +32,42 @@ export const ControlPanel = styled.div`
     margin-right: 0.5rem;
   }
 
+  label {
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    margin: 0 0.5rem 0 0;
+    cursor: pointer;
+    color: ${props => props.theme.color.pure};
+    background: ${props => props.theme.color.blue};
+    transition: 0.25s ease all;
+    border: none;
+    outline: none;
+    box-shadow: ${props => props.theme.shadow.lite};
+    border-radius: ${props => props.theme.sizing.radius.regular};
+
+    &:last-of-type {
+      margin: 0;
+    }
+
+    &:hover,
+    &:focus,
+    &:disabled {
+      transition: 0.25s ease all;
+      opacity: 0.5;
+    }
+
+    & > input {
+      display: none;
+    }
+
+    img {
+      height: 0.875rem;
+      width: auto;
+      margin-right: 0.5rem;
+    }
+  }
+
   input,
   select,
   button {
@@ -188,5 +224,15 @@ export const InputWrapper = styled.div`
       background: url("${IconChevronInvertedWhite}") no-repeat 95% 50%  ${props =>
   props.theme.color.blue};
     }
+  }
+
+  h6 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin: 0.25rem 0 0;
+    padding: 0.5rem 1rem;
+    color: ${props => props.theme.color.pure};
+    background: ${props => props.theme.color.red};
+    border-radius: ${props => props.theme.sizing.radius.small};
   }
 `;

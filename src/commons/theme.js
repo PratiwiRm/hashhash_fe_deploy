@@ -42,6 +42,7 @@ const theme = {
 
   zindex: {
     modal: '1000',
+    overhead: '100',
   },
 };
 
