@@ -33,6 +33,7 @@ export const ControlPanel = styled.div`
   }
 
   label {
+    display: inline-block;
     font-size: 1rem;
     font-weight: 700;
     padding: 0.5rem 1rem;
@@ -45,10 +46,6 @@ export const ControlPanel = styled.div`
     outline: none;
     box-shadow: ${props => props.theme.shadow.lite};
     border-radius: ${props => props.theme.sizing.radius.regular};
-
-    &:last-of-type {
-      margin: 0;
-    }
 
     &:hover,
     &:focus,

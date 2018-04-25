@@ -15,6 +15,23 @@ export const PICKER_TASK_HEADER_FIELDS = [
   'supplier',
 ];
 
+export const PICKER_TASK_TEMPLATE = [
+  {
+    order_id: 'Unique UUID16 order_id from XYZ',
+    delivery_date: 'YYYY/MM/DD',
+    status: 'pending/doing/done',
+    customer: 'Customer name',
+    address: 'Customer address',
+    address_guide: 'Customer address additional guide',
+    product: 'Product name with brand and variant',
+    packaging: 'Product packaging (units, metrics)',
+    quantity: 'Number',
+    assigned: 'Phone Number of Employee',
+    type: 'purchase/cancel',
+    supplier: 'Supplier Name/ID',
+  },
+];
+
 export const pickerTaskTransformator = (tasks, employees) => {
   const newTasks = {
     unassigned: [],
@@ -43,6 +60,40 @@ export const pickerTaskTransformator = (tasks, employees) => {
   });
 
   return newTasks;
+};
+
+export const flattenTasks = source => {
+  let flatten = [...source.unassigned];
+
+  const bindedTasks = { ...source };
+  delete bindedTasks.unassigned;
+
+  Object.keys(bindedTasks).forEach(key => {
+    if (!isEmpty(bindedTasks[key].unassigned)) {
+      flatten = flatten.concat(bindedTasks[key].unassigned);
+    }
+  });
+
+  return flatten;
+};
+
+export const countDuplicatedPickerTasks = (source, check) => {
+  const flattenSource = flattenTasks(source);
+
+  const duplicateTemp = {};
+  let duplicateCounter = 0;
+
+  flattenSource.concat(check).forEach(task => {
+    const key = `${task.supplier}-${task.order_id}-${task.product}`;
+
+    if (key in duplicateTemp) {
+      duplicateCounter += 1;
+    } else {
+      duplicateTemp[key] = key;
+    }
+  });
+
+  return duplicateCounter;
 };
 
 export const arrayRearanger = (arr, src, dest) => {

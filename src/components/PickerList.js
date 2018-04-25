@@ -11,6 +11,7 @@ const PickerList = ({ tasks, dragFilter, typeFilter, employee }) => (
     <div className="container">
       {employee.map(value => (
         <PickerCard
+          key={`employee-${value.phone_num}`}
           tasks={tasks[value.phone_num]}
           dragFilter={dragFilter}
           typeFilter={typeFilter}
@@ -32,9 +33,9 @@ const Wrapper = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
-  overflow-x: auto;
   overflow-y: hidden;
-  padding: 0 0 1.25rem 0;
+  overflow-x: scroll;
+  padding: 0 0 1rem;
 
   .container {
     width: 100%;
@@ -46,6 +47,10 @@ const Wrapper = styled.div`
     & > div {
       white-space: normal;
       margin: 0 2rem 0 0;
+
+      &:first-of-type {
+        margin-left: 1rem;
+      }
     }
   }
 `;

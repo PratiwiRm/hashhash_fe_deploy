@@ -39,6 +39,8 @@ export default class App extends Component {
         }
       }
     }
+
+    store.dispatch(purchasingSetDragFilter(''));
   };
 
   render() {

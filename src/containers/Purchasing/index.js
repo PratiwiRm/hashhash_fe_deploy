@@ -4,11 +4,18 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import Papa from 'papaparse';
 import { isEqual } from 'lodash';
+import swal from 'sweetalert';
+import { saveAs } from 'file-saver';
 
 import IconUploadWhite from 'assets/icon_upload_white.svg';
+import IconDownloadWhite from 'assets/icon_download_white.svg';
 
 import { media } from 'commons/theme';
-import { PICKER_TASK_HEADER_FIELDS } from 'commons/structure';
+import {
+  PICKER_TASK_HEADER_FIELDS,
+  PICKER_TASK_TEMPLATE,
+  countDuplicatedPickerTasks,
+} from 'commons/structure';
 
 import PurchaseList from 'components/PurchaseList';
 import PickerList from 'components/PickerList';
@@ -77,17 +84,43 @@ export default class Purchasing extends Component {
         const { fields } = meta;
 
         if (isEqual([...fields].sort(), [...PICKER_TASK_HEADER_FIELDS].sort())) {
-          this.props.addTasks(data);
+          const dupeCount = countDuplicatedPickerTasks(this.props.purchasing.tasks, data);
+
+          if (dupeCount === 0) {
+            this.props.addTasks(data);
+          } else {
+            swal({
+              icon: 'error',
+              title: `${dupeCount} Duplicated Data Found!`,
+              text: `Terdapat ${dupeCount} data baru yang terdeteksi sama dengan data tugas yang sudah ada, pastikan tidak ada data duplikat!`,
+            });
+          }
         } else {
-          console.log('wrong data format!');
+          swal({
+            icon: 'error',
+            title: 'Data Format Error',
+            text:
+              'Format data CSV salah, pastikan baris pertama berisikan header data dan sesuai dengan template yang sudah ditentukan',
+          });
         }
         this.csvInput.value = '';
       },
-      error: errors => {
-        console.log(errors);
+      error: () => {
+        swal({
+          icon: 'error',
+          title: 'CSV Parsing Error',
+          text: 'Terjadi kesalahan parsing file CSV, pastikan file benar dan tidak rusak.',
+        });
         this.csvInput.value = '';
       },
     });
+  };
+
+  downloadTemplate = () => {
+    const blob = new Blob([Papa.unparse(PICKER_TASK_TEMPLATE, { header: true })], {
+      type: 'data:text/csv;charset=utf-8',
+    });
+    saveAs(blob, 'stoqo_optima_purchasing_template.csv');
   };
 
   render() {
@@ -136,6 +169,9 @@ export default class Purchasing extends Component {
                   accept=".csv"
                 />
               </label>
+              <button onClick={this.downloadTemplate} className="blue">
+                <img src={IconDownloadWhite} alt="upload" />Download Template
+              </button>
             </Control>
             <Control>
               <span>Supplier:</span>
@@ -222,6 +258,7 @@ const PurchaseListWrapper = styled.div`
   width: 20rem;
   height: 64rem;
   margin: 0 4rem 0 0;
+  padding: 0 0 2.1rem;
 `;
 
 const PickerListWrapper = styled.div`

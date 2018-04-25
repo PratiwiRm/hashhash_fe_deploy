@@ -50,4 +50,31 @@ injectGlobal`
   textarea {
     font-family: ${theme.font.heading};
   }
+
+  .swal-overlay {
+    background-color: rgba(55, 55, 55, 0.75);
+  }
+
+  .swal-modal {
+    background-color: ${theme.color.pure};
+  }
+
+  .swal-title,
+  .swal-text {
+    font-family: ${theme.font.heading};
+    text-align: center;
+  }
+
+  .swal-button-container,
+  .swal-button {
+    width: 100%;
+  }
+
+  .swal-footer {
+    background: ${theme.color.white};
+  }
+
+  .swal-button {
+    background: ${theme.color.blue};
+  }
 `;

@@ -32,7 +32,9 @@ export default class PickerCard extends Component {
   switch = switcher => this.setState({ switcher });
 
   render() {
-    const { tasks, dragFilter, typeFilter, employee } = this.props;
+    const {
+ tasks, dragFilter, typeFilter, employee 
+} = this.props;
 
     const taskDoing = tasks.signed.find(value => {
       let flag = value.status === 'doing';
@@ -69,7 +71,11 @@ export default class PickerCard extends Component {
         isDropDisabled={dragFilter !== employee.supplier}
       >
         {(provided, snapshot) => (
-          <Card innerRef={provided.innerRef} {...provided.droppableProps}>
+          <Card
+            innerRef={provided.innerRef}
+            {...provided.droppableProps}
+            disabled={dragFilter !== '' && dragFilter !== employee.supplier}
+          >
             <Overlay active={snapshot.isDraggingOver}>
               <h1>Drop disini untuk memberikan tugas ke {employee.name}</h1>
             </Overlay>
@@ -132,10 +138,20 @@ export default class PickerCard extends Component {
                 {provided.placeholder}
                 {isEmpty(locallyAssigned) &&
                   this.state.switcher === 'todo' &&
-                  tasksTodo.map(value => <PurchaseCard data={value} />)}
+                  tasksTodo.map(task => (
+                    <PurchaseCard
+                      key={`purchasing-${task.supplier}-${task.order_id}-${task.product}`}
+                      data={task}
+                    />
+                  ))}
                 {isEmpty(locallyAssigned) &&
                   this.state.switcher === 'done' &&
-                  tasksDone.map(value => <PurchaseCard data={value} />)}
+                  tasksDone.map(task => (
+                    <PurchaseCard
+                      key={`purchasing-${task.supplier}-${task.order_id}-${task.product}`}
+                      data={task}
+                    />
+                  ))}
               </div>
             </Tasks>
           </Card>
@@ -155,6 +171,8 @@ const Card = styled.div`
   border-radius: ${props => props.theme.sizing.radius.card};
   display: inline-flex;
   flex-flow: column wrap;
+  opacity: ${props => (props.disabled ? '0.5' : '1')};
+  transition: 0.25s ease all;
 `;
 
 const Head = styled.div`
@@ -296,7 +314,7 @@ const Overlay = styled.div`
   align-content: flex-start;
   padding: 4rem 2rem 2rem;
   border-radius: ${props => props.theme.sizing.radius.card};
-  transition: 0.25s ease-out all;
+  transition: 0.1s ease-out all;
 
   h1 {
     font-size: 1.25rem;
