@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Chart from 'chart.js';
 
 import theme from 'commons/theme';
-import { chartGradientBuilderPlugin, lineChartOptionsBuilder, buildLabels } from 'commons/utils';
+import { chartGradientBuilderPlugin, lineChartOptionsBuilder, labelBuilder } from 'commons/utils';
 
 import { Wrapper, ControlPanel, Controls, Control, PageTitle } from 'components/SharedElements';
 
@@ -17,7 +17,7 @@ export default class Performance extends Component {
   static AVG_TASKS_CFG = {
     type: 'line',
     data: {
-      labels: buildLabels('lastSix'),
+      labels: labelBuilder('lastSix'),
       datasets: [
         {
           label: 'Picker',
@@ -40,7 +40,7 @@ export default class Performance extends Component {
   static AVG_ERRORS_CFG = {
     type: 'line',
     data: {
-      labels: buildLabels('lastSix'),
+      labels: labelBuilder('lastSix'),
       datasets: [
         {
           label: 'Picker',
@@ -63,7 +63,7 @@ export default class Performance extends Component {
   static AVG_HOURS_CFG = {
     type: 'line',
     data: {
-      labels: buildLabels('lastSix'),
+      labels: labelBuilder('lastSix'),
       datasets: [
         {
           label: 'Picker',
@@ -226,7 +226,7 @@ export default class Performance extends Component {
     this.avgTasksChart.data.labels.splice(
       0,
       this.avgTasksChart.data.labels.length,
-      ...buildLabels(range)
+      ...labelBuilder(range)
     );
 
     // Set Label Legend
@@ -301,7 +301,7 @@ export default class Performance extends Component {
     this.avgErrorsChart.data.labels.splice(
       0,
       this.avgErrorsChart.data.labels.length,
-      ...buildLabels(range)
+      ...labelBuilder(range)
     );
 
     // Set Label Legend
@@ -376,7 +376,7 @@ export default class Performance extends Component {
     this.avgHoursChart.data.labels.splice(
       0,
       this.avgHoursChart.data.labels.length,
-      ...buildLabels(range)
+      ...labelBuilder(range)
     );
 
     // Set Label Legend

@@ -144,7 +144,7 @@ export default class Logistic extends Component {
             <Control flex>
               <span>Data:</span>
               <label htmlFor="purchasing-csv">
-                <img src={IconUploadWhite} alt="upload" />Upload CSV
+                <img src={IconUploadWhite} alt="upload" />CSV
                 <input
                   ref={e => (this.csvInput = e)}
                   type="file"
@@ -154,7 +154,10 @@ export default class Logistic extends Component {
                 />
               </label>
               <button onClick={this.downloadTemplate} className="blue">
-                <img src={IconDownloadWhite} alt="upload" />Download Template
+                <img src={IconDownloadWhite} alt="upload" />Template
+              </button>
+              <button onClick={this.downloadTemplate} className="blue">
+                <img src={IconDownloadWhite} alt="upload" />Riwayat
               </button>
             </Control>
             <button className="primary blue" disabled>

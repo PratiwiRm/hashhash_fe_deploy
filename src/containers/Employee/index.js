@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
+import IconDownloadWhite from 'assets/icon_download_white.svg';
+
 import { media } from 'commons/theme';
 
 import EmployeeCard from 'components/EmployeeCard';
@@ -80,9 +82,8 @@ export default class Employee extends Component {
       <Wrapper>
         <Navigation />
         <ControlPanel>
-          <PageTitle>Sentra Pegawai</PageTitle>
           <Controls>
-            <Control flex>
+            <Control>
               <span>Tipe Pegawai:</span>
               <button onClick={() => this.setFilter(0)} disabled={this.state.activeFilter === 0}>
                 Semua
@@ -92,6 +93,12 @@ export default class Employee extends Component {
               </button>
               <button onClick={() => this.setFilter(2)} disabled={this.state.activeFilter === 2}>
                 Driver
+              </button>
+            </Control>
+            <Control flex>
+              <span>Data:</span>
+              <button className="blue">
+                <img src={IconDownloadWhite} alt="upload" />Daftar Pegawai
               </button>
             </Control>
             <button className="primary blue" onClick={this.toggleAddModal}>

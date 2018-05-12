@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
+import IconDownloadWhite from 'assets/icon_download_white.svg';
+
 import { media } from 'commons/theme';
 
 import SupplierCard from 'components/SupplierCard';
@@ -66,7 +68,10 @@ export default class Supplier extends Component {
         <ControlPanel>
           <Controls>
             <Control flex>
-              <PageTitle nomargin>Sentra Supplier</PageTitle>
+              <span>Data:</span>
+              <button className="blue">
+                <img src={IconDownloadWhite} alt="upload" />Daftar Supplier
+              </button>
             </Control>
             <button className="primary blue" onClick={this.toggleAddModal}>
               + Tambah Supplier

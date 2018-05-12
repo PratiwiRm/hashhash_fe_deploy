@@ -1,5 +1,6 @@
 import SITEMAP from 'commons/sitemap';
 import AuthPage from './containers/AuthPage';
+import Help from './containers/Help';
 import Home from './containers/Home';
 import Purchasing from './containers/Purchasing';
 import Logistic from './containers/Logistic';
@@ -38,6 +39,11 @@ export default [
     exact: true,
     path: SITEMAP.performa,
     component: Performance,
+  },
+  {
+    exact: true,
+    path: SITEMAP.bantuan,
+    component: Help,
   },
   {
     path: SITEMAP.login,

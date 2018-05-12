@@ -4,13 +4,11 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import styled from 'styled-components';
 
-import { isEmpty } from 'lodash';
+import { invert } from 'lodash';
 
 import LogoImg from 'assets/logo_blue.svg';
 
 import SITEMAP from 'commons/sitemap';
-
-import { media } from 'commons/theme';
 
 @connect(state => ({ auth: state.auth }), { push })
 export default class Navigation extends Component {
@@ -19,9 +17,14 @@ export default class Navigation extends Component {
     push: PropTypes.func.isRequired,
   };
 
+  getCurrentRouteLabel = () => invert(SITEMAP)[window.location.pathname];
+
   matchCurrentRoute = route => window.location.pathname === SITEMAP[route];
 
   navigate = route => this.props.push(SITEMAP[route]);
+
+  isMainRoute = () =>
+    window.location.pathname === SITEMAP.pembelian || window.location.pathname === SITEMAP.logistik;
 
   render() {
     return (
@@ -30,8 +33,11 @@ export default class Navigation extends Component {
           <Logo src={LogoImg} alt="Logo" />
         </button>
         <Navlinks>
-          <button className="preview" disabled onClick={() => this.navigate('bantuan')}>
-            Permintaan Bantuan
+          <button
+            onClick={() => this.navigate('bantuan')}
+            disabled={this.matchCurrentRoute('bantuan')}
+          >
+            Bantuan
           </button>
           <button
             onClick={() => this.navigate('performa')}
@@ -54,6 +60,7 @@ export default class Navigation extends Component {
           <button>Logout</button>
         </Navlinks>
         <MainSwitcher>
+          {!this.isMainRoute() && <MainLink disabled>{this.getCurrentRouteLabel()}</MainLink>}
           <MainLink
             onClick={() => this.navigate('pembelian')}
             disabled={this.matchCurrentRoute('pembelian')}
@@ -125,7 +132,7 @@ const Navlinks = styled.div`
 `;
 
 const MainSwitcher = styled.div`
-  margin: 1.5rem 0 0;
+  margin: 2rem 0 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
@@ -138,9 +145,10 @@ const MainLink = styled.button`
   font-size: 3rem;
   font-weight: 700;
   margin: 0 2rem 0 0;
-  padding: 0;
+  padding: 0.25rem 0.75rem;
   color: ${props => props.theme.color.gray};
   transition: 0.25s ease all;
+  text-transform: capitalize;
 
   &:hover,
   &:focus {
@@ -149,8 +157,8 @@ const MainLink = styled.button`
   }
 
   &:disabled {
-    color: ${props => props.theme.color.blue};
-    padding-bottom: 0.25rem;
-    border-bottom: 0.5rem solid ${props => props.theme.color.blue};
+    color: ${props => props.theme.color.white};
+    background: ${props => props.theme.color.blue};
+    border-radius: ${props => props.theme.sizing.radius.regular};
   }
 `;
