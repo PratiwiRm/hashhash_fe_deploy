@@ -18,6 +18,7 @@ import {
 } from 'commons/structure';
 
 import PurchaseList from 'components/PurchaseList';
+import PurchaseModal from 'components/PurchaseModal';
 import PickerList from 'components/PickerList';
 import { Wrapper, ControlPanel, Controls, Control } from 'components/SharedElements';
 
@@ -57,6 +58,10 @@ export default class Purchasing extends Component {
     this.state = {
       supplierFilter: 'all',
       typeFilter: 'all',
+      addModal: false,
+      editModal: false,
+      editCategory: '',
+      editIndex: -1,
     };
   }
 
@@ -121,6 +126,18 @@ export default class Purchasing extends Component {
       type: 'data:text/csv;charset=utf-8',
     });
     saveAs(blob, 'stoqo_optima_purchasing_template.csv');
+  };
+
+  toggleAddModal = () => {
+    this.setState({ addModal: !this.state.addModal });
+  };
+
+  openEditModal = (category, index) => {
+    this.setState({ editModal: true, editCategory: category, editIndex: index });
+  };
+
+  closeEditModal = () => {
+    this.setState({ editModal: false, editCategory: '', editIndex: -1 });
   };
 
   render() {
@@ -212,6 +229,8 @@ export default class Purchasing extends Component {
         </ControlPanel>
         <PurchaseListWrapper>
           <PurchaseList
+            addTask={this.toggleAddModal}
+            editTask={this.openEditModal}
             tasks={purchasing.tasks.unassigned.filter(value => {
               let flag = true;
 
@@ -232,10 +251,11 @@ export default class Purchasing extends Component {
         </PurchaseListWrapper>
         <PickerListWrapper>
           <PickerList
+            editTask={this.openEditModal}
             tasks={purchasing.tasks}
             dragFilter={purchasing.dragFilter}
             typeFilter={this.state.typeFilter}
-            employee={employee.employee.filter(value => {
+            employees={employee.employee.filter(value => {
               let flag = value.type.toLowerCase() === 'picker';
 
               if (
@@ -249,6 +269,26 @@ export default class Purchasing extends Component {
             })}
           />
         </PickerListWrapper>
+        {this.state.addModal && (
+          <PurchaseModal
+            create
+            supplier={supplier.supplier}
+            save={this.toggleAddModal}
+            close={this.toggleAddModal}
+          />
+        )}
+        {this.state.editModal && (
+          <PurchaseModal
+            data={
+              this.state.editCategory === 'unassigned'
+                ? purchasing.tasks.unassigned[this.state.editIndex]
+                : purchasing.tasks[this.state.editCategory].local[this.state.editIndex]
+            }
+            supplier={supplier.supplier}
+            save={this.closeEditModal}
+            close={this.closeEditModal}
+          />
+        )}
       </Wrapper>
     );
   }

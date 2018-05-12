@@ -5,7 +5,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 import PurchaseCard from 'components/PurchaseCard';
 
-const PurchaseList = ({ tasks }) => (
+const PurchaseList = ({ addTask, editTask, tasks }) => (
   <Wrapper>
     <Header>Daftar Pembelian</Header>
     <Content>
@@ -28,6 +28,7 @@ const PurchaseList = ({ tasks }) => (
                     {...innerProvided.draggableProps}
                     {...innerProvided.dragHandleProps}
                     style={innerProvided.draggableProps.style}
+                    onClick={() => editTask('unassigned', index)}
                   >
                     <PurchaseCard data={task} />
                   </div>
@@ -38,12 +39,14 @@ const PurchaseList = ({ tasks }) => (
           </ItemList>
         )}
       </Droppable>
-      <AddButton>+ Tambah</AddButton>
+      <AddButton onClick={addTask}>+ Tambah</AddButton>
     </Content>
   </Wrapper>
 );
 
 PurchaseList.propTypes = {
+  addTask: PropTypes.func.isRequired,
+  editTask: PropTypes.func.isRequired,
   tasks: PropTypes.array,
 };
 

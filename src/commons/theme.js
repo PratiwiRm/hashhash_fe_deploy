@@ -17,6 +17,7 @@ const theme = {
     white: '#FAFAFA',
     whiteRGBA: a => `rgba(250, 250, 250, ${a})`,
     ivory: '#EEEEEE',
+    pegasus: '#CCCCCC',
     gray: '#9A9A9A',
     black: '#3A3A3A',
     dark: '#5A5A5A',

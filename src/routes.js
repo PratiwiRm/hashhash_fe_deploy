@@ -5,6 +5,7 @@ import Purchasing from './containers/Purchasing';
 import Logistic from './containers/Logistic';
 import Employee from './containers/Employee';
 import Supplier from './containers/Supplier';
+import Performance from './containers/Performance';
 import NotFound from './containers/NotFound';
 
 export default [
@@ -32,6 +33,11 @@ export default [
     exact: true,
     path: SITEMAP.supplier,
     component: Supplier,
+  },
+  {
+    exact: true,
+    path: SITEMAP.performa,
+    component: Performance,
   },
   {
     path: SITEMAP.login,

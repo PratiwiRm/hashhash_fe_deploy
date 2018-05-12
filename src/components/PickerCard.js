@@ -11,6 +11,7 @@ export default class PickerCard extends Component {
     employee: PropTypes.object.isRequired,
     dragFilter: PropTypes.string.isRequired,
     typeFilter: PropTypes.string.isRequired,
+    editTask: PropTypes.func.isRequired,
     tasks: PropTypes.object,
   };
 
@@ -32,9 +33,7 @@ export default class PickerCard extends Component {
   switch = switcher => this.setState({ switcher });
 
   render() {
-    const {
- tasks, dragFilter, typeFilter, employee 
-} = this.props;
+    const { editTask, tasks, dragFilter, typeFilter, employee } = this.props;
 
     const taskDoing = tasks.signed.find(value => {
       let flag = value.status === 'doing';
@@ -95,26 +94,30 @@ export default class PickerCard extends Component {
             )}
             <Tasks>
               <Switcher>
-                {!isEmpty(locallyAssigned) && <button disabled>To Be Assigned</button>}
-                {isEmpty(locallyAssigned) && (
-                  <button
-                    disabled={this.state.switcher === 'todo'}
-                    onClick={() => this.switch('todo')}
-                  >
-                    Todo
-                  </button>
-                )}
-                {isEmpty(locallyAssigned) && (
-                  <button
-                    disabled={this.state.switcher === 'done'}
-                    onClick={() => this.switch('done')}
-                  >
-                    Done
-                  </button>
-                )}
+                {((dragFilter !== '' && dragFilter === employee.supplier) ||
+                  !isEmpty(locallyAssigned)) && <button disabled>To Be Assigned</button>}
+                {(dragFilter === '' || dragFilter !== employee.supplier) &&
+                  isEmpty(locallyAssigned) && (
+                    <button
+                      disabled={this.state.switcher === 'todo'}
+                      onClick={() => this.switch('todo')}
+                    >
+                      Todo
+                    </button>
+                  )}
+                {(dragFilter === '' || dragFilter !== employee.supplier) &&
+                  isEmpty(locallyAssigned) && (
+                    <button
+                      disabled={this.state.switcher === 'done'}
+                      onClick={() => this.switch('done')}
+                    >
+                      Done
+                    </button>
+                  )}
               </Switcher>
               <div className="tasksContainer">
-                {!isEmpty(locallyAssigned) &&
+                {((dragFilter !== '' && dragFilter === employee.supplier) ||
+                  !isEmpty(locallyAssigned)) &&
                   locallyAssigned
                     .filter(value => !(typeFilter !== 'all' && typeFilter !== value.type))
                     .map((task, index) => (
@@ -129,6 +132,7 @@ export default class PickerCard extends Component {
                             {...innerProvided.draggableProps}
                             {...innerProvided.dragHandleProps}
                             style={innerProvided.draggableProps.style}
+                            onClick={() => editTask(employee.phone_num, index)}
                           >
                             <PurchaseCard data={task} />
                           </div>
@@ -136,7 +140,8 @@ export default class PickerCard extends Component {
                       </Draggable>
                     ))}
                 {provided.placeholder}
-                {isEmpty(locallyAssigned) &&
+                {(dragFilter === '' || dragFilter !== employee.supplier) &&
+                  isEmpty(locallyAssigned) &&
                   this.state.switcher === 'todo' &&
                   tasksTodo.map(task => (
                     <PurchaseCard
@@ -144,7 +149,8 @@ export default class PickerCard extends Component {
                       data={task}
                     />
                   ))}
-                {isEmpty(locallyAssigned) &&
+                {(dragFilter === '' || dragFilter !== employee.supplier) &&
+                  isEmpty(locallyAssigned) &&
                   this.state.switcher === 'done' &&
                   tasksDone.map(task => (
                     <PurchaseCard
@@ -236,6 +242,7 @@ const Doing = styled.div`
 `;
 
 const Tasks = styled.div`
+  position: relative;
   flex: 1;
   display: flex;
   flex-flow: column wrap;
@@ -250,6 +257,7 @@ const Tasks = styled.div`
   border-radius: ${props => props.theme.sizing.radius.card};
 
   .tasksContainer {
+    position: relative;
     flex: 1;
     display: flex;
     flex-flow: row wrap;

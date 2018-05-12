@@ -1,30 +1,60 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
+
+import { driverTaskIdBuilder } from 'commons/structure';
 
 import DeliveryCard from 'components/DeliveryCard';
 
-export default class DeliveryList extends Component {
-  render() {
-    return (
-      <Wrapper>
-        <Header>Daftar Pengiriman</Header>
-        <Content>
-          <ItemList>
-            <DeliveryCard />
-            <DeliveryCard />
-            <DeliveryCard />
-            <DeliveryCard />
-            <DeliveryCard />
-            <DeliveryCard />
-            <DeliveryCard />
-            <DeliveryCard />
+const DeliveryList = ({ addTask, editTask, tasks }) => (
+  <Wrapper>
+    <Header>Daftar Perjalanan</Header>
+    <Content>
+      <Droppable droppableId="logistic-unassigned">
+        {(provided, snapshot) => (
+          <ItemList
+            innerRef={provided.innerRef}
+            active={snapshot.isDraggingOver}
+            {...provided.droppableProps}
+          >
+            {tasks.map((task, index) => (
+              <Draggable
+                key={driverTaskIdBuilder(task)}
+                draggableId={driverTaskIdBuilder(task)}
+                index={index}
+              >
+                {(innerProvided, innerSnapshot) => (
+                  <div
+                    ref={innerProvided.innerRef}
+                    {...innerProvided.draggableProps}
+                    {...innerProvided.dragHandleProps}
+                    style={innerProvided.draggableProps.style}
+                    onClick={() => editTask('unassigned', index)}
+                  >
+                    <DeliveryCard data={task} />
+                  </div>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
           </ItemList>
-          <AddButton>+ Tambah</AddButton>
-        </Content>
-      </Wrapper>
-    );
-  }
-}
+        )}
+      </Droppable>
+      <AddButton onClick={addTask}>+ Tambah</AddButton>
+    </Content>
+  </Wrapper>
+);
+
+DeliveryList.propTypes = {
+  addTask: PropTypes.func.isRequired,
+  editTask: PropTypes.func.isRequired,
+  tasks: PropTypes.array,
+};
+
+DeliveryList.defaultProps = {
+  tasks: [],
+};
 
 const Wrapper = styled.div`
   display: flex;
@@ -69,12 +99,8 @@ const ItemList = styled.div`
   overflow-y: auto;
   padding: 0 1rem 1rem;
 
-  button {
+  div {
     margin: 0 0 1rem;
-
-    &:last-of-type {
-      margin: 0;
-    }
   }
 `;
 
@@ -97,3 +123,5 @@ const AddButton = styled.button`
     transition: 0.25s ease all;
   }
 `;
+
+export default DeliveryList;

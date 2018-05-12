@@ -1,5 +1,5 @@
 import Moment from 'moment';
-import { pickerTaskTransformator, arrayRearanger, arrayMover } from 'commons/structure';
+import { taskStructureTransformator, arrayRearanger, arrayMover } from 'commons/structure';
 
 const SET_DATE = 'app/purchasing/SET_DATE';
 const SET_BATCH = 'app/purchasing/SET_BATCH';
@@ -261,7 +261,7 @@ export function loadTasks() {
       },
     ];
 
-    dispatch(tasksLoaded(pickerTaskTransformator(dummyTasks, employees)));
+    dispatch(tasksLoaded(taskStructureTransformator(dummyTasks, employees)));
   };
 }
 

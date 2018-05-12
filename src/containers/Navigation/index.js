@@ -33,7 +33,10 @@ export default class Navigation extends Component {
           <button className="preview" disabled onClick={() => this.navigate('bantuan')}>
             Permintaan Bantuan
           </button>
-          <button className="preview" disabled onClick={() => this.navigate('performa')}>
+          <button
+            onClick={() => this.navigate('performa')}
+            disabled={this.matchCurrentRoute('performa')}
+          >
             Performa
           </button>
           <button
@@ -126,8 +129,8 @@ const MainSwitcher = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  align-items: center;
-  align-content: center;
+  align-items: flex-start;
+  align-content: flex-start;
   width: 100%;
 `;
 
@@ -147,5 +150,7 @@ const MainLink = styled.button`
 
   &:disabled {
     color: ${props => props.theme.color.blue};
+    padding-bottom: 0.25rem;
+    border-bottom: 0.5rem solid ${props => props.theme.color.blue};
   }
 `;

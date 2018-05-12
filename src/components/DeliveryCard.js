@@ -1,17 +1,24 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-const DeliveryCard = () => (
-  <Card buy>
-    <h3>4 Destinasi</h3>
+import { isEmpty } from 'lodash';
+
+const DeliveryCard = ({ data }) => (
+  <Card>
+    <h3>{!isEmpty(data) && data.pick_ups.length + data.drop_offs.length} Destinasi</h3>
     <span>Pickup:</span>
-    <h2>Sorting Hub</h2>
+    <h2>{!isEmpty(data) && data.pick_ups.map(t => t.outlet).join(', ')}</h2>
     <span>Drop Off:</span>
-    <h1>BacaKopi, Ayam Geprek Ummat, Ti Amo Thai Tea</h1>
+    <h1>{!isEmpty(data) && data.drop_offs.map(t => t.outlet).join(', ')}</h1>
   </Card>
 );
 
-const Card = styled.button`
+DeliveryCard.propTypes = {
+  data: PropTypes.object.isRequired,
+};
+
+const Card = styled.div`
   width: 100%;
   padding: 1.5rem;
   background: ${props => props.theme.color.pure};

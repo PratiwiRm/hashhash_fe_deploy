@@ -11,8 +11,13 @@ import history from '../../commons/routing';
 import theme from '../../commons/theme';
 
 import {
-  swapTask,
-  moveTask,
+  swapTask as logisticSwapTask,
+  moveTask as logisticMoveTask,
+} from '../../reducers/logistic';
+
+import {
+  swapTask as purchasingSwapTask,
+  moveTask as purchasingMoveTask,
   setDragFilter as purchasingSetDragFilter,
 } from '../../reducers/purchasing';
 
@@ -31,11 +36,20 @@ export default class App extends Component {
       if (result.draggableId.startsWith('purchasing')) {
         if (result.source.droppableId === result.destination.droppableId) {
           const taskLocation = result.source.droppableId.split('-')[1];
-          store.dispatch(swapTask(taskLocation, result.source.index, result.destination.index));
+          store.dispatch(purchasingSwapTask(taskLocation, result.source.index, result.destination.index));
         } else {
           const srcLoc = result.source.droppableId.split('-')[1];
           const destLoc = result.destination.droppableId.split('-')[1];
-          store.dispatch(moveTask(srcLoc, destLoc, result.source.index, result.destination.index));
+          store.dispatch(purchasingMoveTask(srcLoc, destLoc, result.source.index, result.destination.index));
+        }
+      } else if (result.draggableId.startsWith('logistic')) {
+        if (result.source.droppableId === result.destination.droppableId) {
+          const taskLocation = result.source.droppableId.split('-')[1];
+          store.dispatch(logisticSwapTask(taskLocation, result.source.index, result.destination.index));
+        } else {
+          const srcLoc = result.source.droppableId.split('-')[1];
+          const destLoc = result.destination.droppableId.split('-')[1];
+          store.dispatch(logisticMoveTask(srcLoc, destLoc, result.source.index, result.destination.index));
         }
       }
     }
