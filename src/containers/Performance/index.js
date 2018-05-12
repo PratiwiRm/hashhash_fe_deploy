@@ -29,7 +29,7 @@ export default class Performance extends Component {
         },
       ],
     },
-    options: lineChartOptionsBuilder('Month', 'Tasks'),
+    options: lineChartOptionsBuilder('Bulan', 'Tugas'),
     plugins: [
       {
         afterLayout: chartGradientBuilderPlugin,
@@ -52,7 +52,7 @@ export default class Performance extends Component {
         },
       ],
     },
-    options: lineChartOptionsBuilder('Month', 'Errors'),
+    options: lineChartOptionsBuilder('Bulan', 'Kesalahan'),
     plugins: [
       {
         afterLayout: chartGradientBuilderPlugin,
@@ -75,7 +75,7 @@ export default class Performance extends Component {
         },
       ],
     },
-    options: lineChartOptionsBuilder('Month', 'Hours'),
+    options: lineChartOptionsBuilder('Bulan', 'Jam'),
     plugins: [
       {
         afterLayout: chartGradientBuilderPlugin,
@@ -192,7 +192,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Days';
+      scaleLabel = 'Hari';
     } else if (range === 'month') {
       dummy.forEach(data => {
         let iterator;
@@ -201,7 +201,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Dates';
+      scaleLabel = 'Tanggal';
     } else if (range === 'lastSix') {
       dummy.forEach(data => {
         let iterator;
@@ -210,7 +210,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Months';
+      scaleLabel = 'Bulan';
     } else if (range === 'lastTwelve') {
       dummy.forEach(data => {
         let iterator;
@@ -219,7 +219,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Months';
+      scaleLabel = 'Bulan';
     }
 
     // Set Labels
@@ -267,7 +267,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Days';
+      scaleLabel = 'Hari';
     } else if (range === 'month') {
       dummy.forEach(data => {
         let iterator;
@@ -276,7 +276,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Dates';
+      scaleLabel = 'Tanggal';
     } else if (range === 'lastSix') {
       dummy.forEach(data => {
         let iterator;
@@ -285,7 +285,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Months';
+      scaleLabel = 'Bulan';
     } else if (range === 'lastTwelve') {
       dummy.forEach(data => {
         let iterator;
@@ -294,7 +294,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Months';
+      scaleLabel = 'Bulan';
     }
 
     // Set Labels
@@ -342,7 +342,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Days';
+      scaleLabel = 'Hari';
     } else if (range === 'month') {
       dummy.forEach(data => {
         let iterator;
@@ -351,7 +351,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Dates';
+      scaleLabel = 'Tanggal';
     } else if (range === 'lastSix') {
       dummy.forEach(data => {
         let iterator;
@@ -360,7 +360,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Months';
+      scaleLabel = 'Bulan';
     } else if (range === 'lastTwelve') {
       dummy.forEach(data => {
         let iterator;
@@ -369,7 +369,7 @@ export default class Performance extends Component {
           data.push(randomScalingFactor(40));
         }
       });
-      scaleLabel = 'Months';
+      scaleLabel = 'Bulan';
     }
 
     // Set Labels
@@ -409,63 +409,63 @@ export default class Performance extends Component {
       <Wrapper>
         <Navigation />
         <TitleBar>
-          <h1>Average # of Tasks Done in a Day</h1>
+          <h1>Rata-rata Jumlah Tugas Selesai per Hari</h1>
           <RangeSelector>
             <button
               onClick={() => this.updateAvgTasksChart('week')}
               disabled={this.state.avgTasksRange === 'week'}
             >
-              This Week
+              Minggu Ini
             </button>
             <button
               onClick={() => this.updateAvgTasksChart('month')}
               disabled={this.state.avgTasksRange === 'month'}
             >
-              This Month
+              Bulan Ini
             </button>
             <button
               onClick={() => this.updateAvgTasksChart('lastSix')}
               disabled={this.state.avgTasksRange === 'lastSix'}
             >
-              Last Six Month
+              6 Bulan Terakhir
             </button>
             <button
               onClick={() => this.updateAvgTasksChart('lastTwelve')}
               disabled={this.state.avgTasksRange === 'lastTwelve'}
             >
-              Last Twelve Month
+              12 Bulan Terakhir
             </button>
           </RangeSelector>
         </TitleBar>
         <CanvasWrapper>
           <canvas id="avgTasks" />
         </CanvasWrapper>
-        <TitleBar half>
-          <h1>Average # of Errors Done in a Day</h1>
-          <RangeSelector full>
+        <TitleBar small>
+          <h1>Rata-rata Jumlah Kesalahan per Hari</h1>
+          <RangeSelector small>
             <button
               onClick={() => this.updateAvgErrorsChart('week')}
               disabled={this.state.avgErrorsRange === 'week'}
             >
-              This Week
+              Minggu Ini
             </button>
             <button
               onClick={() => this.updateAvgErrorsChart('month')}
               disabled={this.state.avgErrorsRange === 'month'}
             >
-              This Month
+              Bulan Ini
             </button>
             <button
               onClick={() => this.updateAvgErrorsChart('lastSix')}
               disabled={this.state.avgErrorsRange === 'lastSix'}
             >
-              Last Six Month
+              6 Bulan Terakhir
             </button>
             <button
               onClick={() => this.updateAvgErrorsChart('lastTwelve')}
               disabled={this.state.avgErrorsRange === 'lastTwelve'}
             >
-              Last Twelve Month
+              12 Bulan Terakhir
             </button>
           </RangeSelector>
         </TitleBar>
@@ -475,32 +475,32 @@ export default class Performance extends Component {
         <CanvasWrapperMini>
           <canvas id="avgHours" />
         </CanvasWrapperMini>
-        <TitleBar half right>
-          <h1>Average # of Daily Work Hours</h1>
-          <RangeSelector full right>
+        <TitleBar small right>
+          <h1>Rata-rata Jumlah Jam Kerja per Hari</h1>
+          <RangeSelector small right>
             <button
               onClick={() => this.updateAvgHoursChart('week')}
               disabled={this.state.avgHoursRange === 'week'}
             >
-              This Week
+              Minggu Ini
             </button>
             <button
               onClick={() => this.updateAvgHoursChart('month')}
               disabled={this.state.avgHoursRange === 'month'}
             >
-              This Month
+              Bulan Ini
             </button>
             <button
               onClick={() => this.updateAvgHoursChart('lastSix')}
               disabled={this.state.avgHoursRange === 'lastSix'}
             >
-              Last Six Month
+              6 Bulan Terakhir
             </button>
             <button
               onClick={() => this.updateAvgHoursChart('lastTwelve')}
               disabled={this.state.avgHoursRange === 'lastTwelve'}
             >
-              Last Twelve Month
+              12 Bulan Terakhir
             </button>
           </RangeSelector>
         </TitleBar>
@@ -515,38 +515,38 @@ const CanvasWrapper = styled.div`
 `;
 
 const CanvasWrapperMini = styled.div`
-  width: 50%;
+  width: 60%;
   margin: 4rem 0 0;
 `;
 
 const TitleBar = styled.div`
-  width: ${props => (props.half ? '50%' : '100%')};
+  width: ${props => (props.small ? '35%' : '100%')};
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: center;
   align-content: center;
-  margin-bottom: ${props => (props.half ? '0' : '2rem')};
+  margin-bottom: ${props => (props.small ? '0' : '2rem')};
 
   h1 {
-    flex: ${props => (props.half ? 'none' : '1')};
-    width: ${props => (props.half ? '100%' : 'auto')};
-    font-size: 2rem;
+    flex: ${props => (props.small ? 'none' : '1')};
+    width: ${props => (props.small ? '100%' : 'auto')};
+    font-size: ${props => (props.small ? '1.5rem' : '2rem')};
     text-align: ${props => (props.right ? 'right' : 'left')};
-    margin-bottom: ${props => (props.half ? '1rem' : '0')};
+    margin-bottom: ${props => (props.small ? '1rem' : '0')};
   }
 `;
 
 const RangeSelector = styled.div`
-  width: ${props => (props.full ? '100%' : 'auto')};
+  width: ${props => (props.small ? '100%' : 'auto')};
   display: flex;
   justify-content: ${props => (props.right ? 'flex-end' : 'flex-start')};
   align-items: stretch;
   align-content: stretch;
 
   button {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
+    padding: ${props => (props.small ? '0.35rem 0.7rem' : '0.5rem 1rem')};
+    font-size: ${props => (props.small ? '0.85rem' : '1rem')};
     color: ${props => props.theme.color.blue};
     border: 0.1rem solid ${props => props.theme.color.blue};
     border-right: none;

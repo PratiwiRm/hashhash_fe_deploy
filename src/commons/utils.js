@@ -110,221 +110,56 @@ export const lineChartOptionsBuilder = (xLabel, yLabel) => ({
 });
 
 export const buildLabels = mode => {
-  const LABEL_TEMPLATE_WEEK = [
-    ['Monday', 'Sunday', 'Saturday', 'Friday', 'Thursday', 'Wednesday', 'Tuesday'],
-    ['Tuesday', 'Monday', 'Sunday', 'Saturday', 'Friday', 'Thursday', 'Wednesday'],
-    ['Wednesday', 'Tuesday', 'Monday', 'Sunday', 'Saturday', 'Friday', 'Thursday'],
-    ['Thursday', 'Wednesday', 'Tuesday', 'Monday', 'Sunday', 'Saturday', 'Friday'],
-    ['Friday', 'Thursday', 'Wednesday', 'Tuesday', 'Monday', 'Sunday', 'Saturday'],
-    ['Saturday', 'Friday', 'Thursday', 'Wednesday', 'Tuesday', 'Monday', 'Sunday'],
-    ['Sunday', 'Saturday', 'Friday', 'Thursday', 'Wednesday', 'Tuesday', 'Monday'],
+  const WEEKDAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+  const MONTHS = [
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember',
   ];
 
-  const LABEL_TEMPLATE_LAST_SIX = [
-    ['January', 'December', 'November', 'October', 'September', 'August'],
-    ['February', 'January', 'December', 'November', 'October', 'September'],
-    ['March', 'February', 'January', 'December', 'November', 'October'],
-    ['April', 'March', 'February', 'January', 'December', 'November'],
-    ['May', 'April', 'March', 'February', 'January', 'December'],
-    ['June', 'May', 'April', 'March', 'February', 'January'],
-    ['July', 'June', 'May', 'April', 'March', 'February'],
-    ['August', 'July', 'June', 'May', 'April', 'March'],
-    ['September', 'August', 'July', 'June', 'May', 'April'],
-    ['October', 'September', 'August', 'July', 'June', 'May'],
-    ['November', 'October', 'September', 'August', 'July', 'June'],
-    ['December', 'November', 'October', 'September', 'August', 'July'],
-  ];
-
-  const LABEL_TEMPLATE_LAST_TWELVE = [
-    [
-      'January',
-      'December',
-      'November',
-      'October',
-      'September',
-      'August',
-      'July',
-      'June',
-      'May',
-      'April',
-      'March',
-      'February',
-    ],
-    [
-      'February',
-      'January',
-      'December',
-      'November',
-      'October',
-      'September',
-      'August',
-      'July',
-      'June',
-      'May',
-      'April',
-      'March',
-    ],
-    [
-      'March',
-      'February',
-      'January',
-      'December',
-      'November',
-      'October',
-      'September',
-      'August',
-      'July',
-      'June',
-      'May',
-      'April',
-    ],
-    [
-      'April',
-      'March',
-      'February',
-      'January',
-      'December',
-      'November',
-      'October',
-      'September',
-      'August',
-      'July',
-      'June',
-      'May',
-    ],
-    [
-      'May',
-      'April',
-      'March',
-      'February',
-      'January',
-      'December',
-      'November',
-      'October',
-      'September',
-      'August',
-      'July',
-      'June',
-    ],
-    [
-      'June',
-      'May',
-      'April',
-      'March',
-      'February',
-      'January',
-      'December',
-      'November',
-      'October',
-      'September',
-      'August',
-      'July',
-    ],
-    [
-      'July',
-      'June',
-      'May',
-      'April',
-      'March',
-      'February',
-      'January',
-      'December',
-      'November',
-      'October',
-      'September',
-      'August',
-    ],
-    [
-      'August',
-      'July',
-      'June',
-      'May',
-      'April',
-      'March',
-      'February',
-      'January',
-      'December',
-      'November',
-      'October',
-      'September',
-    ],
-    [
-      'September',
-      'August',
-      'July',
-      'June',
-      'May',
-      'April',
-      'March',
-      'February',
-      'January',
-      'December',
-      'November',
-      'October',
-    ],
-    [
-      'October',
-      'September',
-      'August',
-      'July',
-      'June',
-      'May',
-      'April',
-      'March',
-      'February',
-      'January',
-      'December',
-      'November',
-    ],
-    [
-      'November',
-      'October',
-      'September',
-      'August',
-      'July',
-      'June',
-      'May',
-      'April',
-      'March',
-      'February',
-      'January',
-      'December',
-    ],
-    [
-      'December',
-      'November',
-      'October',
-      'September',
-      'August',
-      'July',
-      'June',
-      'May',
-      'April',
-      'March',
-      'February',
-      'January',
-    ],
-  ];
-
-  let labels = [];
+  const labels = [];
+  let iterator;
   const now = moment();
 
   if (mode === 'week') {
-    labels = LABEL_TEMPLATE_WEEK[now.isoWeekday() - 1].reverse();
+    labels.push(WEEKDAYS[now.isoWeekday() - 1]);
+
+    for (iterator = 0; iterator < 6; iterator += 1) {
+      now.isoWeekday(now.isoWeekday() - 1);
+      labels.push(WEEKDAYS[now.isoWeekday() - 1]);
+    }
   } else if (mode === 'month') {
-    let iterator;
     labels.push(now.date());
 
     for (iterator = 0; iterator < 30; iterator += 1) {
-      now.date(-1);
+      now.date(now.date() - 1);
       labels.push(now.date());
     }
-    labels.reverse();
   } else if (mode === 'lastSix') {
-    labels = LABEL_TEMPLATE_LAST_SIX[now.month()].reverse();
+    labels.push(MONTHS[now.month()]);
+
+    for (iterator = 0; iterator < 5; iterator += 1) {
+      now.month(now.month() - 1);
+      labels.push(MONTHS[now.month()]);
+    }
   } else if (mode === 'lastTwelve') {
-    labels = LABEL_TEMPLATE_LAST_TWELVE[now.month()].reverse();
+    labels.push(MONTHS[now.month()]);
+
+    for (iterator = 0; iterator < 11; iterator += 1) {
+      now.month(now.month() - 1);
+      labels.push(MONTHS[now.month()]);
+    }
   }
 
+  labels.reverse();
   return labels;
 };
