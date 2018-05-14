@@ -233,3 +233,147 @@ export const InputWrapper = styled.div`
     border-radius: ${props => props.theme.sizing.radius.small};
   }
 `;
+
+export const ModalWrapper = styled.div`
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: ${props => props.theme.zindex.modal};
+  width: 100%;
+  height: 100%;
+  background: ${props => props.theme.color.whiteRGBA('0.95')};
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-content: flex-start;
+  overflow-x: hidden;
+  overflow-y: auto;
+`;
+
+export const ModalClose = styled.button`
+  width: 100%;
+  max-width: ${props => props.theme.sizing.containerMaxWidth};
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: center;
+  margin: 5rem auto 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: ${props => props.theme.color.gray};
+
+  img {
+    width: 1.25rem;
+    height: auto;
+    transform: rotate(90deg);
+    margin: 0 0.5rem 0 0;
+  }
+`;
+
+export const ModalTitle = styled.h1`
+  width: 100%;
+  max-width: ${props => props.theme.sizing.containerMaxWidth};
+  margin: 0 auto 2rem;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: ${props => props.theme.color.blue};
+`;
+
+export const ModalContent = styled.div`
+  margin: 0 auto 5rem;
+  width: 100%;
+  max-width: ${props => props.theme.sizing.containerMaxWidth};
+  background: ${props => props.theme.color.pure};
+  border-radius: ${props => props.theme.sizing.radius.card};
+  box-shadow: ${props => props.theme.shadow.regular};
+  padding: 2rem;
+`;
+
+export const ModalInput = styled(InputWrapper)`
+  width: 100%;
+  margin: 2rem 0 0;
+
+  input,
+  select {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+  }
+
+  select,
+  select:hover,
+  select:focus,
+  select:active {
+    background-position: 97.5% 50%;
+  }
+`;
+
+export const ModalSwitcher = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  align-items: center;
+  align-content: center;
+  margin: 2rem 0 0;
+
+  span {
+    width: 100%;
+    font-size: 0.875rem;
+    font-weight: 400;
+    margin: 0 0 0.25rem;
+    color: ${props => props.theme.color.gray};
+  }
+
+  button {
+    width: calc(50% - 1rem);
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.75rem 1.5rem;
+    border-radius: 2rem;
+    color: ${props => props.theme.color.black};
+    background: ${props => props.theme.color.pure};
+    box-shadow: ${props => props.theme.shadow.lite};
+    transition: 0.25s ease all;
+
+    &:hover,
+    &:focus,
+    &:disabled {
+      color: ${props => props.theme.color.pure};
+      background: ${props => props.theme.color.blue};
+      transition: 0.25s ease all;
+    }
+  }
+
+  h6 {
+    width: 100%;
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin: 0.5rem 0 0;
+    padding: 0.5rem 1rem;
+    color: ${props => props.theme.color.pure};
+    background: ${props => props.theme.color.red};
+    border-radius: ${props => props.theme.sizing.radius.small};
+  }
+`;
+
+export const ModalSubmit = styled.button`
+  width: 100%;
+  margin: 2rem 0 0;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: ${props => props.theme.color.pure};
+  background: ${props => props.theme.color.blue};
+  border-radius: 3rem;
+  box-shadow: ${props => props.theme.shadow.regular};
+  transition: 0.25s ease all;
+
+  &:hover,
+  &:focus {
+    opacity: 0.75;
+    transition: 0.25s ease all;
+  }
+`;

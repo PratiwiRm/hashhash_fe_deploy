@@ -257,6 +257,7 @@ const Tasks = styled.div`
   border-radius: ${props => props.theme.sizing.radius.card};
 
   .tasksContainer {
+    width: 100%;
     position: relative;
     flex: 1;
     display: flex;

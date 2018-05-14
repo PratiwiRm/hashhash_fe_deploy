@@ -173,3 +173,26 @@ export const employeesArrToObject = employees => {
 
   return empObject;
 };
+
+export const htmlInputDateFormatter = date => {
+  const defaultHTMLInput = /\d{4}-\d{2}-\d{2}/;
+
+  if (defaultHTMLInput.test(date)) {
+    const [year, month, day] = date.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
+  const [day, month, year] = date.split('/');
+  return `${day}-${month}-${year}`;
+};
+
+export const modalBodyScroll = show => {
+  if (show) {
+    const noScrollWidth = window.innerWidth;
+    document.body.style.overflow = 'hidden';
+    document.body.style.width = `${noScrollWidth}px`;
+  } else {
+    document.body.style.overflow = 'auto';
+    document.body.style.width = 'auto';
+  }
+};

@@ -17,7 +17,7 @@ import {
   ModalSubmit,
 } from 'components/SharedElements';
 
-export default class PurchaseModal extends Component {
+export default class DeliveryModal extends Component {
   static propTypes = {
     supplier: PropTypes.array.isRequired,
     save: PropTypes.func.isRequired,

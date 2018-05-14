@@ -7,7 +7,9 @@ const TASKS_LOADED = 'app/purchasing/TASKS_LOADED';
 const SWAP_TASK = 'app/purchasing/SWAP_TASK';
 const MOVE_TASK = 'app/purchasing/MOVE_TASK';
 const SET_DRAG_FILTER = 'app/purchasing/SET_DRAG_FILTER';
+const ADD_UNASSIGNED_TASK = 'app/purchasing/ADD_UNASSIGNED_TASK';
 const ADD_UNASSIGNED_TASKS = 'app/purchasing/ADD_UNASSIGNED_TASKS';
+const SET_TASK = 'app/purchasing/SET_TASK';
 
 const initialState = {
   loading: false,
@@ -26,6 +28,7 @@ export default function reducer(state = initialState, action) {
   const { tasks } = state;
   let swappedTask = [];
   let movedTasks = {};
+  let editedTasks = [];
 
   switch (action.type) {
     case TASKS_LOADED:
@@ -74,12 +77,12 @@ export default function reducer(state = initialState, action) {
           action.payload.destIdx
         );
         tasks[action.payload.srcLoc] = {
-          local: movedTasks.source,
           ...tasks[action.payload.srcLoc],
+          local: movedTasks.source,
         };
         tasks[action.payload.destLoc] = {
-          local: movedTasks.dest,
           ...tasks[action.payload.destLoc],
+          local: movedTasks.dest,
         };
       } else if (action.payload.srcLoc !== 'unassigned') {
         movedTasks = arrayMover(
@@ -89,8 +92,8 @@ export default function reducer(state = initialState, action) {
           action.payload.destIdx
         );
         tasks[action.payload.srcLoc] = {
-          local: movedTasks.source,
           ...tasks[action.payload.srcLoc],
+          local: movedTasks.source,
         };
         tasks[action.payload.destLoc] = movedTasks.dest;
       } else if (action.payload.destLoc !== 'unassigned') {
@@ -102,8 +105,8 @@ export default function reducer(state = initialState, action) {
         );
         tasks[action.payload.srcLoc] = movedTasks.source;
         tasks[action.payload.destLoc] = {
-          local: movedTasks.dest,
           ...tasks[action.payload.destLoc],
+          local: movedTasks.dest,
         };
       }
 
@@ -116,8 +119,33 @@ export default function reducer(state = initialState, action) {
         ...state,
         dragFilter: action.payload,
       };
+    case ADD_UNASSIGNED_TASK:
+      tasks.unassigned = [...tasks.unassigned, action.payload];
+
+      return {
+        ...state,
+        tasks,
+      };
     case ADD_UNASSIGNED_TASKS:
       tasks.unassigned = [...tasks.unassigned, ...action.payload];
+
+      return {
+        ...state,
+        tasks,
+      };
+    case SET_TASK:
+      if (action.payload.loc === 'unassigned') {
+        editedTasks = [...tasks.unassigned];
+        editedTasks.splice(action.payload.idx, 1, action.payload.task);
+        tasks.unassigned = [...editedTasks];
+      } else {
+        editedTasks = [...tasks[action.payload.loc].local];
+        editedTasks.splice(action.payload.idx, 1, action.payload.task);
+        tasks[action.payload.loc] = {
+          ...tasks[action.payload.loc],
+          local: [...editedTasks],
+        };
+      }
 
       return {
         ...state,
@@ -160,8 +188,16 @@ export function setDragFilter(dragFilter) {
   return { type: SET_DRAG_FILTER, payload: dragFilter };
 }
 
+export function addUnassignedTask(task) {
+  return { type: ADD_UNASSIGNED_TASK, payload: task };
+}
+
 export function addUnassignedTasks(tasks) {
   return { type: ADD_UNASSIGNED_TASKS, payload: tasks };
+}
+
+export function setTask(task, loc, idx) {
+  return { type: SET_TASK, payload: { task, loc, idx } };
 }
 
 export function loadTasks() {
@@ -265,9 +301,23 @@ export function loadTasks() {
   };
 }
 
+export function addTask(task) {
+  return dispatch => {
+    // TODO: POST to Backend
+    dispatch(addUnassignedTask(task));
+  };
+}
+
 export function addTasks(tasks) {
   return dispatch => {
     // TODO: POST to Backend
     dispatch(addUnassignedTasks(tasks));
+  };
+}
+
+export function editTask(task, loc, idx) {
+  return dispatch => {
+    // TODO: POST to Backend
+    dispatch(setTask(task, loc, idx));
   };
 }

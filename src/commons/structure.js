@@ -18,17 +18,17 @@ export const PICKER_TASK_HEADER_FIELDS = [
 export const PICKER_TASK_TEMPLATE = [
   {
     order_id: 'Unique UUID16 order_id from XYZ',
-    delivery_date: 'YYYY/MM/DD',
+    delivery_date: 'Tanggal pengiriman dengan format YYYY/MM/DD',
     status: 'pending/doing/done',
-    customer: 'Customer name',
-    address: 'Customer address',
-    address_guide: 'Customer address additional guide',
-    product: 'Product name with brand and variant',
-    packaging: 'Product packaging (units, metrics)',
-    quantity: 'Number',
-    assigned: 'Phone Number of Employee',
+    customer: 'Nama pembeli',
+    address: 'Alamat pembeli',
+    address_guide: 'Patokan alamat pembeli',
+    product: 'Nama produk dengan Brand dan Varian produk',
+    packaging: 'Packaging produk (units, metrics)',
+    quantity: 'Angka',
+    assigned: 'Nomor telpon pegawai yang diberi tugas (KOSONGKAN)',
     type: 'purchase/cancel',
-    supplier: 'Supplier Name/ID',
+    supplier: 'Nama Supplier',
   },
 ];
 
@@ -44,14 +44,13 @@ export const DRIVER_TASK_HEADER_FIELDS = [
 
 export const DRIVER_TASK_TEMPLATE = [
   {
-    task:
-      'Task identifier number (delivery chain identification), MUST BE IN ORDER, ORDER MATTERS!',
+    task: 'Nomor identifikasi pengiriman (id rantai pengiriman), URUTAN DIPERHATIKAN!',
     type: 'PICKUP/DROPOFF',
-    outlet: 'Outlet name',
-    address: 'Outlet address',
-    notes: 'Delivery Note (Packages to pick up/drop off)',
-    pic: 'Name of the person in charge of the outlet',
-    contact: 'Valid & active phone number',
+    outlet: 'Nama outlet tujuan',
+    address: 'Alamat outlet tujuan',
+    notes: 'Catatan pengiriman (paket untuk diambil/diturunkan)',
+    pic: 'Nama person in charge di outlet/cabang tujuan',
+    contact: 'nomor telpon yang valid dan bisa dihubungi',
   },
 ];
 
@@ -229,18 +228,6 @@ export const arrayMover = (srcArr, srcIdx, destArr, destIdx) => {
     source: srcArr,
     dest: destArr,
   };
-};
-
-export const htmlInputDateFormatter = date => {
-  const defaultHTMLInput = /\d{4}-\d{2}-\d{2}/;
-
-  if (defaultHTMLInput.test(date)) {
-    const [year, month, day] = date.split('-');
-    return `${day}/${month}/${year}`;
-  }
-
-  const [day, month, year] = date.split('/');
-  return `${day}-${month}-${year}`;
 };
 
 export const newLineToBreak = multiLine => multiLine.replace(/[\u21b5\n\r]/g, '<br />');

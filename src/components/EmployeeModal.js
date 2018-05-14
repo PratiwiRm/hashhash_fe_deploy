@@ -1,10 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 
 import IconChevronBlue from 'assets/icon_chevron_blue.svg';
 
-import { InputWrapper } from 'components/SharedElements';
+import {
+  ModalWrapper,
+  ModalClose,
+  ModalTitle,
+  ModalContent,
+  ModalInput,
+  ModalSwitcher,
+  ModalSubmit,
+} from 'components/SharedElements';
 
 export default class EmployeeModal extends Component {
   static propTypes = {
@@ -132,12 +139,12 @@ export default class EmployeeModal extends Component {
 
     return (
       <ModalWrapper>
-        <CloseButton onClick={close}>
+        <ModalClose onClick={close}>
           <img src={IconChevronBlue} alt="chevron" />Kembali
-        </CloseButton>
+        </ModalClose>
+        <ModalTitle>{create ? 'Tambah Data Pegawai' : 'Ubah Data Pegawai'}</ModalTitle>
         <ModalContent>
-          <h1>{create ? 'Tambah Data Pegawai' : 'Ubah Data Pegawai'}</h1>
-          <InputBox>
+          <ModalInput>
             <span>Nomor Telpon</span>
             <input
               type="text"
@@ -146,8 +153,8 @@ export default class EmployeeModal extends Component {
               placeholder="085XXXXXX..."
             />
             {this.state.validation.phone_num && <h6>{this.state.validation.phone_num}</h6>}
-          </InputBox>
-          <InputBox>
+          </ModalInput>
+          <ModalInput>
             <span>Nama Lengkap</span>
             <input
               type="text"
@@ -156,8 +163,8 @@ export default class EmployeeModal extends Component {
               placeholder="John Doe"
             />
             {this.state.validation.name && <h6>{this.state.validation.name}</h6>}
-          </InputBox>
-          <InputBox>
+          </ModalInput>
+          <ModalInput>
             <span>Profile Picture</span>
             <input
               type="text"
@@ -166,8 +173,8 @@ export default class EmployeeModal extends Component {
               placeholder="http..."
             />
             {this.state.validation.picture && <h6>{this.state.validation.picture}</h6>}
-          </InputBox>
-          <InputBox>
+          </ModalInput>
+          <ModalInput>
             <span>Nomor KTP</span>
             <input
               type="text"
@@ -178,8 +185,8 @@ export default class EmployeeModal extends Component {
             {this.state.validation.identity_number && (
               <h6>{this.state.validation.identity_number}</h6>
             )}
-          </InputBox>
-          <InputBox>
+          </ModalInput>
+          <ModalInput>
             <span>Password</span>
             <input
               type="password"
@@ -188,8 +195,8 @@ export default class EmployeeModal extends Component {
               placeholder="Password"
             />
             {this.state.validation.password && <h6>{this.state.validation.password}</h6>}
-          </InputBox>
-          <Switcher>
+          </ModalInput>
+          <ModalSwitcher>
             <span>Role</span>
             <button
               disabled={this.state.type.toLowerCase() === 'picker'}
@@ -203,9 +210,9 @@ export default class EmployeeModal extends Component {
             >
               Driver
             </button>
-          </Switcher>
+          </ModalSwitcher>
           {this.state.type.toLowerCase() === 'picker' && (
-            <InputBox>
+            <ModalInput>
               <span>Supplier:</span>
               <select
                 value={this.state.supplier}
@@ -221,135 +228,11 @@ export default class EmployeeModal extends Component {
                 ))}
               </select>
               {this.state.validation.supplier && <h6>{this.state.validation.supplier}</h6>}
-            </InputBox>
+            </ModalInput>
           )}
-          <Submit onClick={this.save}>{create ? 'Tambah' : 'Simpan'}</Submit>
+          <ModalSubmit onClick={this.save}>{create ? 'Tambah' : 'Simpan'}</ModalSubmit>
         </ModalContent>
       </ModalWrapper>
     );
   }
 }
-
-const ModalWrapper = styled.div`
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: ${props => props.theme.zindex.modal};
-  width: 100%;
-  height: 100%;
-  background: ${props => props.theme.color.whiteRGBA('0.85')};
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  align-content: flex-start;
-  overflow-x: hidden;
-  overflow-y: auto;
-`;
-
-const CloseButton = styled.button`
-  width: 100%;
-  max-width: ${props => props.theme.sizing.containerMaxWidth};
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: flex-start;
-  align-items: center;
-  align-content: center;
-  margin: 10rem auto 1rem;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: ${props => props.theme.color.gray};
-
-  img {
-    width: 1.25rem;
-    height: auto;
-    transform: rotate(90deg);
-    margin: 0 0.5rem 0 0;
-  }
-`;
-
-const ModalContent = styled.div`
-  margin: 0 auto 5rem;
-  width: 100%;
-  max-width: ${props => props.theme.sizing.containerMaxWidth};
-  background: ${props => props.theme.color.pure};
-  border-radius: ${props => props.theme.sizing.radius.card};
-  box-shadow: ${props => props.theme.shadow.regular};
-  padding: 2rem;
-
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 0 0 2rem;
-    color: ${props => props.theme.color.gray};
-  }
-`;
-
-const InputBox = styled(InputWrapper)`
-  width: 100%;
-  margin: 1rem 0 0;
-
-  input,
-  select {
-    font-size: 1rem;
-    padding: 0.75rem 1.5rem;
-  }
-`;
-
-const Switcher = styled.div`
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-between;
-  align-items: center;
-  align-content: center;
-  margin: 1rem 0 0;
-
-  span {
-    width: 100%;
-    font-size: 0.875rem;
-    font-weight: 400;
-    margin: 0 0 0.25rem;
-    color: ${props => props.theme.color.gray};
-  }
-
-  button {
-    width: calc(50% - 1rem);
-    font-size: 1rem;
-    font-weight: 700;
-    padding: 0.75rem 1.5rem;
-    border-radius: 2rem;
-    color: ${props => props.theme.color.black};
-    background: ${props => props.theme.color.pure};
-    box-shadow: ${props => props.theme.shadow.lite};
-    transition: 0.25s ease all;
-
-    &:hover,
-    &:focus,
-    &:disabled {
-      color: ${props => props.theme.color.pure};
-      background: ${props => props.theme.color.blue};
-      transition: 0.25s ease all;
-    }
-  }
-`;
-
-const Submit = styled.button`
-  width: 100%;
-  margin: 2rem 0 0;
-  padding: 0.75rem 1.5rem;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: ${props => props.theme.color.pure};
-  background: ${props => props.theme.color.blue};
-  border-radius: 3rem;
-  box-shadow: ${props => props.theme.shadow.regular};
-  transition: 0.25s ease all;
-
-  &:hover,
-  &:focus {
-    opacity: 0.75;
-    transition: 0.25s ease all;
-  }
-`;
