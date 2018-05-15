@@ -16,13 +16,15 @@ import {
   countDuplicatedDriverTasks,
   driverTaskCsvStructureTransformator,
 } from 'commons/structure';
+import { modalBodyScroll } from 'commons/utils';
 
 import DeliveryList from 'components/DeliveryList';
+import DeliveryModal from 'components/DeliveryModal';
 import DriverList from 'components/DriverList';
 import { Wrapper, ControlPanel, Controls, Control } from 'components/SharedElements';
 
 import { loadEmployee } from 'reducers/employee';
-import { setDate, loadTasks, addTasks } from 'reducers/logistic';
+import { setDate, loadTasks, addTask, addTasks, editTask } from 'reducers/logistic';
 
 import Navigation from '../Navigation';
 
@@ -30,7 +32,9 @@ import Navigation from '../Navigation';
   setDate,
   loadEmployee,
   loadTasks,
+  addTask,
   addTasks,
+  editTask,
 })
 export default class Logistic extends Component {
   static propTypes = {
@@ -39,7 +43,9 @@ export default class Logistic extends Component {
     setDate: PropTypes.func.isRequired,
     loadEmployee: PropTypes.func.isRequired,
     loadTasks: PropTypes.func.isRequired,
+    addTask: PropTypes.func.isRequired,
     addTasks: PropTypes.func.isRequired,
+    editTask: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -112,16 +118,29 @@ export default class Logistic extends Component {
     saveAs(blob, 'stoqo_optima_logistic_template.csv');
   };
 
+  saveAdd = task => {
+    this.props.addTask(task);
+    this.toggleAddModal();
+  };
+
+  saveEdit = task => {
+    this.props.editTask(task, this.state.editCategory, this.state.editIndex);
+    this.closeEditModal();
+  };
+
   toggleAddModal = () => {
+    modalBodyScroll(!this.state.addModal);
     this.setState({ addModal: !this.state.addModal });
   };
 
   openEditModal = (category, index) => {
     this.setState({ editModal: true, editCategory: category, editIndex: index });
+    modalBodyScroll(true);
   };
 
   closeEditModal = () => {
     this.setState({ editModal: false, editCategory: '', editIndex: -1 });
+    modalBodyScroll(false);
   };
 
   render() {
@@ -180,6 +199,20 @@ export default class Logistic extends Component {
             employees={employee.employee.filter(value => value.type.toLowerCase() === 'driver')}
           />
         </DriverListWrapper>
+        {this.state.addModal && (
+          <DeliveryModal create save={this.saveAdd} close={this.toggleAddModal} />
+        )}
+        {this.state.editModal && (
+          <DeliveryModal
+            data={
+              this.state.editCategory === 'unassigned'
+                ? logistic.tasks.unassigned[this.state.editIndex]
+                : logistic.tasks[this.state.editCategory].local[this.state.editIndex]
+            }
+            save={this.saveEdit}
+            close={this.closeEditModal}
+          />
+        )}
       </Wrapper>
     );
   }

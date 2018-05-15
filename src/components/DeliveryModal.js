@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Moment from 'moment';
+import styled from 'styled-components';
 
 import IconChevronBlue from 'assets/icon_chevron_blue.svg';
 
-import { PICKER_TASK_HEADER_FIELDS, PICKER_TASK_TEMPLATE } from 'commons/structure';
+import {
+  DRIVER_TASK_HEADER_FIELDS,
+  DRIVER_TASK_TEMPLATE,
+  destructurizeDriverTasks,
+} from 'commons/structure';
 import { htmlInputDateFormatter } from 'commons/utils';
 
 import {
@@ -13,13 +17,11 @@ import {
   ModalTitle,
   ModalContent,
   ModalInput,
-  ModalSwitcher,
   ModalSubmit,
 } from 'components/SharedElements';
 
 export default class DeliveryModal extends Component {
   static propTypes = {
-    supplier: PropTypes.array.isRequired,
     save: PropTypes.func.isRequired,
     close: PropTypes.func.isRequired,
     data: PropTypes.object,
@@ -35,216 +37,325 @@ export default class DeliveryModal extends Component {
     super(props);
 
     const { create, data } = this.props;
+    this.nodeTemplate = {};
+    this.validationTemplate = {};
+
+    DRIVER_TASK_HEADER_FIELDS.forEach(value => {
+      this.nodeTemplate[value] = '';
+      this.validationTemplate[value] = '';
+    });
+
+    delete this.nodeTemplate.task;
+    delete this.validationTemplate.task;
 
     if (create) {
       this.state = {
-        validation: {},
+        nodes: [
+          {
+            ...this.nodeTemplate,
+            type: 'PICKUP',
+            validation: { ...this.validationTemplate },
+          },
+          {
+            ...this.nodeTemplate,
+            type: 'DROPOFF',
+            validation: { ...this.validationTemplate },
+          },
+        ],
       };
-
-      PICKER_TASK_HEADER_FIELDS.forEach(value => {
-        this.state[value] = '';
-        this.state.validation[value] = '';
-      });
-
-      this.state.delivery_date = Moment()
-        .format('YYYY/MM/DD')
-        .toString();
-
-      this.state.status = 'pending';
     } else {
       this.state = {
-        validation: {},
+        nodes: [],
       };
 
-      PICKER_TASK_HEADER_FIELDS.forEach(value => {
-        this.state[value] = data[value];
-        this.state.validation[value] = '';
+      const destructurized = destructurizeDriverTasks(data);
+
+      destructurized.forEach(node => {
+        const formatted = { ...node, validation: { ...this.validationTemplate } };
+        this.state.nodes.push(formatted);
       });
     }
   }
 
-  setInput = (field, value) => {
-    this.setState({ [field]: value });
+  setInput = (field, index, value) => {
+    const { nodes } = this.state;
+
+    const node = nodes[index];
+    node[field] = value;
+
+    const newNodes = [...nodes.slice(0, index), node, ...nodes.slice(index + 1)];
+
+    this.setState({ nodes: newNodes });
+  };
+
+  addNode = () => {
+    const newNode = {
+      ...this.nodeTemplate,
+      type: 'DROPOFF',
+      validation: { ...this.validationTemplate },
+    };
+
+    this.setState({ nodes: [...this.state.nodes, newNode] });
+  };
+
+  removeNode = index => {
+    const { nodes } = this.state;
+    const newNodes = [...nodes.slice(0, index), ...nodes.slice(index + 1)];
+
+    this.setState({ nodes: newNodes });
   };
 
   save = () => {
     if (this.validate()) {
-      this.props.save(this.state);
+      const { nodes } = this.state;
+      const newTask = {
+        pick_ups: [nodes[0]],
+        drop_offs: [...nodes.slice(1)],
+      };
+
+      this.props.save(newTask);
       this.props.close();
     }
   };
 
   validate = () => {
-    const validation = {};
-
-    PICKER_TASK_HEADER_FIELDS.forEach(value => {
-      validation[value] = '';
-    });
+    const newNodes = [...this.state.nodes];
 
     let invalid = false;
-    const numberRegExp = /^\d+$/;
 
-    if (this.state.product === '') {
-      invalid = true;
-      validation.product = 'Nama produk tidak bisa kosong';
-    }
+    this.state.nodes.forEach((node, index) => {
+      const validation = { ...this.validationTemplate };
 
-    if (this.state.packaging === '') {
-      invalid = true;
-      validation.packaging = 'Packaging produk tidak bisa kosong';
-    }
+      if (node.outlet === '') {
+        invalid = true;
+        validation.outlet = 'Nama outlet tidak bisa kosong';
+      }
 
-    if (!numberRegExp.test(this.state.quantity) || this.state.quantity <= 0) {
-      invalid = true;
-      validation.quantity =
-        'Jumlah produk harus dalam angka atau tidak boleh kurang dari sama dengan 0';
-    }
+      if (node.address === '') {
+        invalid = true;
+        validation.address = 'Alamat outlet tidak bisa kosong';
+      }
 
-    if (this.state.order_id === '') {
-      invalid = true;
-      validation.order_id = 'Order ID pesanan tidak bisa kosong';
-    }
+      if (node.notes === '') {
+        invalid = true;
+        validation.notes = 'Catatan penting tidak bisa kosong';
+      }
 
-    if (this.state.delivery_date === '') {
-      invalid = true;
-      validation.delivery_date = 'Tanggal pengiriman produk tidak bisa kosong';
-    }
+      if (node.pic === '') {
+        invalid = true;
+        validation.pic = 'Person in charge tidak bisa kosong';
+      }
 
-    if (this.state.address === '') {
-      invalid = true;
-      validation.address = 'Alamat pengiriman produk tidak bisa kosong';
-    }
+      if (node.contact === '') {
+        invalid = true;
+        validation.contact = 'Kontak tidak bisa kosong';
+      }
 
-    if (this.state.type === '') {
-      invalid = true;
-      validation.type = 'Tipe tugas tidak bisa kosong';
-    }
+      newNodes[index] = { ...newNodes[index], validation };
+    });
 
-    if (this.state.supplier === '') {
-      invalid = true;
-      validation.supplier = 'Supplier tujuan tidak bisa kosong';
-    }
-
-    this.setState({ validation });
+    this.setState({ nodes: newNodes });
     return !invalid;
   };
 
   render() {
-    const { supplier, create, close } = this.props;
+    const { nodes } = this.state;
+    const { create, close } = this.props;
 
     return (
       <ModalWrapper>
         <ModalClose onClick={close}>
           <img src={IconChevronBlue} alt="chevron" />Kembali
         </ModalClose>
-        <ModalTitle>{create ? 'Tambah Tugas Pemesanan' : 'Ubah Tugas Pemesanan'}</ModalTitle>
-        <ModalContent>
+        <ModalTitle>{create ? 'Tambah Tugas Logistik' : 'Ubah Tugas Logistik'}</ModalTitle>
+        <DeliveryModalContent>
+          <h2>Destinasi Pengambilan</h2>
           <h4>* = required</h4>
           <ModalInput>
-            <span>Produk*</span>
-            <textarea
-              type="text"
-              value={this.state.product}
-              onChange={evt => this.setInput('product', evt.target.value)}
-              placeholder={PICKER_TASK_TEMPLATE[0].product}
-            />
-            {this.state.validation.product && <h6>{this.state.validation.product}</h6>}
-          </ModalInput>
-          <ModalInput>
-            <span>Packaging*</span>
+            <span>Nama outlet*</span>
             <input
               type="text"
-              value={this.state.packaging}
-              onChange={evt => this.setInput('packaging', evt.target.value)}
-              placeholder={PICKER_TASK_TEMPLATE[0].packaging}
+              value={nodes[0].outlet}
+              onChange={evt => this.setInput('outlet', 0, evt.target.value)}
+              placeholder={DRIVER_TASK_TEMPLATE[0].outlet}
             />
-            {this.state.validation.packaging && <h6>{this.state.validation.packaging}</h6>}
+            {nodes[0].validation.outlet && <h6>{nodes[0].validation.outlet}</h6>}
           </ModalInput>
           <ModalInput>
-            <span>Quantity*</span>
-            <input
-              type="number"
-              value={this.state.quantity}
-              onChange={evt => this.setInput('quantity', evt.target.value)}
-              placeholder={PICKER_TASK_TEMPLATE[0].quantity}
+            <span>Alamat outlet*</span>
+            <textarea
+              value={nodes[0].address}
+              onChange={evt => this.setInput('address', 0, evt.target.value)}
+              placeholder={DRIVER_TASK_TEMPLATE[0].address}
             />
-            {this.state.validation.quantity && <h6>{this.state.validation.quantity}</h6>}
+            {nodes[0].validation.address && <h6>{nodes[0].validation.address}</h6>}
           </ModalInput>
           <ModalInput>
-            <span>Order ID*</span>
+            <span>Catatan penting*</span>
+            <textarea
+              value={nodes[0].notes}
+              onChange={evt => this.setInput('notes', 0, evt.target.value)}
+              placeholder={DRIVER_TASK_TEMPLATE[0].notes}
+            />
+            {nodes[0].validation.notes && <h6>{nodes[0].validation.notes}</h6>}
+          </ModalInput>
+          <ModalInput>
+            <span>Person in Charge*</span>
             <input
               type="text"
-              value={this.state.order_id}
-              onChange={evt => this.setInput('order_id', evt.target.value)}
-              placeholder={PICKER_TASK_TEMPLATE[0].order_id}
+              value={nodes[0].pic}
+              onChange={evt => this.setInput('pic', 0, evt.target.value)}
+              placeholder={DRIVER_TASK_TEMPLATE[0].pic}
             />
-            {this.state.validation.order_id && <h6>{this.state.validation.order_id}</h6>}
+            {nodes[0].validation.pic && <h6>{nodes[0].validation.pic}</h6>}
           </ModalInput>
           <ModalInput>
-            <span>Tanggal Pengiriman*</span>
+            <span>Contact*</span>
             <input
-              type="date"
-              value={htmlInputDateFormatter(this.state.delivery_date)}
-              onChange={evt =>
-                this.setInput('delivery_date', htmlInputDateFormatter(evt.target.value))
-              }
-              placeholder={PICKER_TASK_TEMPLATE[0].delivery_date}
+              type="text"
+              value={nodes[0].contact}
+              onChange={evt => this.setInput('contact', 0, evt.target.value)}
+              placeholder={DRIVER_TASK_TEMPLATE[0].contact}
             />
-            {this.state.validation.delivery_date && <h6>{this.state.validation.delivery_date}</h6>}
+            {nodes[0].validation.contact && <h6>{nodes[0].validation.contact}</h6>}
           </ModalInput>
-          <ModalInput>
-            <span>Alamat*</span>
-            <textarea
-              value={this.state.address}
-              onChange={evt => this.setInput('address', evt.target.value)}
-              placeholder={PICKER_TASK_TEMPLATE[0].address}
-            />
-            {this.state.validation.address && <h6>{this.state.validation.address}</h6>}
-          </ModalInput>
-          <ModalInput>
-            <span>Patokan Alamat</span>
-            <textarea
-              value={this.state.address_guide}
-              onChange={evt => this.setInput('address_guide', evt.target.value)}
-              placeholder={PICKER_TASK_TEMPLATE[0].address_guide}
-            />
-          </ModalInput>
-          <ModalSwitcher>
-            <span>Tipe*</span>
-            <button
-              disabled={this.state.type.toLowerCase() === 'purchase'}
-              onClick={() => this.setInput('type', 'purchase')}
-            >
-              Purchase
-            </button>
-            <button
-              disabled={this.state.type.toLowerCase() === 'cancel'}
-              onClick={() => this.setInput('type', 'cancel')}
-            >
-              Cancel
-            </button>
-            {this.state.validation.type && <h6>{this.state.validation.type}</h6>}
-          </ModalSwitcher>
-          <ModalInput>
-            <span>Supplier*</span>
-            <select
-              value={this.state.supplier}
-              onChange={evt => this.setInput('supplier', evt.target.value)}
-            >
-              <option disabled value="">
-                Pilih Supplier
-              </option>
-              {supplier.map(value => (
-                <option key={`${value.name}${value.address}`} value={value.name}>
-                  {value.name}
-                </option>
-              ))}
-            </select>
-            {this.state.validation.supplier && <h6>{this.state.validation.supplier}</h6>}
-          </ModalInput>
+          <h2>Destinasi Pengiriman</h2>
+          <h4>* = required</h4>
+          {nodes.slice(1, nodes.length).map((node, index) => (
+            <DeliveryNode>
+              <h3>Pengiriman #{index + 1}</h3>
+              {this.state.nodes.length > 2 && (
+                <DeleteNodeButton onClick={() => this.removeNode(index + 1)}>
+                  - Hapus destinasi pengiriman
+                </DeleteNodeButton>
+              )}
+              <ModalInput>
+                <span>Nama outlet*</span>
+                <input
+                  type="text"
+                  value={node.outlet}
+                  onChange={evt => this.setInput('outlet', index + 1, evt.target.value)}
+                  placeholder={DRIVER_TASK_TEMPLATE[0].outlet}
+                />
+                {node.validation.outlet && <h6>{node.validation.outlet}</h6>}
+              </ModalInput>
+              <ModalInput>
+                <span>Alamat outlet*</span>
+                <textarea
+                  value={node.address}
+                  onChange={evt => this.setInput('address', index + 1, evt.target.value)}
+                  placeholder={DRIVER_TASK_TEMPLATE[0].address}
+                />
+                {node.validation.address && <h6>{node.validation.address}</h6>}
+              </ModalInput>
+              <ModalInput>
+                <span>Catatan penting*</span>
+                <textarea
+                  value={node.notes}
+                  onChange={evt => this.setInput('notes', index + 1, evt.target.value)}
+                  placeholder={DRIVER_TASK_TEMPLATE[0].notes}
+                />
+                {node.validation.notes && <h6>{node.validation.notes}</h6>}
+              </ModalInput>
+              <ModalInput>
+                <span>Person in Charge*</span>
+                <input
+                  type="text"
+                  value={node.pic}
+                  onChange={evt => this.setInput('pic', index + 1, evt.target.value)}
+                  placeholder={DRIVER_TASK_TEMPLATE[0].pic}
+                />
+                {node.validation.pic && <h6>{node.validation.pic}</h6>}
+              </ModalInput>
+              <ModalInput>
+                <span>Contact*</span>
+                <input
+                  type="text"
+                  value={node.contact}
+                  onChange={evt => this.setInput('contact', index + 1, evt.target.value)}
+                  placeholder={DRIVER_TASK_TEMPLATE[0].contact}
+                />
+                {node.validation.contact && <h6>{node.validation.contact}</h6>}
+              </ModalInput>
+            </DeliveryNode>
+          ))}
+          <AddNodeButton onClick={this.addNode}>+ Tambah destinasi pengiriman</AddNodeButton>
           <ModalSubmit onClick={this.save}>{create ? 'Tambah' : 'Simpan'}</ModalSubmit>
-        </ModalContent>
+        </DeliveryModalContent>
       </ModalWrapper>
     );
   }
 }
+
+const DeliveryModalContent = styled(ModalContent)`
+  h2 {
+    color: ${props => props.theme.color.dark};
+    font-size: 2.5rem;
+
+    &:last-of-type {
+      margin: 2rem 0 0;
+    }
+  }
+
+  h3 {
+    color: ${props => props.theme.color.dark};
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  h4 {
+    color: ${props => props.theme.color.gray};
+  }
+`;
+
+const DeliveryNode = styled.div`
+  width: 100%;
+  padding: 2rem 2rem 2rem;
+  border-radius: ${props => props.theme.sizing.radius.regular};
+  background: ${props => props.theme.color.ivory};
+  margin: 2rem 0 0;
+
+  & > div {
+    margin: 0 0 2rem;
+
+    &:last-of-type {
+      margin: 0;
+    }
+  }
+`;
+
+const AddNodeButton = styled.button`
+  width: 100%;
+  margin: 2rem 0;
+  padding: 0.75rem 1.5rem;
+  border-radius: ${props => props.theme.sizing.radius.regular};
+  color: ${props => props.theme.color.dark};
+  background: ${props => props.theme.color.ivory};
+  transition: 0.25s ease all;
+  font-size: 1.25rem;
+  font-weight: bold;
+
+  &:hover,
+  &:focus {
+    color: ${props => props.theme.color.white};
+    background: ${props => props.theme.color.green};
+    transition: 0.25s ease all;
+  }
+`;
+
+const DeleteNodeButton = styled.button`
+  margin: 0 0 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: ${props => props.theme.sizing.radius.regular};
+  color: ${props => props.theme.color.white};
+  background: ${props => props.theme.color.red};
+  transition: 0.25s ease all;
+  font-size: 1rem;
+  font-weight: bold;
+
+  &:hover,
+  &:focus {
+    opacity: 0.5;
+    transition: 0.25s ease all;
+  }
+`;

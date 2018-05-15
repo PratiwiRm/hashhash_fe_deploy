@@ -212,6 +212,15 @@ export const countDuplicatedDriverTasks = (source, check) => {
   return duplicateCounter;
 };
 
+export const destructurizeDriverTasks = task => {
+  const destructurized = [];
+
+  task.pick_ups.forEach(node => destructurized.push(node));
+  task.drop_offs.forEach(node => destructurized.push(node));
+
+  return destructurized;
+};
+
 export const arrayRearanger = (arr, src, dest) => {
   const [srcContent] = arr.splice(src, 1);
   const newArr = arr;

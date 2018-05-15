@@ -7,7 +7,9 @@ const TASKS_LOADED = 'app/logistic/TASKS_LOADED';
 const SWAP_TASK = 'app/logistic/SWAP_TASK';
 const MOVE_TASK = 'app/logistic/MOVE_TASK';
 const SET_DRAG_FILTER = 'app/logistic/SET_DRAG_FILTER';
+const ADD_UNASSIGNED_TASK = 'app/logistic/ADD_UNASSIGNED_TASK';
 const ADD_UNASSIGNED_TASKS = 'app/logistic/ADD_UNASSIGNED_TASKS';
+const SET_TASK = 'app/logistic/SET_TASK';
 
 const initialState = {
   loading: false,
@@ -25,6 +27,7 @@ export default function reducer(state = initialState, action) {
   const { tasks } = state;
   let swappedTask = [];
   let movedTasks = {};
+  let editedTasks = [];
 
   switch (action.type) {
     case TASKS_LOADED:
@@ -115,8 +118,33 @@ export default function reducer(state = initialState, action) {
         ...state,
         dragFilter: action.payload,
       };
+    case ADD_UNASSIGNED_TASK:
+      tasks.unassigned = [...tasks.unassigned, action.payload];
+
+      return {
+        ...state,
+        tasks,
+      };
     case ADD_UNASSIGNED_TASKS:
       tasks.unassigned = [...tasks.unassigned, ...action.payload];
+
+      return {
+        ...state,
+        tasks,
+      };
+    case SET_TASK:
+      if (action.payload.loc === 'unassigned') {
+        editedTasks = [...tasks.unassigned];
+        editedTasks.splice(action.payload.idx, 1, action.payload.task);
+        tasks.unassigned = [...editedTasks];
+      } else {
+        editedTasks = [...tasks[action.payload.loc].local];
+        editedTasks.splice(action.payload.idx, 1, action.payload.task);
+        tasks[action.payload.loc] = {
+          ...tasks[action.payload.loc],
+          local: [...editedTasks],
+        };
+      }
 
       return {
         ...state,
@@ -155,8 +183,16 @@ export function setDragFilter(dragFilter) {
   return { type: SET_DRAG_FILTER, payload: dragFilter };
 }
 
+export function addUnassignedTask(task) {
+  return { type: ADD_UNASSIGNED_TASK, payload: task };
+}
+
 export function addUnassignedTasks(tasks) {
   return { type: ADD_UNASSIGNED_TASKS, payload: tasks };
+}
+
+export function setTask(task, loc, idx) {
+  return { type: SET_TASK, payload: { task, loc, idx } };
 }
 
 export function loadTasks() {
@@ -256,6 +292,17 @@ export function loadTasks() {
   };
 }
 
+export function addTask(task) {
+  return dispatch => {
+    // TODO: POST to Backend
+    const newTask = { ...task };
+    const randomScalingFactor = max => Math.floor(Math.random() * max);
+    newTask.delivery_id = `dummyeef-a75f-41fe-b64b-3e05413664e$${randomScalingFactor(5000)}`;
+    newTask.status = 'pending';
+    dispatch(addUnassignedTask(newTask));
+  };
+}
+
 export function addTasks(tasks) {
   return dispatch => {
     // TODO: POST to Backend
@@ -269,5 +316,12 @@ export function addTasks(tasks) {
     });
 
     dispatch(addUnassignedTasks(dummyTasks));
+  };
+}
+
+export function editTask(task, loc, idx) {
+  return dispatch => {
+    // TODO: POST to Backend
+    dispatch(setTask(task, loc, idx));
   };
 }
