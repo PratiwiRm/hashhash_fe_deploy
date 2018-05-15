@@ -2,5 +2,4 @@
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 404
-  force = true # Ensure that we always redirect
+  status = 200
