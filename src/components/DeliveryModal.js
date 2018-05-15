@@ -7,7 +7,7 @@ import IconChevronBlue from 'assets/icon_chevron_blue.svg';
 import {
   DRIVER_TASK_HEADER_FIELDS,
   DRIVER_TASK_TEMPLATE,
-  destructurizeDriverTasks,
+  destructurizeDriverTask,
 } from 'commons/structure';
 import { htmlInputDateFormatter } from 'commons/utils';
 
@@ -68,7 +68,7 @@ export default class DeliveryModal extends Component {
         nodes: [],
       };
 
-      const destructurized = destructurizeDriverTasks(data);
+      const destructurized = destructurizeDriverTask(data);
 
       destructurized.forEach(node => {
         const formatted = { ...node, validation: { ...this.validationTemplate } };

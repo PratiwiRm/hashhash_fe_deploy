@@ -4,6 +4,12 @@ import { ConnectedRouter as Router } from 'react-router-redux';
 import { Switch, Route } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { Helmet } from 'react-helmet';
+
+import AppleIcon from 'assets/favicon/apple-touch-icon.png';
+import Favicon32 from 'assets/favicon/favicon-32x32.png';
+import Favicon16 from 'assets/favicon/favicon-16x16.png';
+import MaskIcon from 'assets/favicon/safari-pinned-tab.svg';
 
 import configureStore from '../../store';
 import routes from '../../routes';
@@ -63,6 +69,32 @@ export default class App extends Component {
         <ThemeProvider theme={theme}>
           <Router history={history}>
             <DragDropContext onDragStart={this.onDragStart} onDragEnd={this.onDragEnd}>
+              <Helmet
+                titleTemplate="%s - Optima"
+                defaultTitle="Stoqo Optima"
+                meta={[
+                  { name: 'description', content: 'Stoqo Optima' },
+                  { name: 'apple-mobile-web-app-title', content: 'Stoqo Optima' },
+                  { name: 'application-name', content: 'Stoqo Optima' },
+                  { name: 'theme-color', content: '#FAFAFA' },
+                ]}
+                link={[
+                  { rel: 'apple-touch-icon', sizes: '180x180', href: AppleIcon },
+                  {
+                    rel: 'icon',
+                    type: 'image/png',
+                    sizes: '32x32',
+                    href: Favicon32,
+                  },
+                  {
+                    rel: 'icon',
+                    type: 'image/png',
+                    sizes: '16x16',
+                    href: Favicon16,
+                  },
+                  { rel: 'mask-icon', color: '005bea', href: MaskIcon },
+                ]}
+              />
               <Switch>{routes.map(route => <Route key={route.path} {...route} />)}</Switch>
             </DragDropContext>
           </Router>

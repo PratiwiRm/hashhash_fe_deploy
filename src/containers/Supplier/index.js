@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import Papa from 'papaparse';
+import { saveAs } from 'file-saver';
 
 import IconDownloadWhite from 'assets/icon_download_white.svg';
 
@@ -47,6 +49,13 @@ export default class Supplier extends Component {
     this.props.loadSupplier();
   }
 
+  downloadSupplierData = () => {
+    const blob = new Blob([Papa.unparse(this.props.supplier.supplier, { header: true })], {
+      type: 'data:text/csv;charset=utf-8',
+    });
+    saveAs(blob, 'stoqo_optima_supplier_list.csv');
+  };
+
   toggleAddModal = () => {
     this.setState({ addModal: !this.state.addModal });
   };
@@ -69,7 +78,7 @@ export default class Supplier extends Component {
           <Controls>
             <Control flex>
               <span>Data:</span>
-              <button className="blue">
+              <button onClick={this.downloadSupplierData} className="blue">
                 <img src={IconDownloadWhite} alt="upload" />Daftar Supplier
               </button>
             </Control>

@@ -15,6 +15,7 @@ import {
   PICKER_TASK_HEADER_FIELDS,
   PICKER_TASK_TEMPLATE,
   countDuplicatedPickerTasks,
+  removeUnsignedTasks,
 } from 'commons/structure';
 import { modalBodyScroll } from 'commons/utils';
 
@@ -126,6 +127,21 @@ export default class Purchasing extends Component {
     });
   };
 
+  downloadHistory = () => {
+    const blob = new Blob(
+      [Papa.unparse(removeUnsignedTasks(this.props.purchasing.tasks), { header: true })],
+      {
+        type: 'data:text/csv;charset=utf-8',
+      }
+    );
+    saveAs(
+      blob,
+      `stoqo_optima_purchasing_history_${this.props.purchasing.date}_batch_${
+        this.props.purchasing.batch
+      }.csv`
+    );
+  };
+
   downloadTemplate = () => {
     const blob = new Blob([Papa.unparse(PICKER_TASK_TEMPLATE, { header: true })], {
       type: 'data:text/csv;charset=utf-8',
@@ -207,7 +223,7 @@ export default class Purchasing extends Component {
               <button onClick={this.downloadTemplate} className="blue">
                 <img src={IconDownloadWhite} alt="upload" />Template
               </button>
-              <button onClick={this.downloadTemplate} className="blue">
+              <button onClick={this.downloadHistory} className="blue">
                 <img src={IconDownloadWhite} alt="upload" />Riwayat
               </button>
             </Control>

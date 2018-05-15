@@ -110,6 +110,21 @@ export const flattenTasks = source => {
   return flatten;
 };
 
+export const removeUnsignedTasks = source => {
+  let signed = [];
+
+  const newSource = { ...source };
+  delete newSource.unassigned;
+
+  Object.keys(newSource).forEach(key => {
+    if (!isEmpty(newSource[key].signed)) {
+      signed = signed.concat(newSource[key].signed);
+    }
+  });
+
+  return signed;
+};
+
 export const countDuplicatedPickerTasks = (source, check) => {
   const flattenSource = flattenTasks(source);
 
@@ -212,11 +227,19 @@ export const countDuplicatedDriverTasks = (source, check) => {
   return duplicateCounter;
 };
 
-export const destructurizeDriverTasks = task => {
+export const destructurizeDriverTask = task => {
   const destructurized = [];
 
   task.pick_ups.forEach(node => destructurized.push(node));
   task.drop_offs.forEach(node => destructurized.push(node));
+
+  return destructurized;
+};
+
+export const destructurizeDriverTasks = tasks => {
+  const destructurized = [];
+
+  tasks.forEach(task => destructurized.concat(destructurizeDriverTask(task)));
 
   return destructurized;
 };

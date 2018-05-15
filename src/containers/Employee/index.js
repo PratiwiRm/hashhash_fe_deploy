@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import Papa from 'papaparse';
+import { saveAs } from 'file-saver';
 
 import IconDownloadWhite from 'assets/icon_download_white.svg';
 
@@ -63,6 +65,13 @@ export default class Employee extends Component {
     this.setState({ activeFilter: filter });
   };
 
+  downloadEmployeeData = () => {
+    const blob = new Blob([Papa.unparse(this.props.employee.employee, { header: true })], {
+      type: 'data:text/csv;charset=utf-8',
+    });
+    saveAs(blob, 'stoqo_optima_employee_profiles.csv');
+  };
+
   toggleAddModal = () => {
     this.setState({ addModal: !this.state.addModal });
   };
@@ -97,7 +106,7 @@ export default class Employee extends Component {
             </Control>
             <Control flex>
               <span>Data:</span>
-              <button className="blue">
+              <button onClick={this.downloadEmployeeData} className="blue">
                 <img src={IconDownloadWhite} alt="upload" />Daftar Pegawai
               </button>
             </Control>

@@ -15,6 +15,8 @@ import {
   DRIVER_TASK_TEMPLATE,
   countDuplicatedDriverTasks,
   driverTaskCsvStructureTransformator,
+  destructurizeDriverTasks,
+  removeUnsignedTasks,
 } from 'commons/structure';
 import { modalBodyScroll } from 'commons/utils';
 
@@ -109,6 +111,20 @@ export default class Logistic extends Component {
         this.csvInput.value = '';
       },
     });
+  };
+
+  downloadHistory = () => {
+    const blob = new Blob(
+      [
+        Papa.unparse(destructurizeDriverTasks(removeUnsignedTasks(this.props.logistic.tasks)), {
+          header: true,
+        }),
+      ],
+      {
+        type: 'data:text/csv;charset=utf-8',
+      }
+    );
+    saveAs(blob, `stoqo_optima_logistic_history_${this.props.logistic.date}.csv`);
   };
 
   downloadTemplate = () => {
