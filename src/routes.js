@@ -1,53 +1,76 @@
+import React from 'react';
+import { Redirect } from 'react-router-dom';
+
 import SITEMAP from 'commons/sitemap';
-import AuthPage from './containers/AuthPage';
-import Help from './containers/Help';
-import Home from './containers/Home';
-import Purchasing from './containers/Purchasing';
-import Logistic from './containers/Logistic';
-import Employee from './containers/Employee';
-import Supplier from './containers/Supplier';
-import Performance from './containers/Performance';
-import NotFound from './containers/NotFound';
+import AuthPage from 'containers/AuthPage';
+import Help from 'containers/Help';
+import Purchasing from 'containers/Purchasing';
+import Logistic from 'containers/Logistic';
+import Employee from 'containers/Employee';
+import Supplier from 'containers/Supplier';
+import Performance from 'containers/Performance';
+import NotFound from 'containers/NotFound';
+
+const authenticated = Component => {
+  const { token } = window.localStorage;
+
+  if (token) {
+    return <Component />;
+  }
+
+  return <Redirect to={SITEMAP.login} />;
+};
+
+const unAuthenticated = Component => {
+  const { token } = window.localStorage;
+
+  if (token) {
+    return <Redirect to={SITEMAP.index} />;
+  }
+
+  return <Component />;
+};
 
 export default [
   {
     exact: true,
     path: SITEMAP.index,
-    component: Home,
+    render: () => <Redirect push to={SITEMAP.pembelian} />,
   },
   {
     exact: true,
     path: SITEMAP.pembelian,
-    component: Purchasing,
+    render: () => authenticated(Purchasing),
   },
   {
     exact: true,
     path: SITEMAP.logistik,
-    component: Logistic,
+    render: () => authenticated(Logistic),
   },
   {
     exact: true,
     path: SITEMAP.pegawai,
-    component: Employee,
+    render: () => authenticated(Employee),
   },
   {
     exact: true,
     path: SITEMAP.supplier,
-    component: Supplier,
+    render: () => authenticated(Supplier),
   },
   {
     exact: true,
     path: SITEMAP.performa,
-    component: Performance,
+    render: () => authenticated(Performance),
   },
   {
     exact: true,
     path: SITEMAP.bantuan,
-    component: Help,
+    render: () => authenticated(Help),
   },
   {
+    exact: true,
     path: SITEMAP.login,
-    component: AuthPage,
+    render: () => unAuthenticated(AuthPage),
   },
   {
     path: '*',

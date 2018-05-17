@@ -1,6 +1,6 @@
-// import { push } from 'react-router-redux';
-// import request, * as api from '../../services/api';
-// import { LOGIN_PATH } from '../../common/routing';
+import { push } from 'react-router-redux';
+import request, * as api from 'services/api';
+import SITEMAP from 'commons/sitemap';
 
 const SET_AUTH = 'app/auth/set_auth';
 const SET_ERROR = 'app/auth/set_error';
@@ -11,6 +11,7 @@ const initialState = {
   login: false,
   loading: false,
   token: '',
+  user: {},
   error: '',
   dry: true,
 };
@@ -20,7 +21,6 @@ export default function reducer(state = initialState, action) {
   switch (action.type) {
     case SET_AUTH:
       return {
-        loading: false,
         login: true,
         error: '',
         dry: false,
@@ -60,42 +60,45 @@ export function loading() {
 }
 
 // Thunk
-// export function logout() {
-//   return dispatch => {
-//     // side-effect, clear token
-//     window.localStorage.removeItem('token');
-//     request.set('Authorization', null);
-//     dispatch(clearAuth());
-//     dispatch(push(LOGIN_PATH));
-//   };
-// }
+export function logout() {
+  return dispatch => {
+    // side-effect, clear token
+    window.localStorage.removeItem('token');
+    window.localStorage.removeItem('user');
+    request.set('Authorization', null);
+    dispatch(clearAuth());
+    dispatch(push(SITEMAP.login));
+  };
+}
 
-// export function reloadAuth() {
-//   return async dispatch => {
-//     try {
-//       const { token } = window.localStorage;
-//       if (token) {
-//         request.set('Authorization', `JWT ${token}`);
-//         dispatch(setAuth({ token }));
-//       } else {
-//         dispatch(logout());
-//       }
-//     } catch (e) {
-//       dispatch(setError(e.message));
-//     }
-//   };
-// }
+export function reloadAuth() {
+  return async dispatch => {
+    try {
+      const { token, user } = window.localStorage;
+      if (token) {
+        request.set('Authorization', `Token ${token}`);
+        dispatch(setAuth({ token, user }));
+      } else {
+        dispatch(logout());
+      }
+    } catch (e) {
+      dispatch(setError(e.message));
+    }
+  };
+}
 
-// export function login(email, password) {
-//   return async dispatch => {
-//     try {
-//       dispatch(loading());
-//       const { body } = await api.login(email, password);
-//       window.localStorage.setItem('token', body.token);
-//       request.set('Authorization', `JWT ${body.token}`);
-//       dispatch(setAuth({ token: body.token }));
-//     } catch (e) {
-//       dispatch(setError(e.message));
-//     }
-//   };
-// }
+export function login(username, password) {
+  return async dispatch => {
+    try {
+      dispatch(loading());
+      const { body } = await api.loginPost(username, password);
+      window.localStorage.setItem('token', body.data.token);
+      window.localStorage.setItem('user', body.data.pegawai);
+      request.set('Authorization', `Token ${body.data.token}`);
+      dispatch(push(SITEMAP.index));
+      dispatch(setAuth({ token: body.data.token, user: body.data.pegawai }));
+    } catch (e) {
+      dispatch(setError(e.message));
+    }
+  };
+}

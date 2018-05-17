@@ -10,11 +10,13 @@ import LogoImg from 'assets/logo_blue.svg';
 
 import SITEMAP from 'commons/sitemap';
 
-@connect(state => ({ auth: state.auth }), { push })
+import { logout } from 'reducers/auth';
+
+@connect(null, { push, logout })
 export default class Navigation extends Component {
   static propTypes = {
-    auth: PropTypes.object.isRequired,
     push: PropTypes.func.isRequired,
+    logout: PropTypes.func.isRequired,
   };
 
   getCurrentRouteLabel = () => invert(SITEMAP)[window.location.pathname];
@@ -57,7 +59,7 @@ export default class Navigation extends Component {
           >
             Supplier
           </button>
-          <button>Logout</button>
+          <button onClick={this.props.logout}>Logout</button>
         </Navlinks>
         <MainSwitcher>
           {!this.isMainRoute() && <MainLink disabled>{this.getCurrentRouteLabel()}</MainLink>}

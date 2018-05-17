@@ -11,31 +11,30 @@ import Favicon32 from 'assets/favicon/favicon-32x32.png';
 import Favicon16 from 'assets/favicon/favicon-16x16.png';
 import MaskIcon from 'assets/favicon/safari-pinned-tab.svg';
 
-import configureStore from '../../store';
-import routes from '../../routes';
-import history from '../../commons/routing';
-import theme from '../../commons/theme';
+import history from 'commons/routing';
+import theme from 'commons/theme';
 
-import {
-  swapTask as logisticSwapTask,
-  moveTask as logisticMoveTask,
-} from '../../reducers/logistic';
+import Spinner from 'components/Spinner';
+
+import { reloadAuth } from 'reducers/auth';
+
+import { swapTask as logisticSwapTask, moveTask as logisticMoveTask } from 'reducers/logistic';
 
 import {
   swapTask as purchasingSwapTask,
   moveTask as purchasingMoveTask,
   setDragFilter as purchasingSetDragFilter,
-} from '../../reducers/purchasing';
+} from 'reducers/purchasing';
+
+import configureStore from '../../store';
+import routes from '../../routes';
 
 const store = configureStore();
 
 export default class App extends Component {
-  onDragStart = dragStart => {
-    if (dragStart.draggableId.startsWith('purchasing')) {
-      const dragFilter = dragStart.draggableId.split('-')[1];
-      store.dispatch(purchasingSetDragFilter(dragFilter));
-    }
-  };
+  componentDidMount() {
+    store.dispatch(reloadAuth());
+  }
 
   onDragEnd = result => {
     if (result.destination !== null) {
@@ -61,6 +60,13 @@ export default class App extends Component {
     }
 
     store.dispatch(purchasingSetDragFilter(''));
+  };
+
+  onDragStart = dragStart => {
+    if (dragStart.draggableId.startsWith('purchasing')) {
+      const dragFilter = dragStart.draggableId.split('-')[1];
+      store.dispatch(purchasingSetDragFilter(dragFilter));
+    }
   };
 
   render() {
@@ -95,6 +101,7 @@ export default class App extends Component {
                   { rel: 'mask-icon', color: '005bea', href: MaskIcon },
                 ]}
               />
+              <Spinner />
               <Switch>{routes.map(route => <Route key={route.path} {...route} />)}</Switch>
             </DragDropContext>
           </Router>

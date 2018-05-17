@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { media } from 'commons/theme';
@@ -6,7 +8,60 @@ import { media } from 'commons/theme';
 import SplashImg from 'assets/splash_login.png';
 import LogoImg from 'assets/logo_white_shadow.svg';
 
+import { login } from 'reducers/auth';
+
+@connect(null, { login })
 export default class AuthPage extends Component {
+  static propTypes = {
+    login: PropTypes.func.isRequired,
+  };
+
+  constructor() {
+    super();
+
+    this.state = {
+      username: '',
+      password: '',
+      validation: {
+        username: '',
+        password: '',
+      },
+    };
+  }
+
+  setInput = (field, value) => this.setState({ [field]: value });
+
+  go = evt => {
+    evt.preventDefault();
+
+    if (this.validate()) {
+      this.props.login(this.state.username, this.state.password);
+    }
+  };
+
+  validate = () => {
+    const { username, password } = this.state;
+    const validation = {
+      username: '',
+      password: '',
+    };
+
+    let valid = true;
+
+    if (username.length <= 6) {
+      valid = false;
+      validation.username = 'Username tidak boleh kosong atau kurang dari 6 karakter';
+    }
+
+    if (password.length <= 0) {
+      valid = false;
+      validation.password = 'Password tidak boleh kosong';
+    }
+
+    this.setState({ validation });
+    return valid;
+  };
+
   render() {
     return (
       <Auth>
@@ -15,10 +70,22 @@ export default class AuthPage extends Component {
           <img src={LogoImg} alt="Logo" />
           <div className="form">
             <div className="input">
-              <input type="text" placeholder="Username" />
-              <input type="password" placeholder="Kata Sandi" />
+              <input
+                type="text"
+                value={this.state.username}
+                onChange={evt => this.setInput('username', evt.target.value)}
+                placeholder="Username"
+              />
+              {this.state.validation.username && <h6>{this.state.validation.username}</h6>}
+              <input
+                type="password"
+                value={this.state.password}
+                onChange={evt => this.setInput('password', evt.target.value)}
+                placeholder="Kata Sandi"
+              />
+              {this.state.validation.password && <h6>{this.state.validation.password}</h6>}
             </div>
-            <button onClick={() => console.log('weeoo')} className="submit">
+            <button onClick={this.go} className="submit">
               Masuk
             </button>
           </div>
@@ -101,6 +168,17 @@ const Login = styled.div`
           background: ${props => props.theme.color.ivory};
           transition: 0.25s ease all;
         }
+      }
+
+      h6 {
+        margin: 0;
+        width: 100%;
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        color: ${props => props.theme.color.pure};
+        background: ${props => props.theme.color.red};
+        border-radius: 0 0 ${props => props.theme.sizing.radius.regular}
+          ${props => props.theme.sizing.radius.regular};
       }
     }
 
