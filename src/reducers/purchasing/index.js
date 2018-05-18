@@ -1,6 +1,11 @@
 import Moment from 'moment';
+import swal from 'sweetalert';
+
 import { taskStructureTransformator, arrayRearanger, arrayMover } from 'commons/structure';
 
+import * as api from 'services/api';
+
+const LOADING = 'app/purchasing/LOADING';
 const SET_DATE = 'app/purchasing/SET_DATE';
 const SET_BATCH = 'app/purchasing/SET_BATCH';
 const TASKS_LOADED = 'app/purchasing/TASKS_LOADED';
@@ -13,10 +18,16 @@ const SET_TASK = 'app/purchasing/SET_TASK';
 
 const initialState = {
   loading: false,
-  date: Moment()
-    .format('YYYY-MM-DD')
-    .toString(),
-  batch: 1,
+  batch: {
+    tanggal_dibuat: window.localStorage.purchasingTanggalTerakhir
+      ? window.localStorage.purchasingTanggalTerakhir
+      : Moment()
+        .format('YYYY-MM-DD')
+        .toString(),
+    sesi: window.localStorage.purchasingSesiTerakhir
+      ? window.localStorage.purchasingSesiTerakhir
+      : 1,
+  },
   tasks: {
     unassigned: [],
   },
@@ -31,6 +42,11 @@ export default function reducer(state = initialState, action) {
   let editedTasks = [];
 
   switch (action.type) {
+    case LOADING:
+      return {
+        ...state,
+        loading: true,
+      };
     case TASKS_LOADED:
       return {
         ...state,
@@ -45,7 +61,13 @@ export default function reducer(state = initialState, action) {
     case SET_BATCH:
       return {
         ...state,
-        batch: action.payload,
+        loading: false,
+        batch: {
+          ...action.payload,
+          tanggal_dibuat: Moment(action.payload.tanggal_dibuat)
+            .format('YYYY-MM-DD')
+            .toString(),
+        },
       };
     case SWAP_TASK:
       if (action.payload.loc !== 'unassigned') {
@@ -156,6 +178,10 @@ export default function reducer(state = initialState, action) {
   }
 }
 
+export function loading() {
+  return { type: LOADING };
+}
+
 export function setDate(date) {
   return { type: SET_DATE, payload: date };
 }
@@ -198,6 +224,42 @@ export function addUnassignedTasks(tasks) {
 
 export function setTask(task, loc, idx) {
   return { type: SET_TASK, payload: { task, loc, idx } };
+}
+
+export function queryBatch(tanggal, sesi) {
+  return async dispatch => {
+    try {
+      dispatch(loading());
+      const existingBatches = await api.batchGet();
+      const dateMoment = Moment(tanggal);
+
+      const existing = existingBatches.body.data.find(b => dateMoment.isSame(b.tanggal_dibuat, 'day') && sesi == b.sesi);
+
+      if (existing) {
+        dispatch(setBatch(existing));
+      } else {
+        const { body } = await api.batchPost({
+          tanggal_dibuat: dateMoment.toISOString(),
+          sesi,
+        });
+
+        dispatch(setBatch(body.data));
+      }
+
+      window.localStorage.setItem(
+        'purchasingTanggalTerakhir',
+        dateMoment.format('YYYY-MM-DD').toString()
+      );
+      window.localStorage.setItem('purchasingSesiTerakhir', sesi);
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Mengatur Batch',
+        text: 'Terjadi kesalahan dalam pengaturan batch',
+      });
+      console.log(e);
+    }
+  };
 }
 
 export function loadTasks() {

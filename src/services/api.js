@@ -11,6 +11,9 @@ const apiURLs = {
   supplier: `${baseURL}/supplier/`,
   ktp: `${baseURL}/ktp/`,
   sim: `${baseURL}/sim/`,
+  batch: `${baseURL}/batch/`,
+  task_picker: `${baseURL}/task_picker/`,
+  task_driver: `${baseURL}/task_driver/`,
 };
 
 const request = defaults();
@@ -78,6 +81,18 @@ export async function simPost(data) {
 
 export async function simPut(id, data) {
   return request.put(`${apiURLs.sim}${id}/`).send(data);
+}
+
+export async function batchGet() {
+  return request.get(apiURLs.batch);
+}
+
+export async function batchPost(data) {
+  return request.post(apiURLs.batch).send(data);
+}
+
+export async function batchPut(id, data) {
+  return request.put(`${apiURLs.batch}${id}/`).send(data);
 }
 
 export async function uploadImage(image, progress) {

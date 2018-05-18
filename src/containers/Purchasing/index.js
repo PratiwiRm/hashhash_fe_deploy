@@ -25,7 +25,15 @@ import PickerList from 'components/PickerList';
 import { Wrapper, ControlPanel, Controls, Control } from 'components/SharedElements';
 
 import { loadEmployee } from 'reducers/employee';
-import { setDate, setBatch, loadTasks, addTask, addTasks, editTask } from 'reducers/purchasing';
+import {
+  setDate,
+  setBatch,
+  queryBatch,
+  loadTasks,
+  addTask,
+  addTasks,
+  editTask,
+} from 'reducers/purchasing';
 import { loadSupplier } from 'reducers/supplier';
 
 import Navigation from '../Navigation';
@@ -40,6 +48,7 @@ import Navigation from '../Navigation';
   {
     setDate,
     setBatch,
+    queryBatch,
     loadEmployee,
     loadSupplier,
     loadTasks,
@@ -54,6 +63,7 @@ export default class Purchasing extends Component {
     purchasing: PropTypes.object.isRequired,
     employee: PropTypes.object.isRequired,
     supplier: PropTypes.object.isRequired,
+    queryBatch: PropTypes.func.isRequired,
     setDate: PropTypes.func.isRequired,
     setBatch: PropTypes.func.isRequired,
     loadEmployee: PropTypes.func.isRequired,
@@ -88,6 +98,11 @@ export default class Purchasing extends Component {
       } else if (!isEmpty(this.props.employee.employee)) {
         this.props.loadTasks();
       }
+
+      this.props.queryBatch(
+        this.props.purchasing.batch.tanggal_dibuat,
+        this.props.purchasing.batch.sesi
+      );
     }
   }
 
@@ -95,6 +110,10 @@ export default class Purchasing extends Component {
     if (!this.props.auth.token && nextProps.auth.token) {
       this.props.loadSupplier();
       this.props.loadEmployee();
+      this.props.queryBatch(
+        this.props.purchasing.batch.tanggal_dibuat,
+        this.props.purchasing.batch.sesi
+      );
     }
   }
 
@@ -193,8 +212,12 @@ export default class Purchasing extends Component {
     modalBodyScroll(false);
   };
 
+  query = (tanggal, sesi) => {
+    this.props.queryBatch(tanggal, sesi);
+  };
+
   render() {
-    const { purchasing, employee, supplier } = this.props;
+    const { purchasing, employee, supplier, queryBatch } = this.props;
 
     return (
       <Wrapper>
@@ -205,20 +228,29 @@ export default class Purchasing extends Component {
               <span>Tanggal:</span>
               <input
                 type="date"
-                value={purchasing.date}
-                onChange={evt => this.props.setDate(evt.target.value)}
+                value={purchasing.batch.tanggal_dibuat}
+                onChange={evt => queryBatch(evt.target.value, purchasing.batch.sesi)}
                 placeholder="tanggal pengaturan"
               />
             </Control>
             <Control flex>
               <span>Batch:</span>
-              <button disabled={purchasing.batch === 1} onClick={() => this.props.setBatch(1)}>
+              <button
+                disabled={purchasing.batch.sesi === 1}
+                onClick={() => queryBatch(purchasing.batch.tanggal_dibuat, 1)}
+              >
                 Cut Off 1
               </button>
-              <button disabled={purchasing.batch === 2} onClick={() => this.props.setBatch(2)}>
+              <button
+                disabled={purchasing.batch.sesi === 2}
+                onClick={() => queryBatch(purchasing.batch.tanggal_dibuat, 2)}
+              >
                 Cut Off 2
               </button>
-              <button disabled={purchasing.batch === 3} onClick={() => this.props.setBatch(3)}>
+              <button
+                disabled={purchasing.batch.sesi === 3}
+                onClick={() => queryBatch(purchasing.batch.tanggal_dibuat, 3)}
+              >
                 Final Cut Off
               </button>
             </Control>
