@@ -12,8 +12,8 @@ const DriverList = ({ editTask, tasks, dragFilter, employees }) => (
       {employees.map(employee => (
         <DriverCard
           editTask={editTask}
-          key={`driver-${employee.phone_num}`}
-          tasks={tasks[employee.phone_num]}
+          key={`driver-${employee.username}`}
+          tasks={tasks[employee.username]}
           dragFilter={dragFilter}
           employee={employee}
         />

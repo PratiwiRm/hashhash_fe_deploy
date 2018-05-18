@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Papa from 'papaparse';
-import { isEqual } from 'lodash';
+import { isEqual, isEmpty } from 'lodash';
 import swal from 'sweetalert';
 import { saveAs } from 'file-saver';
 
@@ -30,7 +30,7 @@ import { setDate, loadTasks, addTask, addTasks, editTask } from 'reducers/logist
 
 import Navigation from '../Navigation';
 
-@connect(state => ({ logistic: state.logistic, employee: state.employee }), {
+@connect(state => ({ auth: state.auth, logistic: state.logistic, employee: state.employee }), {
   setDate,
   loadEmployee,
   loadTasks,
@@ -40,6 +40,7 @@ import Navigation from '../Navigation';
 })
 export default class Logistic extends Component {
   static propTypes = {
+    auth: PropTypes.object.isRequired,
     logistic: PropTypes.object.isRequired,
     employee: PropTypes.object.isRequired,
     setDate: PropTypes.func.isRequired,
@@ -62,11 +63,23 @@ export default class Logistic extends Component {
   }
 
   componentDidMount() {
-    if (this.props.employee.dry) {
+    if (this.props.auth.token) {
+      if (this.props.employee.dry) {
+        this.props.loadEmployee();
+      } else if (!isEmpty(this.props.employee.employee)) {
+        this.props.loadTasks();
+      }
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.auth.token && nextProps.auth.token) {
       this.props.loadEmployee();
     }
+  }
 
-    if (this.props.logistic.dry) {
+  componentDidUpdate() {
+    if (!isEmpty(this.props.employee.employee) && this.props.logistic.dry) {
       this.props.loadTasks();
     }
   }
@@ -212,7 +225,7 @@ export default class Logistic extends Component {
             editTask={this.openEditModal}
             tasks={logistic.tasks}
             dragFilter={logistic.dragFilter}
-            employees={employee.employee.filter(value => value.type.toLowerCase() === 'driver')}
+            employees={employee.employee.filter(value => value.peran.toLowerCase() === 'driver')}
           />
         </DriverListWrapper>
         {this.state.addModal && (

@@ -168,7 +168,7 @@ export const employeesArrToObject = employees => {
   const empObject = {};
 
   employees.forEach(employee => {
-    empObject[employee.phone_num] = employee;
+    empObject[employee.username] = employee;
   });
 
   return empObject;

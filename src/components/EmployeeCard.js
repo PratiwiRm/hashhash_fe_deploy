@@ -1,20 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { isEmpty } from 'lodash';
 
-const EmployeeCard = ({ data, onClick }) => (
+const EmployeeCard = ({ data, onClick, supplier }) => (
   <Card onClick={onClick}>
-    <img src={data.picture} alt="profpic" />
-    <h1>{data.name}</h1>
-    <h2>{data.phone_num}</h2>
-    {data.type.toLowerCase() === 'picker' && <h6>{data.supplier}</h6>}
-    <h5>{data.type}</h5>
+    <img src={data.foto} alt="profpic" />
+    <h1>{data.nama}</h1>
+    <h2>{data.username}</h2>
+    {data.peran.toLowerCase() === 'picker' && <h6>{supplier.nama}</h6>}
+    <h5>{data.peran}</h5>
   </Card>
 );
 
 EmployeeCard.propTypes = {
   data: PropTypes.object.isRequired,
   onClick: PropTypes.func.isRequired,
+  supplier: PropTypes.object,
+};
+
+EmployeeCard.defaultProps = {
+  supplier: {
+    nama: '',
+  },
 };
 
 const Card = styled.button`
@@ -97,6 +105,7 @@ const Card = styled.button`
     color: ${props => props.theme.color.pure};
     background: ${props => props.theme.color.blue};
     border-radius: ${props => props.theme.sizing.radius.small};
+    text-transform: capitalize;
   }
 
   h6 {

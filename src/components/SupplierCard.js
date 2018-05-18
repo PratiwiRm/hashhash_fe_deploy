@@ -4,8 +4,8 @@ import styled from 'styled-components';
 const SupplierCard = ({ data, onClick }) => (
   <Card onClick={onClick}>
     <h1>#{data.id}</h1>
-    <h2>{data.name}</h2>
-    <p>{data.address}</p>
+    <h2>{data.nama}</h2>
+    <p>{data.lokasi}</p>
   </Card>
 );
 

@@ -169,8 +169,8 @@ export default class DeliveryModal extends Component {
         </ModalClose>
         <ModalTitle>{create ? 'Tambah Tugas Logistik' : 'Ubah Tugas Logistik'}</ModalTitle>
         <DeliveryModalContent>
-          <h2>Destinasi Pengambilan</h2>
           <h4>* = required</h4>
+          <h2>Destinasi Pengambilan</h2>
           <ModalInput>
             <span>Nama outlet*</span>
             <input
@@ -220,7 +220,6 @@ export default class DeliveryModal extends Component {
             {nodes[0].validation.contact && <h6>{nodes[0].validation.contact}</h6>}
           </ModalInput>
           <h2>Destinasi Pengiriman</h2>
-          <h4>* = required</h4>
           {nodes.slice(1, nodes.length).map((node, index) => (
             <DeliveryNode>
               <h3>Pengiriman #{index + 1}</h3>
@@ -302,24 +301,21 @@ const DeliveryModalContent = styled(ModalContent)`
     font-size: 2rem;
     margin-bottom: 1rem;
   }
-
-  h4 {
-    color: ${props => props.theme.color.gray};
-  }
 `;
 
 const DeliveryNode = styled.div`
   width: 100%;
-  padding: 2rem 2rem 2rem;
+  padding: 2rem;
   border-radius: ${props => props.theme.sizing.radius.regular};
   background: ${props => props.theme.color.ivory};
   margin: 2rem 0 0;
 
   & > div {
-    margin: 0 0 2rem;
+    width: calc(100% + 4rem);
+    margin: 0 -2rem 2rem;
 
     &:last-of-type {
-      margin: 0;
+      margin: 0 -2rem;
     }
   }
 `;

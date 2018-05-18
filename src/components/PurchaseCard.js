@@ -4,13 +4,13 @@ import styled from 'styled-components';
 
 import { isEmpty } from 'lodash';
 
-const PurchaseCard = ({ data }) => (
+const PurchaseCard = ({ data, supplier }) => (
   <Card buy={!isEmpty(data) && data.type === 'purchase'}>
     <h2>{!isEmpty(data) && data.type === 'purchase' ? 'Pembelian Produk' : 'Pembatalan Produk'}</h2>
     <h1>
       {!isEmpty(data) && data.quantity} {!isEmpty(data) && data.product}
     </h1>
-    <h3>{!isEmpty(data) && data.supplier}</h3>
+    <h3>{!isEmpty(supplier) && supplier.nama}</h3>
   </Card>
 );
 

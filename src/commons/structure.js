@@ -8,6 +8,7 @@ export const PICKER_TASK_HEADER_FIELDS = [
   'address',
   'address_guide',
   'product',
+  'product_img',
   'packaging',
   'quantity',
   'assigned',
@@ -24,6 +25,7 @@ export const PICKER_TASK_TEMPLATE = [
     address: 'Alamat pembeli',
     address_guide: 'Patokan alamat pembeli',
     product: 'Nama produk dengan Brand dan Varian produk',
+    product_img: 'Gambar produk (link)',
     packaging: 'Packaging produk (units, metrics)',
     quantity: 'Angka',
     assigned: 'Nomor telpon pegawai yang diberi tugas (KOSONGKAN)',
@@ -67,7 +69,7 @@ export const taskStructureTransformator = (tasks, employees) => {
   };
 
   employees.forEach(employee => {
-    newTasks[employee.phone_num] = {
+    newTasks[employee.username] = {
       local: [],
       signed: [],
     };

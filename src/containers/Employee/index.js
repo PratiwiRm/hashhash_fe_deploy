@@ -20,6 +20,7 @@ import Navigation from '../Navigation';
 
 @connect(
   state => ({
+    auth: state.auth,
     employee: state.employee,
     supplier: state.supplier,
   }),
@@ -32,6 +33,7 @@ import Navigation from '../Navigation';
 )
 export default class Employee extends Component {
   static propTypes = {
+    auth: PropTypes.object.isRequired,
     employee: PropTypes.object.isRequired,
     supplier: PropTypes.object.isRequired,
     loadEmployee: PropTypes.func.isRequired,
@@ -52,11 +54,20 @@ export default class Employee extends Component {
   }
 
   componentDidMount() {
-    if (this.props.supplier.dry) {
-      this.props.loadSupplier();
-    }
+    if (this.props.auth.token) {
+      if (this.props.supplier.dry) {
+        this.props.loadSupplier();
+      }
 
-    if (this.props.employee.dry) {
+      if (this.props.employee.dry) {
+        this.props.loadEmployee();
+      }
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.auth.token && nextProps.auth.token) {
+      this.props.loadSupplier();
       this.props.loadEmployee();
     }
   }
@@ -120,9 +131,9 @@ export default class Employee extends Component {
             .filter(value => {
               if (this.state.activeFilter === 0) {
                 return true;
-              } else if (this.state.activeFilter === 1 && value.type.toLowerCase() === 'picker') {
+              } else if (this.state.activeFilter === 1 && value.peran.toLowerCase() === 'picker') {
                 return true;
-              } else if (this.state.activeFilter === 2 && value.type.toLowerCase() === 'driver') {
+              } else if (this.state.activeFilter === 2 && value.peran.toLowerCase() === 'driver') {
                 return true;
               }
 
@@ -130,8 +141,12 @@ export default class Employee extends Component {
             })
             .map((value, index) => (
               <EmployeeCard
-                key={`${value.name}x${value.phone_num}`}
+                key={`${value.nama}x${value.username}`}
                 data={value}
+                supplier={
+                  value.peran.toLowerCase() === 'picker' &&
+                  supplier.supplier.find(el => el.id == value.id_supplier)
+                }
                 onClick={() => this.openEditModal(index)}
               />
             ))}
@@ -158,6 +173,7 @@ export default class Employee extends Component {
 }
 
 const EmployeeList = styled.div`
+  width: 100%;
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;

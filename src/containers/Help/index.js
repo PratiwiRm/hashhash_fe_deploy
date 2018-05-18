@@ -12,16 +12,21 @@ import HelpCard from 'components/HelpCard';
 import { Wrapper, ControlPanel, Controls, Control, PageTitle } from 'components/SharedElements';
 
 import { loadEmployee } from 'reducers/employee';
+import { loadSupplier } from 'reducers/supplier';
 
 import Navigation from '../Navigation';
 
-@connect(state => ({ employee: state.employee }), {
+@connect(state => ({ auth: state.auth, employee: state.employee, supplier: state.supplier }), {
   loadEmployee,
+  loadSupplier,
 })
 export default class Help extends Component {
   static propTypes = {
+    auth: PropTypes.object.isRequired,
     employee: PropTypes.object.isRequired,
+    supplier: PropTypes.array.isRequired,
     loadEmployee: PropTypes.func.isRequired,
+    loadSupplier: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -34,14 +39,27 @@ export default class Help extends Component {
   }
 
   componentDidMount() {
-    if (this.props.employee.dry) {
+    if (this.props.auth.token) {
+      if (this.props.supplier.dry) {
+        this.props.loadSupplier();
+      }
+
+      if (this.props.employee.dry) {
+        this.props.loadEmployee();
+      }
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.auth.token && nextProps.auth.token) {
+      this.props.loadSupplier();
       this.props.loadEmployee();
     }
   }
 
   render() {
     const { showActive, showResolved } = this.state;
-    const { employee } = this.props;
+    const { employee, supplier } = this.props;
     // TODO FILTER ONLY RELATED EMPLOYEE
     const filteredEmployees = employeesArrToObject(employee.employee);
 
@@ -67,9 +85,21 @@ export default class Help extends Component {
         </Divider>
         {!employee.dry && (
           <HelpList show={showActive}>
-            <HelpCard data={{ employee: '085728333045' }} employees={filteredEmployees} />
-            <HelpCard data={{ employee: '085728333045' }} employees={filteredEmployees} />
-            <HelpCard data={{ employee: '085728333045' }} employees={filteredEmployees} />
+            <HelpCard
+              data={{ employee: '085728333074' }}
+              employees={filteredEmployees}
+              supplier={supplier.supplier}
+            />
+            <HelpCard
+              data={{ employee: '089601107931' }}
+              employees={filteredEmployees}
+              supplier={supplier.supplier}
+            />
+            <HelpCard
+              data={{ employee: '085728333074' }}
+              employees={filteredEmployees}
+              supplier={supplier.supplier}
+            />
           </HelpList>
         )}
         <Divider onClick={() => this.setState({ showResolved: !this.state.showResolved })}>
@@ -80,9 +110,21 @@ export default class Help extends Component {
         </Divider>
         {!employee.dry && (
           <HelpList show={showResolved}>
-            <HelpCard data={{ employee: '085728333045' }} employees={filteredEmployees} />
-            <HelpCard data={{ employee: '085728333045' }} employees={filteredEmployees} />
-            <HelpCard data={{ employee: '085728333045' }} employees={filteredEmployees} />
+            <HelpCard
+              data={{ employee: '089601107931' }}
+              employees={filteredEmployees}
+              supplier={supplier.supplier}
+            />
+            <HelpCard
+              data={{ employee: '085728333074' }}
+              employees={filteredEmployees}
+              supplier={supplier.supplier}
+            />
+            <HelpCard
+              data={{ employee: '089601107931' }}
+              employees={filteredEmployees}
+              supplier={supplier.supplier}
+            />
           </HelpList>
         )}
       </Wrapper>

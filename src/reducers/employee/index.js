@@ -1,5 +1,10 @@
-import Dummy from 'assets/dummy.jpg';
+import Moment from 'moment';
+import swal from 'sweetalert';
+import { isEqual } from 'lodash';
 
+import * as api from 'services/api';
+
+const LOADING = 'app/employee/LOADING';
 const EMPLOYEE_LOADED = 'app/employee/EMPLOYEE_LOADED';
 const EMPLOYEE_ADDED = 'app/employee/EMPLOYEE_ADDED';
 const EMPLOYEE_EDITED = 'app/employee/EMPLOYEE_EDITED';
@@ -14,9 +19,15 @@ export default function reducer(state = initialState, action) {
   const newEmployeeList = state.employee;
 
   switch (action.type) {
+    case LOADING:
+      return {
+        ...state,
+        loading: true,
+      };
     case EMPLOYEE_LOADED:
       return {
         ...state,
+        loading: false,
         employee: action.payload,
         dry: false,
       };
@@ -25,6 +36,7 @@ export default function reducer(state = initialState, action) {
 
       return {
         ...state,
+        loading: false,
         employee: newEmployeeList,
       };
     case EMPLOYEE_EDITED:
@@ -32,11 +44,16 @@ export default function reducer(state = initialState, action) {
 
       return {
         ...state,
+        loading: false,
         employee: newEmployeeList,
       };
     default:
       return state;
   }
+}
+
+export function loading() {
+  return { type: LOADING };
 }
 
 export function employeeLoaded(employee) {
@@ -52,70 +69,129 @@ export function employeeEdited(index, employee) {
 }
 
 export function loadEmployee() {
-  return dispatch => {
-    const dummyEmployee = [
-      {
-        phone_num: '085728333045',
-        name: 'Kenny Reida Dharmawan',
-        picture: Dummy,
-        identity_number: '3374111102970002',
-        type: 'Picker',
-        supplier: 'Supplier GammaBeta',
-      },
-      {
-        phone_num: '087832250320',
-        name: 'Bob Ross',
-        picture:
-          'http://thesource.com/wp-content/uploads/2017/11/Deadpool-2-Tease-Trailer-Parodies-Bob-Ross-Painting-Lessons.png',
-        identity_number: '3374111102970002',
-        type: 'Picker',
-        supplier: 'Supplier SigmaInt',
-      },
-      {
-        phone_num: '087832250323',
-        name: 'Donald Trump',
-        picture: Dummy,
-        identity_number: '3374111102970002',
-        type: 'Driver',
-      },
-    ];
+  return async dispatch => {
+    try {
+      dispatch(loading());
 
-    dispatch(employeeLoaded(dummyEmployee));
+      let employees = [];
+      const resPicker = await api.pickerGet();
+      const resDriver = await api.driverGet();
+
+      employees = employees.concat(resPicker.body.data);
+      employees = employees.concat(resDriver.body.data);
+
+      dispatch(employeeLoaded(employees));
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Menampilkan Data Pegawai',
+        text: 'Terjadi kesalahan dalam penamiplan data pegawai',
+      });
+      console.log(e);
+    }
   };
 }
 
 export function addEmployee(newEmployee) {
-  return dispatch => {
-    const employee = {
-      phone_num: newEmployee.phone_num,
-      name: newEmployee.name,
-      picture: newEmployee.picture,
-      identity_number: newEmployee.identity_number,
-      type: newEmployee.type,
-    };
+  return async dispatch => {
+    try {
+      dispatch(loading());
 
-    if (newEmployee.type.toLowerCase() === 'picker') {
-      employee.supplier = newEmployee.supplier;
+      await api.ktpPost({
+        no_ktp: newEmployee.ktp.no_ktp,
+        alamat: newEmployee.ktp.alamat,
+        tempat_lahir: newEmployee.ktp.tempat_lahir,
+        tanggal_lahir: Moment(newEmployee.ktp.tanggal_lahir).toISOString(),
+      });
+
+      const employee = {
+        username: newEmployee.username,
+        password: newEmployee.password,
+        nama: newEmployee.nama,
+        foto: newEmployee.foto,
+        no_ktp: newEmployee.no_ktp,
+        ktp: newEmployee.ktp,
+        peran: newEmployee.peran,
+        tanggal_bergabung: Moment().toISOString(),
+      };
+
+      if (newEmployee.peran.toLowerCase() === 'picker') {
+        employee.id_supplier = newEmployee.id_supplier;
+        await api.pickerPost(employee);
+      }
+
+      if (newEmployee.peran.toLowerCase() === 'driver') {
+        await api.simPost(newEmployee.sim);
+
+        employee.no_sim = newEmployee.no_sim;
+        employee.sim = newEmployee.sim;
+
+        await api.driverPost(employee);
+      }
+
+      dispatch(employeeAdded(employee));
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Menyimpan Data Pegawai',
+        text: 'Terjadi kesalahan dalam penyimpanan data pegawai',
+      });
+      console.log(e);
     }
-
-    dispatch(employeeAdded(employee));
   };
 }
 
 export function editEmployee(index, updatedEmployee) {
-  return dispatch => {
-    const employee = {
-      phone_num: updatedEmployee.phone_num,
-      name: updatedEmployee.name,
-      picture: updatedEmployee.picture,
-      identity_number: updatedEmployee.identity_number,
-      type: updatedEmployee.type,
-    };
+  return async (dispatch, getState) => {
+    try {
+      const employees = getState().employee.employee;
 
-    if (updatedEmployee.type.toLowerCase() === 'picker') {
-      employee.supplier = updatedEmployee.supplier;
+      dispatch(loading());
+
+      if (!isEqual(employees[index].ktp, updatedEmployee.ktp)) {
+        await api.ktpPut(updatedEmployee.no_ktp, {
+          no_ktp: updatedEmployee.ktp.no_ktp,
+          alamat: updatedEmployee.ktp.alamat,
+          tempat_lahir: updatedEmployee.ktp.tempat_lahir,
+          tanggal_lahir: Moment(updatedEmployee.ktp.tanggal_lahir).toISOString(),
+        });
+      }
+
+      const employee = {
+        username: updatedEmployee.username,
+        password: updatedEmployee.password,
+        nama: updatedEmployee.nama,
+        foto: updatedEmployee.foto,
+        no_ktp: updatedEmployee.no_ktp,
+        ktp: updatedEmployee.ktp,
+        peran: updatedEmployee.peran,
+        tanggal_bergabung: employees[index].tanggal_bergabung,
+      };
+
+      if (updatedEmployee.peran.toLowerCase() === 'picker') {
+        employee.id_supplier = updatedEmployee.id_supplier;
+        await api.pickerPut(updatedEmployee.username, employee);
+      }
+
+      if (updatedEmployee.peran.toLowerCase() === 'driver') {
+        if (!isEqual(employees[index].sim, updatedEmployee.sim)) {
+          await api.simPut(updatedEmployee.no_sim, updatedEmployee.sim);
+
+          employee.no_sim = updatedEmployee.no_sim;
+          employee.sim = updatedEmployee.sim;
+        }
+
+        await api.driverPut(updatedEmployee.username, employee);
+      }
+
+      dispatch(employeeEdited(index, employee));
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Mengubah Data Pegawai',
+        text: 'Terjadi kesalahan dalam pengubahan data pegawai',
+      });
+      console.log(e);
     }
-
-    dispatch(employeeEdited(index, employee));
   };
 }

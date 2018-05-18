@@ -8,6 +8,7 @@ export default class HelpCard extends Component {
   static propTypes = {
     data: PropTypes.object.isRequired,
     employees: PropTypes.object.isRequired,
+    supplier: PropTypes.object.isRequired,
   };
 
   constructor() {
@@ -22,18 +23,17 @@ export default class HelpCard extends Component {
   render() {
     const { showResolve, resolveMsg } = this.state;
     const { data, employees } = this.props;
+    const supplier = this.props.supplier.find(el => el.id == employees[data.employee].id_supplier);
 
     return (
       <Wrapper>
         <Profile expand={showResolve}>
-          <img src={employees[data.employee].picture} alt="profpic" />
+          <img src={employees[data.employee].foto} alt="profpic" />
           <div>
-            <h1>{employees[data.employee].name}</h1>
-            <h2>{employees[data.employee].phone_num}</h2>
-            {employees[data.employee].type.toLowerCase() === 'picker' && (
-              <h6>{employees[data.employee].supplier}</h6>
-            )}
-            <h5>{employees[data.employee].type}</h5>
+            <h1>{employees[data.employee].nama}</h1>
+            <h2>{employees[data.employee].username}</h2>
+            {employees[data.employee].peran.toLowerCase() === 'picker' && <h6>{supplier.nama}</h6>}
+            <h5>{employees[data.employee].peran}</h5>
           </div>
         </Profile>
         <HelpContext expand={showResolve}>
@@ -93,6 +93,7 @@ const Profile = styled.div`
     flex: ${props => (props.expand ? '2' : '1')};
     display: block;
     height: 10rem;
+    width: 15rem;
     object-fit: cover;
     border-radius: ${props => props.theme.sizing.radius.card} 0 0
       ${props => (props.expand ? '0' : props.theme.sizing.radius.card)};
@@ -131,6 +132,7 @@ const Profile = styled.div`
       color: ${props => props.theme.color.pure};
       background: ${props => props.theme.color.blue};
       border-radius: ${props => props.theme.sizing.radius.small};
+      text-transform: capitalize;
     }
 
     h6 {

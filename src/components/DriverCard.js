@@ -43,17 +43,17 @@ export default class PickerCard extends Component {
     const locallyAssigned = tasks.local;
 
     return (
-      <Droppable droppableId={`logistic-${employee.phone_num}`}>
+      <Droppable droppableId={`logistic-${employee.username}`}>
         {(provided, snapshot) => (
           <Card innerRef={provided.innerRef} {...provided.droppableProps}>
             <Overlay active={snapshot.isDraggingOver}>
               <h1>Drop disini untuk memberikan tugas ke {employee.name}</h1>
             </Overlay>
             <Head>
-              <img src={employee.picture} alt="Profpic" />
+              <img src={employee.foto} alt="Profpic" />
               <div className="info">
-                <h1>{employee.name}</h1>
-                <strong>{employee.phone_num}</strong>
+                <h1>{employee.nama}</h1>
+                <strong>{employee.username}</strong>
               </div>
             </Head>
             {taskDoing && (
@@ -96,7 +96,7 @@ export default class PickerCard extends Component {
                           {...innerProvided.draggableProps}
                           {...innerProvided.dragHandleProps}
                           style={innerProvided.draggableProps.style}
-                          onClick={() => editTask(employee.phone_num, index)}
+                          onClick={() => editTask(employee.username, index)}
                         >
                           <DeliveryCard data={task} />
                         </div>

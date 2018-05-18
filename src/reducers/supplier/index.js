@@ -1,3 +1,7 @@
+import swal from 'sweetalert';
+
+import * as api from 'services/api';
+
 const SUPPLIER_LOADED = 'app/employee/SUPPLIER_LOADED';
 const SUPPLIER_ADDED = 'app/employee/SUPPLIER_ADDED';
 const SUPPLIER_EDITED = 'app/employee/SUPPLIER_EDITED';
@@ -50,52 +54,56 @@ export function supplierEdited(index, employee) {
 }
 
 export function loadSupplier() {
-  return dispatch => {
-    const dummySupplier = [
-      {
-        id: '1',
-        name: 'Supplier SigmaInt',
-        address:
-          'Jl. Mayjen DI Panjaitan No. 1C, Kebon Pala, Makasar, RT. 001 RW. 006, RT.1/RW.6, Kb. Pala, Makasar, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13650',
-      },
-      {
-        id: '2',
-        name: 'Supplier UltraKappa',
-        address:
-          'Jl. Mayjen DI Panjaitan No. 1C, Kebon Pala, Makasar, RT. 001 RW. 006, RT.1/RW.6, Kb. Pala, Makasar, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13650',
-      },
-      {
-        id: '3',
-        name: 'Supplier GammaBeta',
-        address:
-          'Jl. Mayjen DI Panjaitan No. 1C, Kebon Pala, Makasar, RT. 001 RW. 006, RT.1/RW.6, Kb. Pala, Makasar, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13650',
-      },
-    ];
+  return async dispatch => {
+    try {
+      const { body } = await api.supplierGet();
 
-    dispatch(supplierLoaded(dummySupplier));
+      dispatch(supplierLoaded(body.data));
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Menampilkan Data Supplier',
+        text: 'Terjadi kesalahan dalam penampilan data supplier',
+      });
+      console.log(e);
+    }
   };
 }
 
 export function addSupplier(newSupplier) {
-  return (dispatch, getState) => {
-    const supplier = {
-      id: getState().supplier.supplier.length,
-      name: newSupplier.name,
-      address: newSupplier.address,
-    };
+  return async dispatch => {
+    try {
+      const { body } = await api.supplierPost(newSupplier);
 
-    dispatch(supplierAdded(supplier));
+      dispatch(supplierAdded(body.data));
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Menyimpan Data Supplier',
+        text: 'Terjadi kesalahan dalam penyimpanan data supplier',
+      });
+      console.log(e);
+    }
   };
 }
 
 export function editSupplier(index, updatedSupplier) {
-  return dispatch => {
-    const supplier = {
-      id: updatedSupplier.id,
-      name: updatedSupplier.name,
-      address: updatedSupplier.address,
-    };
+  return async dispatch => {
+    try {
+      const supplier = { ...updatedSupplier };
+      const { id } = updatedSupplier;
+      delete supplier.id;
 
-    dispatch(supplierEdited(index, supplier));
+      const { body } = await api.supplierPut(id, supplier);
+
+      dispatch(supplierEdited(index, body.data));
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Mengubah Data Supplier',
+        text: 'Terjadi kesalahan dalam pengubahan data supplier',
+      });
+      console.log(e);
+    }
   };
 }

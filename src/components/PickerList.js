@@ -2,21 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { media } from 'commons/theme';
-
 import PickerCard from 'components/PickerCard';
 
-const PickerList = ({ editTask, tasks, dragFilter, typeFilter, employees }) => (
+const PickerList = ({ editTask, tasks, dragFilter, typeFilter, employees, supplier }) => (
   <Wrapper>
     <div className="container">
       {employees.map(employee => (
         <PickerCard
           editTask={editTask}
-          key={`employee-${employee.phone_num}`}
-          tasks={tasks[employee.phone_num]}
+          key={`employee-${employee.username}`}
+          tasks={tasks[employee.username]}
           dragFilter={dragFilter}
           typeFilter={typeFilter}
           employee={employee}
+          supplier={supplier.find(el => el.id == employee.id_supplier)}
         />
       ))}
     </div>
@@ -27,6 +26,7 @@ PickerList.propTypes = {
   editTask: PropTypes.func.isRequired,
   tasks: PropTypes.object.isRequired,
   employees: PropTypes.array.isRequired,
+  supplier: PropTypes.array.isRequired,
   dragFilter: PropTypes.string.isRequired,
   typeFilter: PropTypes.string.isRequired,
 };

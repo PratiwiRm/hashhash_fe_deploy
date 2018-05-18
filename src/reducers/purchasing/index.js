@@ -202,7 +202,7 @@ export function setTask(task, loc, idx) {
 
 export function loadTasks() {
   return (dispatch, getState) => {
-    const employees = getState().employee.employee.filter(employee => employee.type.toLowerCase() === 'picker');
+    const employees = getState().employee.employee.filter(employee => employee.peran.toLowerCase() === 'picker');
 
     const dummyTasks = [
       {
@@ -214,11 +214,13 @@ export function loadTasks() {
           'Jl. Kebagusan I No.45, Kebagusan, Ps. Minggu, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12520, Indonesia',
         address_guide: '',
         product: 'Kantong Plastik Merah - L (500 g), OTO',
+        product_img:
+          'https://res.cloudinary.com/dharmawan/image/upload/v1526576901/20170816_130445_pe9jmy.jpg',
         packaging: 'Pak (28.0 cm)',
         quantity: '20',
         assigned: '',
         type: 'purchase',
-        supplier: 'Supplier GammaBeta',
+        id_supplier: 2,
       },
       {
         order_id: '94618de7-3428-4ff5-a8fa-b96ce8a8404e',
@@ -229,11 +231,13 @@ export function loadTasks() {
           'Jl. Kebagusan I No.45, Kebagusan, Ps. Minggu, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12520, Indonesia',
         address_guide: '',
         product: 'Minyak Goreng, BIMOLI KLASIK',
+        product_img:
+          'https://res.cloudinary.com/dharmawan/image/upload/v1526576901/20170816_130445_pe9jmy.jpg',
         packaging: 'Jerigen (18.0 ltr)',
         quantity: '5',
-        assigned: '085728333045',
+        assigned: '',
         type: 'purchase',
-        supplier: 'Supplier GammaBeta',
+        id_supplier: 3,
       },
       {
         order_id: '94618de7-3428-4ff5-a8fa-b96ce8a8404d',
@@ -244,10 +248,13 @@ export function loadTasks() {
           'Jl. Kebagusan I No.45, Kebagusan, Ps. Minggu, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12520, Indonesia',
         address_guide: '',
         product: 'Minyak Goreng, BIMOLI KLASIK',
+        product_img:
+          'https://res.cloudinary.com/dharmawan/image/upload/v1526576901/20170816_130445_pe9jmy.jpg',
         packaging: 'Jerigen (18.0 ltr)',
         quantity: '5',
-        assigned: '085728333045',
+        assigned: '089601107931',
         type: 'purchase',
+        id_supplier: 1,
         supplier: 'Supplier GammaBeta',
       },
       {
@@ -259,11 +266,13 @@ export function loadTasks() {
           'Jl. Kebagusan I No.45, Kebagusan, Ps. Minggu, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12520, Indonesia',
         address_guide: '',
         product: 'Mie Goreng - Special (85 g), INDOMIE',
+        product_img:
+          'https://res.cloudinary.com/dharmawan/image/upload/v1526576901/20170816_130445_pe9jmy.jpg',
         packaging: 'Karton (40.0 piece)',
         quantity: '5',
-        assigned: '087832250320',
+        assigned: '089601107931',
         type: 'purchase',
-        supplier: 'Supplier SigmaInt',
+        id_supplier: 1,
       },
       {
         order_id: '94618de7-3428-4ff5-a8fa-b96ce8a8404a',
@@ -274,11 +283,13 @@ export function loadTasks() {
           'Jl. Kebagusan I No.45, Kebagusan, Ps. Minggu, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12520, Indonesia',
         address_guide: '',
         product: 'Sabun Cuci Piring - Liquid Lime, SUNLIGHT',
+        product_img:
+          'https://res.cloudinary.com/dharmawan/image/upload/v1526576901/20170816_130445_pe9jmy.jpg',
         packaging: 'Kantong (800.0 ml)',
         quantity: '25',
         assigned: '',
         type: 'cancel',
-        supplier: 'Supplier SigmaInt',
+        id_supplier: 2,
       },
       {
         order_id: '94618de7-3428-4ff5-a8fa-b96ce8a8404x',
@@ -289,11 +300,13 @@ export function loadTasks() {
           'Jl. Kebagusan I No.45, Kebagusan, Ps. Minggu, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12520, Indonesia',
         address_guide: '',
         product: 'Tepung Terigu, SEGITIGA BIRU',
+        product_img:
+          'https://res.cloudinary.com/dharmawan/image/upload/v1526576901/20170816_130445_pe9jmy.jpg',
         packaging: 'Karung (25.0 kg)',
         quantity: '4',
-        assigned: '087832250320',
+        assigned: '089601107931',
         type: 'cancel',
-        supplier: 'Supplier SigmaInt',
+        id_supplier: 1,
       },
     ];
 

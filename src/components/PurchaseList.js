@@ -5,7 +5,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 import PurchaseCard from 'components/PurchaseCard';
 
-const PurchaseList = ({ addTask, editTask, tasks }) => (
+const PurchaseList = ({ addTask, editTask, tasks, supplier }) => (
   <Wrapper>
     <Header>Daftar Pembelian</Header>
     <Content>
@@ -18,8 +18,8 @@ const PurchaseList = ({ addTask, editTask, tasks }) => (
           >
             {tasks.map((task, index) => (
               <Draggable
-                key={`purchasing-${task.supplier}-${task.order_id}-${task.product}`}
-                draggableId={`purchasing-${task.supplier}-${task.order_id}-${task.product}`}
+                key={`purchasing-${task.id_supplier}-${task.order_id}-${task.product}`}
+                draggableId={`purchasing-${task.id_supplier}-${task.order_id}-${task.product}`}
                 index={index}
               >
                 {(innerProvided, innerSnapshot) => (
@@ -30,7 +30,10 @@ const PurchaseList = ({ addTask, editTask, tasks }) => (
                     style={innerProvided.draggableProps.style}
                     onClick={() => editTask('unassigned', index)}
                   >
-                    <PurchaseCard data={task} />
+                    <PurchaseCard
+                      data={task}
+                      supplier={supplier.find(sup => sup.id == task.id_supplier)}
+                    />
                   </div>
                 )}
               </Draggable>
@@ -48,10 +51,12 @@ PurchaseList.propTypes = {
   addTask: PropTypes.func.isRequired,
   editTask: PropTypes.func.isRequired,
   tasks: PropTypes.array,
+  supplier: PropTypes.array,
 };
 
 PurchaseList.defaultProps = {
   tasks: [],
+  supplier: [],
 };
 
 const Wrapper = styled.div`

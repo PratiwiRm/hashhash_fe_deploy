@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import { media } from 'commons/theme';
 
-import SplashImg from 'assets/splash_login.png';
+import SplashImg from 'assets/splash_login.jpg';
 import LogoImg from 'assets/logo_white_shadow.svg';
 
 import { login } from 'reducers/auth';
@@ -31,11 +31,15 @@ export default class AuthPage extends Component {
 
   setInput = (field, value) => this.setState({ [field]: value });
 
-  go = evt => {
-    evt.preventDefault();
-
+  go = () => {
     if (this.validate()) {
       this.props.login(this.state.username, this.state.password);
+    }
+  };
+
+  keyDown = key => {
+    if (key.which === 13) {
+      this.go();
     }
   };
 
@@ -74,6 +78,7 @@ export default class AuthPage extends Component {
                 type="text"
                 value={this.state.username}
                 onChange={evt => this.setInput('username', evt.target.value)}
+                onKeyDown={this.keyDown}
                 placeholder="Username"
               />
               {this.state.validation.username && <h6>{this.state.validation.username}</h6>}
@@ -81,6 +86,7 @@ export default class AuthPage extends Component {
                 type="password"
                 value={this.state.password}
                 onChange={evt => this.setInput('password', evt.target.value)}
+                onKeyDown={this.keyDown}
                 placeholder="Kata Sandi"
               />
               {this.state.validation.password && <h6>{this.state.validation.password}</h6>}
@@ -188,8 +194,15 @@ const Login = styled.div`
       border-radius: 1rem;
       color: ${props => props.theme.color.white};
       background: ${props => props.theme.color.blue};
+      transition: 0.25s ease all;
       font-size: 1rem;
       font-weight: 700;
+
+      &:hover,
+      &:focus {
+        background: rgba(255, 255, 255, 0.5);
+        transition: 0.25s ease all;
+      }
     }
   }
 `;

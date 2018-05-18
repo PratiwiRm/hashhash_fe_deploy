@@ -291,16 +291,47 @@ export const ModalContent = styled.div`
   border-radius: ${props => props.theme.sizing.radius.card};
   box-shadow: ${props => props.theme.shadow.regular};
   padding: 2rem;
+
+  h4 {
+    font-size: 0.875rem;
+    width: calc(100% + 4rem);
+    margin: -2rem -2rem 2rem;
+    padding: 0.75rem 2rem;
+    border-radius: ${props => props.theme.sizing.radius.card}
+      ${props => props.theme.sizing.radius.card} 0 0;
+    color: ${props => props.theme.color.blue};
+    background: ${props => props.theme.color.ivory};
+    text-transform: uppercase;
+  }
 `;
 
 export const ModalInput = styled(InputWrapper)`
-  width: 100%;
-  margin: 2rem 0 0;
+  width: calc(100% + 4rem);
+  margin: 2rem -2rem 0;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
 
   input,
-  select {
-    font-size: 1rem;
-    padding: 0.75rem 1.5rem;
+  select,
+  textarea {
+    width: 100%;
+    font-size: 1.5rem;
+    padding: 0.75rem 2rem;
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 0.1rem solid ${props => props.theme.color.pegasus};
+  }
+
+  span {
+    width: calc(100% - 4rem);
+    margin: 0 2rem;
+  }
+
+  h6 {
+    margin: 0;
+    border-radius: 0;
   }
 
   select,
@@ -308,6 +339,89 @@ export const ModalInput = styled(InputWrapper)`
   select:focus,
   select:active {
     background-position: 97.5% 50%;
+  }
+`;
+
+export const ModalImageInput = styled.div`
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: center;
+  margin: 2rem 0 0;
+
+  & > img {
+    width: 10rem;
+    height: 10rem;
+    border: 0.2rem solid ${props => props.theme.color.pure};
+    border-radius: ${props => props.theme.sizing.radius.regular};
+    box-shadow: ${props => props.theme.shadow.lite};
+    margin-right: 1rem;
+    object-fit: cover;
+    opacity: ${props => (props.uploading ? '0.5' : '1')};
+    transition: 0.25s ease all;
+  }
+
+  & > div {
+    flex: 1;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+
+    span {
+      width: 100%;
+      font-size: 0.875rem;
+      font-weight: 400;
+      margin: 0 0 0.25rem;
+      color: ${props => props.theme.color.gray};
+    }
+
+    label {
+      display: inline-block;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.5rem 1rem;
+      margin: 0 0.5rem 0 0;
+      cursor: pointer;
+      color: ${props => props.theme.color.pure};
+      background: ${props => props.theme.color.blue};
+      opacity: ${props => (props.uploading ? '0.5' : '1')};
+      transition: 0.25s ease all;
+      border: none;
+      outline: none;
+      box-shadow: ${props => props.theme.shadow.lite};
+      border-radius: ${props => props.theme.sizing.radius.regular};
+
+      &:hover,
+      &:focus,
+      &:disabled {
+        transition: 0.25s ease all;
+        opacity: 0.5;
+      }
+
+      & > input {
+        display: none;
+      }
+
+      img {
+        height: 0.875rem;
+        width: auto;
+        margin-right: 0.5rem;
+      }
+    }
+
+    h6 {
+      font-size: 0.875rem;
+      font-weight: 700;
+      margin: 0.25rem 0 0;
+      padding: 0.5rem 1rem;
+      color: ${props => props.theme.color.pure};
+      background: ${props => props.theme.color.red};
+      border-radius: ${props => props.theme.sizing.radius.small};
+    }
   }
 `;
 

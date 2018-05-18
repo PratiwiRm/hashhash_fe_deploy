@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import Papa from 'papaparse';
-import { isEqual } from 'lodash';
+import { isEqual, isEmpty } from 'lodash';
 import swal from 'sweetalert';
 import { saveAs } from 'file-saver';
 
@@ -31,7 +31,12 @@ import { loadSupplier } from 'reducers/supplier';
 import Navigation from '../Navigation';
 
 @connect(
-  state => ({ purchasing: state.purchasing, employee: state.employee, supplier: state.supplier }),
+  state => ({
+    auth: state.auth,
+    purchasing: state.purchasing,
+    employee: state.employee,
+    supplier: state.supplier,
+  }),
   {
     setDate,
     setBatch,
@@ -45,6 +50,7 @@ import Navigation from '../Navigation';
 )
 export default class Purchasing extends Component {
   static propTypes = {
+    auth: PropTypes.object.isRequired,
     purchasing: PropTypes.object.isRequired,
     employee: PropTypes.object.isRequired,
     supplier: PropTypes.object.isRequired,
@@ -72,15 +78,28 @@ export default class Purchasing extends Component {
   }
 
   componentDidMount() {
-    if (this.props.supplier.dry) {
-      this.props.loadSupplier();
-    }
+    if (this.props.auth.token) {
+      if (this.props.supplier.dry) {
+        this.props.loadSupplier();
+      }
 
-    if (this.props.employee.dry) {
+      if (this.props.employee.dry) {
+        this.props.loadEmployee();
+      } else if (!isEmpty(this.props.employee.employee)) {
+        this.props.loadTasks();
+      }
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.auth.token && nextProps.auth.token) {
+      this.props.loadSupplier();
       this.props.loadEmployee();
     }
+  }
 
-    if (this.props.purchasing.dry) {
+  componentDidUpdate() {
+    if (!isEmpty(this.props.employee.employee) && this.props.purchasing.dry) {
       this.props.loadTasks();
     }
   }
@@ -235,8 +254,8 @@ export default class Purchasing extends Component {
               >
                 <option value="all">Semua Supplier</option>
                 {supplier.supplier.map(value => (
-                  <option key={`${value.id}x${value.name}`} value={value.name}>
-                    {value.name}
+                  <option key={`${value.id}x${value.nama}`} value={value.id}>
+                    {value.nama}
                   </option>
                 ))}
               </select>
@@ -268,6 +287,7 @@ export default class Purchasing extends Component {
           <PurchaseList
             addTask={this.toggleAddModal}
             editTask={this.openEditModal}
+            supplier={supplier.supplier}
             tasks={purchasing.tasks.unassigned.filter(value => {
               let flag = true;
 
@@ -293,7 +313,7 @@ export default class Purchasing extends Component {
             dragFilter={purchasing.dragFilter}
             typeFilter={this.state.typeFilter}
             employees={employee.employee.filter(value => {
-              let flag = value.type.toLowerCase() === 'picker';
+              let flag = value.peran.toLowerCase() === 'picker';
 
               if (
                 this.state.supplierFilter !== 'all' &&
@@ -304,6 +324,7 @@ export default class Purchasing extends Component {
 
               return flag;
             })}
+            supplier={supplier.supplier}
           />
         </PickerListWrapper>
         {this.state.addModal && (

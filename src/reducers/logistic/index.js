@@ -197,7 +197,7 @@ export function setTask(task, loc, idx) {
 
 export function loadTasks() {
   return (dispatch, getState) => {
-    const employees = getState().employee.employee.filter(employee => employee.type.toLowerCase() === 'driver');
+    const employees = getState().employee.employee.filter(employee => employee.peran.toLowerCase() === 'driver');
 
     const dummyTasks = [
       {
@@ -245,8 +245,8 @@ export function loadTasks() {
       },
       {
         delivery_id: '2043eeef-a75f-41fe-b64b-3e05413664e5',
-        assigned: '087832250323',
-        status: 'doing',
+        assigned: '',
+        status: 'pending',
         pick_ups: [
           {
             outlet: 'Sorting Hub',

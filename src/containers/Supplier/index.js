@@ -19,6 +19,7 @@ import Navigation from '../Navigation';
 
 @connect(
   state => ({
+    auth: state.auth,
     supplier: state.supplier,
   }),
   {
@@ -29,6 +30,7 @@ import Navigation from '../Navigation';
 )
 export default class Supplier extends Component {
   static propTypes = {
+    auth: PropTypes.object.isRequired,
     supplier: PropTypes.object.isRequired,
     loadSupplier: PropTypes.func.isRequired,
     addSupplier: PropTypes.func.isRequired,
@@ -46,7 +48,17 @@ export default class Supplier extends Component {
   }
 
   componentDidMount() {
-    this.props.loadSupplier();
+    if (this.props.auth.token) {
+      if (this.props.supplier.dry) {
+        this.props.loadSupplier();
+      }
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.auth.token && nextProps.auth.token) {
+      this.props.loadSupplier();
+    }
   }
 
   downloadSupplierData = () => {
@@ -88,13 +100,23 @@ export default class Supplier extends Component {
           </Controls>
         </ControlPanel>
         <SupplierList>
-          {supplier.supplier.map((value, index) => (
-            <SupplierCard
-              key={`${value.id}x${value.name}`}
-              data={value}
-              onClick={() => this.openEditModal(index)}
-            />
-          ))}
+          {supplier.supplier
+            .sort((a, b) => {
+              if (a.id < b.id) {
+                return -1;
+              } else if (a.id > b.id) {
+                return 1;
+              }
+
+              return 0;
+            })
+            .map((value, index) => (
+              <SupplierCard
+                key={`${value.id}x${value.nama}`}
+                data={value}
+                onClick={() => this.openEditModal(index)}
+              />
+            ))}
         </SupplierList>
         {this.state.addModal && (
           <SupplierModal create save={this.props.addSupplier} close={this.toggleAddModal} />
@@ -112,6 +134,7 @@ export default class Supplier extends Component {
 }
 
 const SupplierList = styled.div`
+  width: 100%;
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
