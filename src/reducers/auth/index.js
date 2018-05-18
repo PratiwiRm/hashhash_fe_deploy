@@ -1,4 +1,6 @@
+import swal from 'sweetalert';
 import { push } from 'react-router-redux';
+
 import request, * as api from 'services/api';
 import SITEMAP from 'commons/sitemap';
 
@@ -74,10 +76,22 @@ export function logout() {
 export function reloadAuth() {
   return async dispatch => {
     try {
-      const { token, user } = window.localStorage;
+      const { token } = window.localStorage;
+      const user = JSON.parse(window.localStorage.user);
+
       if (token) {
-        request.set('Authorization', `Token ${token}`);
-        dispatch(setAuth({ token, user }));
+        if (user.peran === 'picker' || user.peran === 'driver') {
+          swal({
+            icon: 'error',
+            title: 'Gagal masuk',
+            text: 'Akun anda tidak memiliki akses ke sistem ini',
+          });
+          dispatch(setError('unauthorized'));
+          dispatch(logout());
+        } else {
+          request.set('Authorization', `Token ${token}`);
+          dispatch(setAuth({ token, user }));
+        }
       } else {
         dispatch(logout());
       }
@@ -92,12 +106,27 @@ export function login(username, password) {
     try {
       dispatch(loading());
       const { body } = await api.loginPost(username, password);
-      window.localStorage.setItem('token', body.data.token);
-      window.localStorage.setItem('user', body.data.pegawai);
-      request.set('Authorization', `Token ${body.data.token}`);
-      dispatch(push(SITEMAP.index));
-      dispatch(setAuth({ token: body.data.token, user: body.data.pegawai }));
+
+      if (body.data.pegawai.peran === 'picker' || body.data.pegawai.peran === 'driver') {
+        swal({
+          icon: 'error',
+          title: 'Gagal masuk',
+          text: 'Akun anda tidak memiliki akses ke sistem ini',
+        });
+        dispatch(setError('unauthorized'));
+      } else {
+        window.localStorage.setItem('token', body.data.token);
+        window.localStorage.setItem('user', JSON.stringify(body.data.pegawai));
+        request.set('Authorization', `Token ${body.data.token}`);
+        dispatch(push(SITEMAP.index));
+        dispatch(setAuth({ token: body.data.token, user: body.data.pegawai }));
+      }
     } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Gagal masuk',
+        text: 'Terjadi kesalahan dalam proses masuk',
+      });
       dispatch(setError(e.message));
     }
   };
