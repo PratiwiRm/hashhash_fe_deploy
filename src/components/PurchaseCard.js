@@ -5,10 +5,12 @@ import styled from 'styled-components';
 import { isEmpty } from 'lodash';
 
 const PurchaseCard = ({ data, supplier }) => (
-  <Card buy={!isEmpty(data) && data.type === 'purchase'}>
-    <h2>{!isEmpty(data) && data.type === 'purchase' ? 'Pembelian Produk' : 'Pembatalan Produk'}</h2>
+  <Card buy={!isEmpty(data) && data.jenis_sub_task === 1}>
+    <h2>
+      {!isEmpty(data) && data.jenis_sub_task === 1 ? 'Pembelian Produk' : 'Pembatalan Produk'}
+    </h2>
     <h1>
-      {!isEmpty(data) && data.quantity} {!isEmpty(data) && data.product}
+      {!isEmpty(data) && data.total_jumlah} {!isEmpty(data) && data.nama_barang}
     </h1>
     <h3>{!isEmpty(supplier) && supplier.nama}</h3>
   </Card>

@@ -112,16 +112,19 @@ export default class Purchasing extends Component {
     if (!this.props.auth.token && nextProps.auth.token) {
       this.props.loadSupplier();
       this.props.loadEmployee();
-      this.props.queryBatch(
-        this.props.purchasing.batch.tanggal_dibuat,
-        this.props.purchasing.batch.sesi
-      );
     }
   }
 
   componentDidUpdate() {
-    if (!isEmpty(this.props.employee.employee) && this.props.purchasing.dry) {
-      this.props.loadTasks();
+    if (
+      !isEmpty(this.props.employee.employee) &&
+      this.props.purchasing.dry &&
+      !this.props.purchasing.loading
+    ) {
+      this.props.queryBatch(
+        this.props.purchasing.batch.tanggal_dibuat,
+        this.props.purchasing.batch.sesi
+      );
     }
   }
 
@@ -309,13 +312,13 @@ export default class Purchasing extends Component {
               </button>
               <button
                 disabled={this.state.typeFilter === 'purchase'}
-                onClick={() => this.setState({ typeFilter: 'purchase' })}
+                onClick={() => this.setState({ typeFilter: 1 })}
               >
                 Pembelian
               </button>
               <button
                 disabled={this.state.typeFilter === 'cancel'}
-                onClick={() => this.setState({ typeFilter: 'cancel' })}
+                onClick={() => this.setState({ typeFilter: 0 })}
               >
                 Pembatalan
               </button>
@@ -330,13 +333,16 @@ export default class Purchasing extends Component {
             tasks={purchasing.tasks.unassigned.filter(value => {
               let flag = true;
 
-              if (this.state.typeFilter !== 'all' && this.state.typeFilter !== value.type) {
+              if (
+                this.state.typeFilter !== 'all' &&
+                this.state.typeFilter !== value.jenis_sub_task
+              ) {
                 flag = false;
               }
 
               if (
                 this.state.supplierFilter !== 'all' &&
-                this.state.supplierFilter !== value.supplier
+                this.state.supplierFilter != value.id_supplier
               ) {
                 flag = false;
               }
@@ -357,7 +363,7 @@ export default class Purchasing extends Component {
 
               if (
                 this.state.supplierFilter !== 'all' &&
-                this.state.supplierFilter !== value.supplier
+                this.state.supplierFilter != value.id_supplier
               ) {
                 flag = false;
               }

@@ -41,27 +41,27 @@ export default class PickerCard extends Component {
     const { editTask, tasks, dragFilter, typeFilter, employee, supplier } = this.props;
 
     const taskDoing = tasks.signed.find(value => {
-      let flag = value.status === 'doing';
+      let flag = value.status === 1;
 
-      if (typeFilter !== 'all' && typeFilter !== value.type) {
+      if (typeFilter !== 'all' && typeFilter !== value.jenis_sub_task) {
         flag = false;
       }
 
       return flag;
     });
     const tasksTodo = tasks.signed.filter(value => {
-      let flag = value.status === 'pending';
+      let flag = value.status === 0;
 
-      if (typeFilter !== 'all' && typeFilter !== value.type) {
+      if (typeFilter !== 'all' && typeFilter !== value.jenis_sub_task) {
         flag = false;
       }
 
       return flag;
     });
     const tasksDone = tasks.signed.filter(value => {
-      let flag = value.status === 'done';
+      let flag = value.status >= 3;
 
-      if (typeFilter !== 'all' && typeFilter !== value.type) {
+      if (typeFilter !== 'all' && typeFilter !== value.jenis_sub_task) {
         flag = false;
       }
 

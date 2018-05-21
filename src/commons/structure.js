@@ -1,36 +1,20 @@
 import { isEmpty } from 'lodash';
 
 export const PICKER_TASK_HEADER_FIELDS = [
-  'order_id',
-  'delivery_date',
-  'status',
-  'customer',
-  'address',
-  'address_guide',
-  'product',
-  'product_img',
-  'packaging',
-  'quantity',
-  'assigned',
-  'type',
-  'supplier',
+  'jenis_sub_task',
+  'total_jumlah',
+  'nama_barang',
+  'id_supplier',
+  'foto_contoh_barang',
 ];
 
 export const PICKER_TASK_TEMPLATE = [
   {
-    order_id: 'Unique UUID16 order_id from XYZ',
-    delivery_date: 'Tanggal pengiriman dengan format YYYY/MM/DD',
-    status: 'pending/doing/done',
-    customer: 'Nama pembeli',
-    address: 'Alamat pembeli',
-    address_guide: 'Patokan alamat pembeli',
-    product: 'Nama produk dengan Brand dan Varian produk',
-    product_img: 'Gambar produk (link)',
-    packaging: 'Packaging produk (units, metrics)',
-    quantity: 'Angka',
-    assigned: 'Nomor telpon pegawai yang diberi tugas (KOSONGKAN)',
-    type: 'purchase/cancel',
-    supplier: 'Nama Supplier',
+    jenis_sub_task: '0 Untuk Pembatalan, 1 Untuk Pembelian',
+    total_jumlah: 'Angka',
+    nama_barang: 'Kombo Nama',
+    id_supplier: 'ID Supplier sesuai dengan data di halaman supplier',
+    foto_contoh_barang: 'URL Foto Barang',
   },
 ];
 
@@ -171,7 +155,10 @@ export const countDuplicatedPickerTasks = (source, check) => {
   let duplicateCounter = 0;
 
   flattenSource.concat(check).forEach(task => {
-    const key = `${task.supplier}-${task.order_id}-${task.product}`;
+    const key = `${task.id_supplier}-${task.nama_barang}-${task.total_jumlah}-${
+      task.jenis_sub_task
+    }`;
+    console.log(key);
 
     if (key in duplicateTemp) {
       duplicateCounter += 1;

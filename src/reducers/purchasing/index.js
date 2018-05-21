@@ -1,7 +1,9 @@
 import Moment from 'moment';
 import swal from 'sweetalert';
 
-import { taskStructureTransformator, arrayRearanger, arrayMover } from 'commons/structure';
+import { isEmpty } from 'lodash';
+
+import { taskStructurize, arrayRearanger, arrayMover } from 'commons/structure';
 
 import * as api from 'services/api';
 
@@ -61,13 +63,14 @@ export default function reducer(state = initialState, action) {
     case SET_BATCH:
       return {
         ...state,
-        loading: false,
         batch: {
           ...action.payload,
           tanggal_dibuat: Moment(action.payload.tanggal_dibuat)
             .format('YYYY-MM-DD')
             .toString(),
         },
+        dry: false,
+        loading: false,
       };
     case SWAP_TASK:
       if (action.payload.loc !== 'unassigned') {
@@ -147,6 +150,7 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         tasks,
+        loading: false,
       };
     case ADD_UNASSIGNED_TASKS:
       tasks.unassigned = [...tasks.unassigned, ...action.payload];
@@ -154,6 +158,7 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         tasks,
+        loading: false,
       };
     case SET_TASK:
       if (action.payload.loc === 'unassigned') {
@@ -172,6 +177,7 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         tasks,
+        loading: false,
       };
     default:
       return state;
@@ -227,9 +233,17 @@ export function setTask(task, loc, idx) {
 }
 
 export function queryBatch(tanggal, sesi) {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     try {
       dispatch(loading());
+      const employees = getState().employee.employee.filter(employee => employee.peran.toLowerCase() === 'picker');
+
+      const pemberianTaskResponse = await api.pemberianTaskGet();
+
+      const signedTasks = !isEmpty(pemberianTaskResponse.body.data)
+        ? pemberianTaskResponse.body.data
+        : [];
+
       const existingBatches = await api.batchGet();
       const dateMoment = Moment(tanggal);
 
@@ -237,6 +251,8 @@ export function queryBatch(tanggal, sesi) {
 
       if (existing) {
         dispatch(setBatch(existing));
+        dispatch(tasksLoaded(taskStructurize(existing.task_picker, employees, signedTasks)));
+        console.log(existing.task_picker);
       } else {
         const { body } = await api.batchPost({
           tanggal_dibuat: dateMoment.toISOString(),
@@ -244,6 +260,8 @@ export function queryBatch(tanggal, sesi) {
         });
 
         dispatch(setBatch(body.data));
+        dispatch(tasksLoaded(taskStructurize(body.data.task_picker, employees, signedTasks)));
+        console.log(body.data.task_picker);
       }
 
       window.localStorage.setItem(
@@ -264,8 +282,6 @@ export function queryBatch(tanggal, sesi) {
 
 export function loadTasks() {
   return async (dispatch, getState) => {
-    const employees = getState().employee.employee.filter(employee => employee.peran.toLowerCase() === 'picker');
-
     const dummyTasks = [
       {
         order_id: '2043eeef-a75f-41fe-b64b-3e0541366c21',
@@ -370,6 +386,28 @@ export function loadTasks() {
         type: 'cancel',
         id_supplier: 1,
       },
+      {
+        nama: 'Megambil Mangkok Indomie Ke-8',
+        nama_barang: 'Leptop R 201.8',
+        no_sku_barang: '12345678910sku',
+        total_jumlah: 51,
+        status: 2,
+        jenis: 0,
+        id: 9,
+        id_supplier: 1,
+        batch: 1,
+        tanggal_dibuat: '2018-05-12T19:15:48+07:00',
+        tanggal_mulai: '2018-05-12T19:15:48+07:00',
+        tanggal_selesai: '2018-06-12T19:15:48+07:00',
+        tanggal_konfirmasi: '2018-06-12T19:15:48+07:00',
+        tanggal_penyelesaian: '2018-07-12T19:15:48+07:00',
+        username_manajer: '099999999999',
+        jenis_sub_task: 1,
+        foto_contoh_barang:
+          'https://images10.newegg.com/NeweggImage/ProductImage/34-234-781-V09.jpg',
+        out_of_stock_barang: null,
+        foto_close_up: null,
+      },
     ];
 
     const { body } = await api.taskPickerGet();
@@ -379,17 +417,87 @@ export function loadTasks() {
   };
 }
 
-export function addTask(task) {
-  return dispatch => {
+export function addTask(task, batch) {
+  return async (dispatch, getState) => {
     // TODO: POST to Backend
-    dispatch(addUnassignedTask(task));
+    //  {
+    //   id: 11,
+    //   nama: 'Membeli Susu Bayi',
+    //   status: 0,
+    //   jenis: 0,
+    //   tanggal_dibuat: '2018-05-21T15:24:01Z',
+    //   tanggal_mulai: '2018-05-21T15:24:03Z',
+    //   tanggal_selesai: '2018-05-21T17:00:00Z',
+    //   username_manajer: '081234567892',
+    //   foto_konfirmasi_barang: [],
+    //   pembeli: [],
+    //   jenis_sub_task: 0,
+    //   tanggal_konfirmasi: '2018-05-21T16:00:00Z',
+    //   tanggal_penyelesaian: '2018-05-21T16:05:00Z',
+    //   foto_contoh_barang: 'Null',
+    //   no_sku_barang: '022222222',
+    //   total_jumlah: 40,
+    //   nama_barang: 'Susu Bayi',
+    //   out_of_stock_barang: 0,
+    //   foto_close_up: 'Null',
+    //   batch: 1,
+    //   id_supplier: 1
+    // }
+
+    const { username } = getState().auth.user;
+    const { id } = getState().purchasing.batch;
+
+    const newTask = {
+      ...task,
+      nama: '[PICKER TASK]',
+      status: 0,
+      jenis: 0,
+      tanggal_dibuat: Moment().toISOString(),
+      tanggal_mulai: Moment().toISOString(),
+      tanggal_selesai: Moment().toISOString(),
+      username_manajer: username,
+      no_sku_barang: '0xx00xxx00xx',
+      out_of_stock_barang: 0,
+      batch: id,
+    };
+
+    const { body } = await api.taskPickerPost(newTask);
+
+    dispatch(addUnassignedTask(body.data));
   };
 }
 
 export function addTasks(tasks) {
-  return dispatch => {
-    // TODO: POST to Backend
-    dispatch(addUnassignedTasks(tasks));
+  return async (dispatch, getState) => {
+    // TODO: POST to Backend{
+    const { username } = getState().auth.user;
+    const { id } = getState().purchasing.batch;
+    const newTasks = [];
+
+    const postTasks = tasks.map(async task => {
+      console.log(task);
+
+      const newTask = {
+        ...task,
+        nama: '[PICKER TASK]',
+        status: 0,
+        jenis: 0,
+        tanggal_dibuat: Moment().toISOString(),
+        tanggal_mulai: Moment().toISOString(),
+        tanggal_selesai: Moment().toISOString(),
+        username_manajer: username,
+        no_sku_barang: '0xx00xxx00xx',
+        out_of_stock_barang: 0,
+        batch: id,
+      };
+
+      const { body } = await api.taskPickerPost(newTask);
+      newTasks.push(body.data);
+    });
+
+    Promise.all(postTasks).then(() => {
+      dispatch(addUnassignedTasks(newTasks));
+    });
   };
 }
 
