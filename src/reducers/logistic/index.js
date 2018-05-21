@@ -486,28 +486,41 @@ export function editTask(task, loc, idx) {
 
 export function assignTasks() {
   return async (dispatch, getState) => {
-    dispatch(loading());
+    try {
+      dispatch(loading());
 
-    const { username } = getState().auth.user;
-    const tasks = { ...getState().logistic.tasks };
-    delete tasks.unassigned;
+      const { username } = getState().auth.user;
+      const tasks = { ...getState().logistic.tasks };
+      delete tasks.unassigned;
 
-    const parent = Object.keys(tasks).map(async key => {
-      const assigning = tasks[key].local.map(async task => {
-        const { body } = await api.pemberianTaskPost({
-          id_task: task.id,
-          username_manajer: username,
-          username_pegawai_lapangan: key,
+      const parent = Object.keys(tasks).map(async key => {
+        const assigning = tasks[key].local.map(async task => {
+          const { body } = await api.pemberianTaskPost({
+            id_task: task.id,
+            username_manajer: username,
+            username_pegawai_lapangan: key,
+          });
+
+          return body;
         });
 
-        return body;
+        return Promise.all(assigning).then(res => res);
       });
 
-      return Promise.all(assigning).then(res => res);
-    });
-
-    Promise.all(parent).then(() => {
-      dispatch(assign());
-    });
+      Promise.all(parent).then(() => {
+        dispatch(assign());
+        swal({
+          icon: 'success',
+          title: 'Sukses Mengassign Tugas Logistik',
+          text: 'Berhasil membagikan tugas logistik',
+        });
+      });
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Mengassing Tugas Logistik',
+        text: 'Gagal membagikan tugas logistik',
+      });
+    }
   };
 }

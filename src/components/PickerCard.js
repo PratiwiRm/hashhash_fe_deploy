@@ -31,7 +31,7 @@ export default class PickerCard extends Component {
     super();
 
     this.state = {
-      switcher: 'todo',
+      switcher: 0,
     };
   }
 
@@ -99,38 +99,34 @@ export default class PickerCard extends Component {
             )}
             <Tasks>
               <Switcher>
-                {((dragFilter !== '' && dragFilter === employee.id_supplier) ||
+                {((dragFilter !== '' && dragFilter == employee.id_supplier) ||
                   !isEmpty(locallyAssigned)) && <button disabled>To Be Assigned</button>}
-                {(dragFilter === '' || dragFilter !== employee.id_supplier) &&
+                {(dragFilter === '' || dragFilter != employee.id_supplier) &&
                   isEmpty(locallyAssigned) && (
-                    <button
-                      disabled={this.state.switcher === 'todo'}
-                      onClick={() => this.switch('todo')}
-                    >
+                    <button disabled={this.state.switcher === 0} onClick={() => this.switch(0)}>
                       Todo
                     </button>
                   )}
-                {(dragFilter === '' || dragFilter !== employee.id_supplier) &&
+                {(dragFilter === '' || dragFilter != employee.id_supplier) &&
                   isEmpty(locallyAssigned) && (
-                    <button
-                      disabled={this.state.switcher === 'done'}
-                      onClick={() => this.switch('done')}
-                    >
+                    <button disabled={this.state.switcher === 3} onClick={() => this.switch(3)}>
                       Done
                     </button>
                   )}
               </Switcher>
               <div className="tasksContainer">
-                {((dragFilter !== '' && dragFilter === employee.id_supplier) ||
+                {((dragFilter !== '' && dragFilter == employee.id_supplier) ||
                   !isEmpty(locallyAssigned)) &&
                   locallyAssigned
-                    .filter(value => !(typeFilter !== 'all' && typeFilter !== value.type))
+                    .filter(value => !(typeFilter !== 'all' && typeFilter !== value.jenis_sub_task))
                     .map((task, index) => (
                       <Draggable
-                        key={`purchasing-${task.id_supplier}-${task.order_id}-${task.product}`}
-                        draggableId={`purchasing-${task.id_supplier}-${task.order_id}-${
-                          task.product
-                        }`}
+                        key={`purchasing-${task.id_supplier}-${task.id}-${task.nama_barang}-${
+                          task.jenis_sub_task
+                        }-${task.total_jumlah}`}
+                        draggableId={`purchasing-${task.id_supplier}-${task.id}-${
+                          task.nama_barang
+                        }-${task.jenis_sub_task}-${task.total_jumlah}`}
                         index={index}
                       >
                         {(innerProvided, innerSnapshot) => (
@@ -149,20 +145,20 @@ export default class PickerCard extends Component {
                 {provided.placeholder}
                 {(dragFilter === '' || dragFilter !== employee.id_supplier) &&
                   isEmpty(locallyAssigned) &&
-                  this.state.switcher === 'todo' &&
+                  this.state.switcher === 0 &&
                   tasksTodo.map(task => (
                     <PurchaseCard
-                      key={`purchasing-${task.id_supplier}-${task.order_id}-${task.product}`}
+                      key={`purchasing-${task.id_supplier}-${task.id}-${task.nama_barang}`}
                       data={task}
                       supplier={supplier}
                     />
                   ))}
                 {(dragFilter === '' || dragFilter !== employee.id_supplier) &&
                   isEmpty(locallyAssigned) &&
-                  this.state.switcher === 'done' &&
+                  this.state.switcher === 3 &&
                   tasksDone.map(task => (
                     <div
-                      key={`purchasing-${task.id_supplier}-${task.order_id}-${task.product}`}
+                      key={`purchasing-${task.id_supplier}-${task.id}-${task.nama_barang}`}
                       onClick={this.props.openConfirmation}
                     >
                       <PurchaseCard data={task} supplier={supplier} />

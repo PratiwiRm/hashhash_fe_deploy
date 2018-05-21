@@ -18,8 +18,12 @@ const PurchaseList = ({ addTask, editTask, tasks, supplier }) => (
           >
             {tasks.map((task, index) => (
               <Draggable
-                key={`purchasing-${task.id_supplier}-${task.order_id}-${task.product}`}
-                draggableId={`purchasing-${task.id_supplier}-${task.order_id}-${task.product}`}
+                key={`purchasing-${task.id_supplier}-${task.id}-${task.nama_barang}-${
+                  task.jenis_sub_task
+                }-${task.total_jumlah}`}
+                draggableId={`purchasing-${task.id_supplier}-${task.id}-${task.nama_barang}-${
+                  task.jenis_sub_task
+                }-${task.total_jumlah}`}
                 index={index}
               >
                 {(innerProvided, innerSnapshot) => (

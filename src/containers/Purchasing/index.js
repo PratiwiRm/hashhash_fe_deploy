@@ -34,6 +34,7 @@ import {
   addTask,
   addTasks,
   editTask,
+  assignTasks,
 } from 'reducers/purchasing';
 import { loadSupplier } from 'reducers/supplier';
 
@@ -56,6 +57,7 @@ import Navigation from '../Navigation';
     addTask,
     addTasks,
     editTask,
+    assignTasks,
   }
 )
 export default class Purchasing extends Component {
@@ -73,6 +75,7 @@ export default class Purchasing extends Component {
     addTask: PropTypes.func.isRequired,
     addTasks: PropTypes.func.isRequired,
     editTask: PropTypes.func.isRequired,
+    assignTasks: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -229,6 +232,20 @@ export default class Purchasing extends Component {
   render() {
     const { purchasing, employee, supplier, queryBatch } = this.props;
 
+    let isAssigningDisabled = true;
+
+    Object.keys(purchasing.tasks).forEach(key => {
+      if (key !== 'unassigned') {
+        if (!isEmpty(purchasing.tasks[key].local)) {
+          isAssigningDisabled = false;
+        }
+      }
+    });
+
+    if (purchasing.tasks.unassigned.length > 0) {
+      isAssigningDisabled = true;
+    }
+
     return (
       <Wrapper>
         <Navigation />
@@ -264,7 +281,11 @@ export default class Purchasing extends Component {
                 Final Cut Off
               </button>
             </Control>
-            <button className="primary blue" disabled>
+            <button
+              className="primary blue"
+              onClick={this.props.assignTasks}
+              disabled={isAssigningDisabled}
+            >
               Mulai Batch
             </button>
           </Controls>
