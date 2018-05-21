@@ -4,12 +4,21 @@ import styled from 'styled-components';
 
 import PickerCard from 'components/PickerCard';
 
-const PickerList = ({ editTask, tasks, dragFilter, typeFilter, employees, supplier }) => (
+const PickerList = ({
+  editTask,
+  openConfirmation,
+  tasks,
+  dragFilter,
+  typeFilter,
+  employees,
+  supplier,
+}) => (
   <Wrapper>
     <div className="container">
       {employees.map(employee => (
         <PickerCard
           editTask={editTask}
+          openConfirmation={openConfirmation}
           key={`employee-${employee.username}`}
           tasks={tasks[employee.username]}
           dragFilter={dragFilter}
@@ -24,6 +33,7 @@ const PickerList = ({ editTask, tasks, dragFilter, typeFilter, employees, suppli
 
 PickerList.propTypes = {
   editTask: PropTypes.func.isRequired,
+  openConfirmation: PropTypes.func.isRequired,
   tasks: PropTypes.object.isRequired,
   employees: PropTypes.array.isRequired,
   supplier: PropTypes.array.isRequired,

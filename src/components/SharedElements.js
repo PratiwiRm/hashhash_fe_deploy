@@ -491,3 +491,7 @@ export const ModalSubmit = styled.button`
     transition: 0.25s ease all;
   }
 `;
+
+export const ModalDelete = styled(ModalSubmit)`
+  background: ${props => props.theme.color.red};
+`;

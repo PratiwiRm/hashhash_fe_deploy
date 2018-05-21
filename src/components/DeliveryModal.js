@@ -109,12 +109,12 @@ export default class DeliveryModal extends Component {
     if (this.validate()) {
       const { nodes } = this.state;
       const newTask = {
-        pick_ups: [nodes[0]],
-        drop_offs: [...nodes.slice(1)],
+        ...this.props.data,
+        pick_up: [nodes[0]],
+        drop_off: [...nodes.slice(1)],
       };
 
       this.props.save(newTask);
-      this.props.close();
     }
   };
 
@@ -126,29 +126,29 @@ export default class DeliveryModal extends Component {
     this.state.nodes.forEach((node, index) => {
       const validation = { ...this.validationTemplate };
 
-      if (node.outlet === '') {
+      if (node.outlite === '') {
         invalid = true;
-        validation.outlet = 'Nama outlet tidak bisa kosong';
+        validation.outlite = 'Nama outlet tidak bisa kosong';
       }
 
-      if (node.address === '') {
+      if (node.lokasi === '') {
         invalid = true;
-        validation.address = 'Alamat outlet tidak bisa kosong';
+        validation.lokasi = 'Alamat outlet tidak bisa kosong';
       }
 
-      if (node.notes === '') {
+      if (node.note === '') {
         invalid = true;
-        validation.notes = 'Catatan penting tidak bisa kosong';
+        validation.note = 'Catatan penting tidak bisa kosong';
       }
 
-      if (node.pic === '') {
+      if (node.nama_pic === '') {
         invalid = true;
-        validation.pic = 'Person in charge tidak bisa kosong';
+        validation.nama_pic = 'Person in charge tidak bisa kosong';
       }
 
-      if (node.contact === '') {
+      if (node.kontak_pic === '') {
         invalid = true;
-        validation.contact = 'Kontak tidak bisa kosong';
+        validation.kontak_pic = 'Kontak tidak bisa kosong';
       }
 
       newNodes[index] = { ...newNodes[index], validation };
@@ -175,49 +175,49 @@ export default class DeliveryModal extends Component {
             <span>Nama outlet*</span>
             <input
               type="text"
-              value={nodes[0].outlet}
-              onChange={evt => this.setInput('outlet', 0, evt.target.value)}
-              placeholder={DRIVER_TASK_TEMPLATE[0].outlet}
+              value={nodes[0].outlite}
+              onChange={evt => this.setInput('outlite', 0, evt.target.value)}
+              placeholder={DRIVER_TASK_TEMPLATE[0].outlite}
             />
-            {nodes[0].validation.outlet && <h6>{nodes[0].validation.outlet}</h6>}
+            {nodes[0].validation.outlite && <h6>{nodes[0].validation.outlite}</h6>}
           </ModalInput>
           <ModalInput>
             <span>Alamat outlet*</span>
             <textarea
-              value={nodes[0].address}
-              onChange={evt => this.setInput('address', 0, evt.target.value)}
-              placeholder={DRIVER_TASK_TEMPLATE[0].address}
+              value={nodes[0].lokasi}
+              onChange={evt => this.setInput('lokasi', 0, evt.target.value)}
+              placeholder={DRIVER_TASK_TEMPLATE[0].lokasi}
             />
-            {nodes[0].validation.address && <h6>{nodes[0].validation.address}</h6>}
+            {nodes[0].validation.lokasi && <h6>{nodes[0].validation.lokasi}</h6>}
           </ModalInput>
           <ModalInput>
             <span>Catatan penting*</span>
             <textarea
-              value={nodes[0].notes}
-              onChange={evt => this.setInput('notes', 0, evt.target.value)}
-              placeholder={DRIVER_TASK_TEMPLATE[0].notes}
+              value={nodes[0].note}
+              onChange={evt => this.setInput('note', 0, evt.target.value)}
+              placeholder={DRIVER_TASK_TEMPLATE[0].note}
             />
-            {nodes[0].validation.notes && <h6>{nodes[0].validation.notes}</h6>}
+            {nodes[0].validation.note && <h6>{nodes[0].validation.note}</h6>}
           </ModalInput>
           <ModalInput>
             <span>Person in Charge*</span>
             <input
               type="text"
-              value={nodes[0].pic}
-              onChange={evt => this.setInput('pic', 0, evt.target.value)}
-              placeholder={DRIVER_TASK_TEMPLATE[0].pic}
+              value={nodes[0].nama_pic}
+              onChange={evt => this.setInput('nama_pic', 0, evt.target.value)}
+              placeholder={DRIVER_TASK_TEMPLATE[0].nama_pic}
             />
-            {nodes[0].validation.pic && <h6>{nodes[0].validation.pic}</h6>}
+            {nodes[0].validation.nama_pic && <h6>{nodes[0].validation.nama_pic}</h6>}
           </ModalInput>
           <ModalInput>
             <span>Contact*</span>
             <input
               type="text"
-              value={nodes[0].contact}
-              onChange={evt => this.setInput('contact', 0, evt.target.value)}
-              placeholder={DRIVER_TASK_TEMPLATE[0].contact}
+              value={nodes[0].kontak_pic}
+              onChange={evt => this.setInput('kontak_pic', 0, evt.target.value)}
+              placeholder={DRIVER_TASK_TEMPLATE[0].kontak_pic}
             />
-            {nodes[0].validation.contact && <h6>{nodes[0].validation.contact}</h6>}
+            {nodes[0].validation.kontak_pic && <h6>{nodes[0].validation.kontak_pic}</h6>}
           </ModalInput>
           <h2>Destinasi Pengiriman</h2>
           {nodes.slice(1, nodes.length).map((node, index) => (
@@ -232,49 +232,49 @@ export default class DeliveryModal extends Component {
                 <span>Nama outlet*</span>
                 <input
                   type="text"
-                  value={node.outlet}
-                  onChange={evt => this.setInput('outlet', index + 1, evt.target.value)}
-                  placeholder={DRIVER_TASK_TEMPLATE[0].outlet}
+                  value={node.outlite}
+                  onChange={evt => this.setInput('outlite', index + 1, evt.target.value)}
+                  placeholder={DRIVER_TASK_TEMPLATE[0].outlite}
                 />
-                {node.validation.outlet && <h6>{node.validation.outlet}</h6>}
+                {node.validation.outlite && <h6>{node.validation.outlite}</h6>}
               </ModalInput>
               <ModalInput>
                 <span>Alamat outlet*</span>
                 <textarea
-                  value={node.address}
-                  onChange={evt => this.setInput('address', index + 1, evt.target.value)}
-                  placeholder={DRIVER_TASK_TEMPLATE[0].address}
+                  value={node.lokasi}
+                  onChange={evt => this.setInput('lokasi', index + 1, evt.target.value)}
+                  placeholder={DRIVER_TASK_TEMPLATE[0].lokasi}
                 />
-                {node.validation.address && <h6>{node.validation.address}</h6>}
+                {node.validation.lokasi && <h6>{node.validation.lokasi}</h6>}
               </ModalInput>
               <ModalInput>
                 <span>Catatan penting*</span>
                 <textarea
-                  value={node.notes}
-                  onChange={evt => this.setInput('notes', index + 1, evt.target.value)}
-                  placeholder={DRIVER_TASK_TEMPLATE[0].notes}
+                  value={node.note}
+                  onChange={evt => this.setInput('note', index + 1, evt.target.value)}
+                  placeholder={DRIVER_TASK_TEMPLATE[0].note}
                 />
-                {node.validation.notes && <h6>{node.validation.notes}</h6>}
+                {node.validation.note && <h6>{node.validation.note}</h6>}
               </ModalInput>
               <ModalInput>
                 <span>Person in Charge*</span>
                 <input
                   type="text"
-                  value={node.pic}
-                  onChange={evt => this.setInput('pic', index + 1, evt.target.value)}
-                  placeholder={DRIVER_TASK_TEMPLATE[0].pic}
+                  value={node.nama_pic}
+                  onChange={evt => this.setInput('nama_pic', index + 1, evt.target.value)}
+                  placeholder={DRIVER_TASK_TEMPLATE[0].nama_pic}
                 />
-                {node.validation.pic && <h6>{node.validation.pic}</h6>}
+                {node.validation.nama_pic && <h6>{node.validation.nama_pic}</h6>}
               </ModalInput>
               <ModalInput>
                 <span>Contact*</span>
                 <input
                   type="text"
-                  value={node.contact}
-                  onChange={evt => this.setInput('contact', index + 1, evt.target.value)}
-                  placeholder={DRIVER_TASK_TEMPLATE[0].contact}
+                  value={node.kontak_pic}
+                  onChange={evt => this.setInput('kontak_pic', index + 1, evt.target.value)}
+                  placeholder={DRIVER_TASK_TEMPLATE[0].kontak_pic}
                 />
-                {node.validation.contact && <h6>{node.validation.contact}</h6>}
+                {node.validation.kontak_pic && <h6>{node.validation.kontak_pic}</h6>}
               </ModalInput>
             </DeliveryNode>
           ))}

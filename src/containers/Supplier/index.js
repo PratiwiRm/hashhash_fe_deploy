@@ -13,7 +13,7 @@ import SupplierCard from 'components/SupplierCard';
 import SupplierModal from 'components/SupplierModal';
 import { Wrapper, ControlPanel, Controls, Control, PageTitle } from 'components/SharedElements';
 
-import { loadSupplier, addSupplier, editSupplier } from 'reducers/supplier';
+import { loadSupplier, addSupplier, editSupplier, deleteSupplier } from 'reducers/supplier';
 
 import Navigation from '../Navigation';
 
@@ -26,6 +26,7 @@ import Navigation from '../Navigation';
     loadSupplier,
     addSupplier,
     editSupplier,
+    deleteSupplier,
   }
 )
 export default class Supplier extends Component {
@@ -35,6 +36,7 @@ export default class Supplier extends Component {
     loadSupplier: PropTypes.func.isRequired,
     addSupplier: PropTypes.func.isRequired,
     editSupplier: PropTypes.func.isRequired,
+    deleteSupplier: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -110,13 +112,17 @@ export default class Supplier extends Component {
 
               return 0;
             })
-            .map((value, index) => (
-              <SupplierCard
-                key={`${value.id}x${value.nama}`}
-                data={value}
-                onClick={() => this.openEditModal(index)}
-              />
-            ))}
+            .map((value, index) => {
+              if (!value.is_active) return null;
+
+              return (
+                <SupplierCard
+                  key={`${value.id}x${value.nama}`}
+                  data={value}
+                  onClick={() => this.openEditModal(index)}
+                />
+              );
+            })}
         </SupplierList>
         {this.state.addModal && (
           <SupplierModal create save={this.props.addSupplier} close={this.toggleAddModal} />
@@ -126,6 +132,7 @@ export default class Supplier extends Component {
             data={supplier.supplier[this.state.editIndex]}
             save={newSupplier => this.props.editSupplier(this.state.editIndex, newSupplier)}
             close={this.closeEditModal}
+            delete={newSupplier => this.props.deleteSupplier(this.state.editIndex, newSupplier)}
           />
         )}
       </Wrapper>

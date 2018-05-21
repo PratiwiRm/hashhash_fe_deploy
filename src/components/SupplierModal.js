@@ -11,6 +11,7 @@ import {
   ModalContent,
   ModalInput,
   ModalSubmit,
+  ModalDelete,
 } from 'components/SharedElements';
 
 export default class SupplierModal extends Component {
@@ -19,11 +20,13 @@ export default class SupplierModal extends Component {
     close: PropTypes.func.isRequired,
     data: PropTypes.object,
     create: PropTypes.bool,
+    delete: PropTypes.func,
   };
 
   static defaultProps = {
     data: {},
     create: false,
+    delete: null,
   };
 
   constructor(props) {
@@ -62,6 +65,11 @@ export default class SupplierModal extends Component {
       this.props.save(this.state);
       this.props.close();
     }
+  };
+
+  delete = () => {
+    this.props.delete(this.props.data);
+    this.props.close();
   };
 
   validate = () => {
@@ -119,6 +127,7 @@ export default class SupplierModal extends Component {
             {this.state.validation.lokasi && <h6>{this.state.validation.lokasi}</h6>}
           </ModalInput>
           <ModalSubmit onClick={this.save}>{create ? 'Tambah' : 'Simpan'}</ModalSubmit>
+          {!create && <ModalDelete onClick={this.delete}>Hapus Data Supplier</ModalDelete>}
         </SupplierModalContent>
       </ModalWrapper>
     );

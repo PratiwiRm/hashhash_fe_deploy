@@ -130,6 +130,11 @@ export function addEmployee(newEmployee) {
       }
 
       dispatch(employeeAdded(employee));
+      swal({
+        icon: 'success',
+        title: 'Sukses Menyimpan Data Pegawai',
+        text: 'Berhasil melakukan penyimpanan data pegawai',
+      });
     } catch (e) {
       swal({
         icon: 'error',
@@ -185,6 +190,11 @@ export function editEmployee(index, updatedEmployee) {
       }
 
       dispatch(employeeEdited(index, employee));
+      swal({
+        icon: 'success',
+        title: 'Sukses Mengubah Data Pegawai',
+        text: 'Berhasil melakukan pengubahan data pegawai',
+      });
     } catch (e) {
       swal({
         icon: 'error',

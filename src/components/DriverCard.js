@@ -8,7 +8,7 @@ import { driverTaskIdBuilder } from 'commons/structure';
 
 import DeliveryCard from 'components/DeliveryCard';
 
-export default class PickerCard extends Component {
+export default class DriverCard extends Component {
   static propTypes = {
     employee: PropTypes.object.isRequired,
     dragFilter: PropTypes.string.isRequired,
@@ -27,7 +27,7 @@ export default class PickerCard extends Component {
     super();
 
     this.state = {
-      switcher: 'todo',
+      switcher: '1',
     };
   }
 
@@ -36,9 +36,9 @@ export default class PickerCard extends Component {
   render() {
     const { editTask, tasks, employee } = this.props;
 
-    const taskDoing = tasks.signed.find(value => value.status === 'doing');
-    const tasksTodo = tasks.signed.filter(value => value.status === 'pending');
-    const tasksDone = tasks.signed.filter(value => value.status === 'done');
+    const taskDoing = tasks.signed.find(task => task.status >= 0 && task.status <= task.drop_off.length);
+    const tasksTodo = tasks.signed.filter(task => task.status === -2);
+    const tasksDone = tasks.signed.filter(task => task.status === task.drop_off.length + 1);
 
     const locallyAssigned = tasks.local;
 
@@ -66,18 +66,12 @@ export default class PickerCard extends Component {
               <Switcher>
                 {!isEmpty(locallyAssigned) && <button disabled>To Be Assigned</button>}
                 {isEmpty(locallyAssigned) && (
-                  <button
-                    disabled={this.state.switcher === 'todo'}
-                    onClick={() => this.switch('todo')}
-                  >
+                  <button disabled={this.state.switcher === '1'} onClick={() => this.switch('1')}>
                     Todo
                   </button>
                 )}
                 {isEmpty(locallyAssigned) && (
-                  <button
-                    disabled={this.state.switcher === 'done'}
-                    onClick={() => this.switch('done')}
-                  >
+                  <button disabled={this.state.switcher === '3'} onClick={() => this.switch('3')}>
                     Done
                   </button>
                 )}
@@ -105,14 +99,16 @@ export default class PickerCard extends Component {
                   ))}
                 {provided.placeholder}
                 {isEmpty(locallyAssigned) &&
-                  this.state.switcher === 'todo' &&
+                  this.state.switcher === '1' &&
                   tasksTodo.map(task => (
                     <DeliveryCard key={driverTaskIdBuilder(task)} data={task} />
                   ))}
                 {isEmpty(locallyAssigned) &&
-                  this.state.switcher === 'done' &&
+                  this.state.switcher === '3' &&
                   tasksDone.map(task => (
-                    <DeliveryCard key={driverTaskIdBuilder(task)} data={task} />
+                    <div key={driverTaskIdBuilder(task)} onClick={this.props.openConfirmation}>
+                      <DeliveryCard data={task} />
+                    </div>
                   ))}
               </div>
             </Tasks>

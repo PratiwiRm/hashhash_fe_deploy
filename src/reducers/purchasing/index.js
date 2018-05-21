@@ -263,7 +263,7 @@ export function queryBatch(tanggal, sesi) {
 }
 
 export function loadTasks() {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const employees = getState().employee.employee.filter(employee => employee.peran.toLowerCase() === 'picker');
 
     const dummyTasks = [
@@ -371,6 +371,9 @@ export function loadTasks() {
         id_supplier: 1,
       },
     ];
+
+    const { body } = await api.taskPickerGet();
+    console.log(body);
 
     dispatch(tasksLoaded(taskStructureTransformator(dummyTasks, employees)));
   };

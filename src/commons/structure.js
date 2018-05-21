@@ -37,29 +37,34 @@ export const PICKER_TASK_TEMPLATE = [
 export const DRIVER_TASK_HEADER_FIELDS = [
   'task',
   'type',
-  'outlet',
-  'address',
-  'notes',
-  'pic',
-  'contact',
+  'outlite',
+  'lokasi',
+  'note',
+  'nama_pic',
+  'kontak_pic',
 ];
 
 export const DRIVER_TASK_TEMPLATE = [
   {
     task: 'Nomor identifikasi pengiriman (id rantai pengiriman), URUTAN DIPERHATIKAN!',
     type: 'PICKUP/DROPOFF',
-    outlet: 'Nama outlet tujuan',
-    address: 'Alamat outlet tujuan',
-    notes: 'Catatan pengiriman (paket untuk diambil/diturunkan)',
-    pic: 'Nama person in charge di outlet/cabang tujuan',
-    contact: 'nomor telpon yang valid dan bisa dihubungi',
+    outlite: 'Nama outlet tujuan',
+    lokasi: 'Alamat outlet tujuan',
+    note: 'Catatan pengiriman (paket untuk diambil/diturunkan)',
+    nama_pic: 'Nama person in charge di outlet/cabang tujuan',
+    kontak_pic: 'nomor telpon yang valid dan bisa dihubungi',
   },
 ];
 
 export const driverTaskIdBuilder = task =>
-  `logistic-${task.delivery_id}-${task.pick_ups.map(e => e.outlet).join('')}-${task.drop_offs
-    .map(e => e.outlet)
-    .join('')}`;
+  `logistic-${task.id}-${task.pick_up.map(e => e.id).join('.')}-${task.drop_off
+    .map(e => e.id)
+    .join('.')}`;
+
+export const driverTaskUniqueMapper = task =>
+  `logistic-${task.pick_up
+    .map(e => `${e.outlite},${e.lokasi},${e.nama_pic}`)
+    .join('.')}-${task.drop_off.map(e => `${e.outlite},${e.lokasi},${e.nama_pic}`).join('.')}`;
 
 export const newLineFormatter = multiLine => multiLine.replace(/[\u21b5\n\r]/g, '\n');
 
@@ -84,6 +89,38 @@ export const taskStructureTransformator = (tasks, employees) => {
       const newEmpTasks = newTasks[task.assigned].signed;
       newEmpTasks.push(task);
       newTasks[task.assigned] = {
+        local: [],
+        signed: newEmpTasks,
+      };
+    }
+  });
+
+  return newTasks;
+};
+
+export const taskStructurize = (tasks, employees, signed) => {
+  const newTasks = {
+    unassigned: [],
+  };
+
+  employees.forEach(employee => {
+    newTasks[employee.username] = {
+      local: [],
+      signed: [],
+    };
+  });
+
+  tasks.forEach(task => {
+    const isSigned = signed.find(sign => task.id === sign.id_task);
+
+    if (isEmpty(isSigned)) {
+      const newUnassigned = newTasks.unassigned;
+      newUnassigned.push(task);
+      newTasks.unassigned = newUnassigned;
+    } else {
+      const newEmpTasks = newTasks[isSigned.username_pegawai_lapangan].signed;
+      newEmpTasks.push(task);
+      newTasks[isSigned.username_pegawai_lapangan] = {
         local: [],
         signed: newEmpTasks,
       };
@@ -151,27 +188,27 @@ export const driverTaskCsvStructureTransformator = tasks => {
   const formatted = [];
 
   tasks.forEach(task => {
-    const { outlet, address, pic, contact } = task;
-    const notes = newLineFormatter(task.notes);
+    const { outlite, lokasi, nama_pic, kontak_pic } = task;
+    const note = newLineFormatter(task.note);
 
     if (task.task === identifierCounter) {
       const currentFormattedTask = formatted[formatted.length - 1];
 
       if (task.type.toLowerCase() === 'pickup') {
-        currentFormattedTask.pick_ups.push({
-          outlet,
-          address,
-          notes,
-          pic,
-          contact,
+        currentFormattedTask.pick_up.push({
+          outlite,
+          lokasi,
+          note,
+          nama_pic,
+          kontak_pic,
         });
       } else {
-        currentFormattedTask.drop_offs.push({
-          outlet,
-          address,
-          notes,
-          pic,
-          contact,
+        currentFormattedTask.drop_off.push({
+          outlite,
+          lokasi,
+          note,
+          nama_pic,
+          kontak_pic,
         });
       }
 
@@ -180,26 +217,25 @@ export const driverTaskCsvStructureTransformator = tasks => {
       identifierCounter = task.task;
 
       const newFormatted = {
-        assigned: '',
-        pick_ups: [],
-        drop_offs: [],
+        pick_up: [],
+        drop_off: [],
       };
 
       if (task.type.toLowerCase() === 'pickup') {
-        newFormatted.pick_ups.push({
-          outlet,
-          address,
-          notes,
-          pic,
-          contact,
+        newFormatted.pick_up.push({
+          outlite,
+          lokasi,
+          note,
+          nama_pic,
+          kontak_pic,
         });
       } else {
-        newFormatted.drop_offs.push({
-          outlet,
-          address,
-          notes,
-          pic,
-          contact,
+        newFormatted.drop_off.push({
+          outlite,
+          lokasi,
+          note,
+          nama_pic,
+          kontak_pic,
         });
       }
 
@@ -217,7 +253,8 @@ export const countDuplicatedDriverTasks = (source, check) => {
   let duplicateCounter = 0;
 
   flattenSource.concat(check).forEach(task => {
-    const key = driverTaskIdBuilder(task);
+    console.log(task);
+    const key = driverTaskUniqueMapper(task);
 
     if (key in duplicateTemp) {
       duplicateCounter += 1;
@@ -232,8 +269,8 @@ export const countDuplicatedDriverTasks = (source, check) => {
 export const destructurizeDriverTask = task => {
   const destructurized = [];
 
-  task.pick_ups.forEach(node => destructurized.push(node));
-  task.drop_offs.forEach(node => destructurized.push(node));
+  task.pick_up.forEach(node => destructurized.push({ ...node, type: 'PICKUP' }));
+  task.drop_off.forEach(node => destructurized.push({ ...node, type: 'DROPOFF' }));
 
   return destructurized;
 };

@@ -6,11 +6,11 @@ import { isEmpty } from 'lodash';
 
 const DeliveryCard = ({ data }) => (
   <Card>
-    <h3>{!isEmpty(data) && data.pick_ups.length + data.drop_offs.length} Destinasi</h3>
+    <h3>{!isEmpty(data) && data.pick_up.length + data.drop_off.length} Destinasi</h3>
     <span>Pickup:</span>
-    <h2>{!isEmpty(data) && data.pick_ups.map(t => t.outlet).join(', ')}</h2>
+    <h2>{!isEmpty(data) && data.pick_up.map(t => t.outlite).join(', ')}</h2>
     <span>Drop Off:</span>
-    <h1>{!isEmpty(data) && data.drop_offs.map(t => t.outlet).join(', ')}</h1>
+    <h1>{!isEmpty(data) && data.drop_off.map(t => t.outlite).join(', ')}</h1>
   </Card>
 );
 

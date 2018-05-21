@@ -12,6 +12,7 @@ export default class PickerCard extends Component {
     dragFilter: PropTypes.string.isRequired,
     typeFilter: PropTypes.string.isRequired,
     editTask: PropTypes.func.isRequired,
+    openConfirmation: PropTypes.func.isRequired,
     supplier: PropTypes.object,
     tasks: PropTypes.object,
   };
@@ -160,11 +161,12 @@ export default class PickerCard extends Component {
                   isEmpty(locallyAssigned) &&
                   this.state.switcher === 'done' &&
                   tasksDone.map(task => (
-                    <PurchaseCard
+                    <div
                       key={`purchasing-${task.id_supplier}-${task.order_id}-${task.product}`}
-                      data={task}
-                      supplier={supplier}
-                    />
+                      onClick={this.props.openConfirmation}
+                    >
+                      <PurchaseCard data={task} supplier={supplier} />
+                    </div>
                   ))}
               </div>
             </Tasks>

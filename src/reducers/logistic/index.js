@@ -1,6 +1,17 @@
 import Moment from 'moment';
-import { taskStructureTransformator, arrayRearanger, arrayMover } from 'commons/structure';
+import swal from 'sweetalert';
+import { isEmpty } from 'lodash';
 
+import {
+  taskStructureTransformator,
+  taskStructurize,
+  arrayRearanger,
+  arrayMover,
+} from 'commons/structure';
+
+import * as api from 'services/api';
+
+const LOADING = 'app/logistic/LOADING';
 const SET_DATE = 'app/logistic/SET_DATE';
 const SET_BATCH = 'app/logistic/SET_BATCH';
 const TASKS_LOADED = 'app/logistic/TASKS_LOADED';
@@ -10,6 +21,7 @@ const SET_DRAG_FILTER = 'app/logistic/SET_DRAG_FILTER';
 const ADD_UNASSIGNED_TASK = 'app/logistic/ADD_UNASSIGNED_TASK';
 const ADD_UNASSIGNED_TASKS = 'app/logistic/ADD_UNASSIGNED_TASKS';
 const SET_TASK = 'app/logistic/SET_TASK';
+const ASSIGN_TASK = 'app/logistic/ASSIGN_TASK';
 
 const initialState = {
   loading: false,
@@ -30,21 +42,29 @@ export default function reducer(state = initialState, action) {
   let editedTasks = [];
 
   switch (action.type) {
+    case LOADING:
+      return {
+        ...state,
+        loading: true,
+      };
     case TASKS_LOADED:
       return {
         ...state,
         dry: false,
         tasks: action.payload,
+        loading: false,
       };
     case SET_DATE:
       return {
         ...state,
         date: action.payload,
+        loading: false,
       };
     case SET_BATCH:
       return {
         ...state,
         batch: action.payload,
+        loading: false,
       };
     case SWAP_TASK:
       if (action.payload.loc !== 'unassigned') {
@@ -112,6 +132,7 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         tasks,
+        loading: false,
       };
     case SET_DRAG_FILTER:
       return {
@@ -124,6 +145,7 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         tasks,
+        loading: false,
       };
     case ADD_UNASSIGNED_TASKS:
       tasks.unassigned = [...tasks.unassigned, ...action.payload];
@@ -131,6 +153,7 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         tasks,
+        loading: false,
       };
     case SET_TASK:
       if (action.payload.loc === 'unassigned') {
@@ -149,10 +172,28 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         tasks,
+        loading: false,
+      };
+    case ASSIGN_TASK:
+      Object.keys(tasks).forEach(key => {
+        if (key !== 'unassigned') {
+          tasks[key].signed = tasks[key].signed.concat(tasks[key].local);
+          tasks[key].local = [];
+        }
+      });
+
+      return {
+        ...state,
+        tasks,
+        loading: false,
       };
     default:
       return state;
   }
+}
+
+export function loading() {
+  return { type: LOADING };
 }
 
 export function setDate(date) {
@@ -195,133 +236,278 @@ export function setTask(task, loc, idx) {
   return { type: SET_TASK, payload: { task, loc, idx } };
 }
 
+export function assign() {
+  return { type: ASSIGN_TASK };
+}
+
 export function loadTasks() {
-  return (dispatch, getState) => {
-    const employees = getState().employee.employee.filter(employee => employee.peran.toLowerCase() === 'driver');
+  return async (dispatch, getState) => {
+    try {
+      const employees = getState().employee.employee.filter(employee => employee.peran.toLowerCase() === 'driver');
+      dispatch(loading());
 
-    const dummyTasks = [
-      {
-        delivery_id: '3442eecf-a75f-41fe-b64b-3e0541366c21',
-        assigned: '',
-        status: 'pending',
-        pick_ups: [
-          {
-            outlet: 'Sorting Hub',
-            address:
-              'Jl. Mayjen DI Panjaitan No. 1C, Kebon Pala, Makasar, RT. 001 RW. 006, RT.1/RW.6, Kb. Pala, Makasar, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13650',
-            notes:
-              'PICK-UP:\n\n(Van A) #1-A Outlet BacaKopi\n+ Packaging A\n+ Packaging B\n+ Minyak Goreng(BIMOLI KLASIK) (Jerigen 18.0 ltr); 2 Jerigen\n\n(Van A) #2-B Outlet Ayam Geprek Ummat\n+ Packaging C\n\n(Van A) #3-C Outlet Ti Amo Thai Tea\n+ Telur Ayam Negeri 10kg(UNBRANDED) (Krat 10.0 kg); 1 Krat\n+ Minyak Goreng(BIMOLI KLASIK) (Jerigen 18.0 ltr); 2 Jerigen',
-            pic: 'Adi',
-            contact: '+6281499882354',
-          },
-        ],
-        drop_offs: [
-          {
-            outlet: 'BacaKopi',
-            address: 'Jl. Tanjung Duren Barat I - No. 11',
-            notes:
-              'DROP-OFF:\n\n(Van A) #1-A Outlet BacaKopi\n+ Packaging A\n+ Packaging B\n+ Minyak Goreng(BIMOLI KLASIK) (Jerigen 18.0 ltr); 2 Jerigen',
-            pic: 'Budi',
-            contact: '+6282175438756',
-          },
-          {
-            outlet: 'Ayam Geprek Ummat',
-            address:
-              'Jl. Kebagusan I No.45, Kebagusan, Ps. Minggu, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12520, Indonesia',
-            notes: 'DROP-OFF:\n\n(Van A) #2-B Outlet Ayam Geprek Ummat\n+ Packaging C',
-            pic: 'Candra',
-            contact: '+6282175438756',
-          },
-          {
-            outlet: 'Ti Amo Thai Tea',
-            address:
-              'Jl Masjid Assurur No 59 J RT 09 RW 01 Kel kebon jeruk Kec Kebon Jeruk Kota Jakarta Barat 11530',
-            notes:
-              'DROP-OFF:\n\n(Van A) #3-C Outlet Ti Amo Thai Tea\n+ Telur Ayam Negeri 10kg(UNBRANDED) (Krat 10.0 kg); 1 Krat\n+ Minyak Goreng(BIMOLI KLASIK) (Jerigen 18.0 ltr); 2 Jerigen',
-            pic: 'Dadang',
-            contact: '+6282175438756',
-          },
-        ],
-      },
-      {
-        delivery_id: '2043eeef-a75f-41fe-b64b-3e05413664e5',
-        assigned: '',
-        status: 'pending',
-        pick_ups: [
-          {
-            outlet: 'Sorting Hub',
-            address:
-              'Jl. Mayjen DI Panjaitan No. 1C, Kebon Pala, Makasar, RT. 001 RW. 006, RT.1/RW.6, Kb. Pala, Makasar, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13650',
-            notes:
-              'PICK-UP:\n\n(Van A) #1-A Outlet BacaKopi\n+ Packaging A\n+ Packaging B\n+ Minyak Goreng(BIMOLI KLASIK) (Jerigen 18.0 ltr); 2 Jerigen\n\n(Van A) #2-B Outlet Ayam Geprek Ummat\n+ Packaging C\n\n(Van A) #3-C Outlet Ti Amo Thai Tea\n+ Telur Ayam Negeri 10kg(UNBRANDED) (Krat 10.0 kg); 1 Krat\n+ Minyak Goreng(BIMOLI KLASIK) (Jerigen 18.0 ltr); 2 Jerigen',
-            pic: 'Adi',
-            contact: '+6281499882354',
-          },
-        ],
-        drop_offs: [
-          {
-            outlet: 'BacaKopi',
-            address: 'Jl. Tanjung Duren Barat I - No. 11',
-            notes:
-              'DROP-OFF:\n\n(Van A) #1-A Outlet BacaKopi\n+ Packaging A\n+ Packaging B\n+ Minyak Goreng(BIMOLI KLASIK) (Jerigen 18.0 ltr); 2 Jerigen',
-            pic: 'Budi',
-            contact: '+6282175438756',
-          },
-          {
-            outlet: 'Ayam Geprek Ummat',
-            address:
-              'Jl. Kebagusan I No.45, Kebagusan, Ps. Minggu, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12520, Indonesia',
-            notes: 'DROP-OFF:\n\n(Van A) #2-B Outlet Ayam Geprek Ummat\n+ Packaging C',
-            pic: 'Candra',
-            contact: '+6282175438756',
-          },
-          {
-            outlet: 'Ti Amo Thai Tea',
-            address:
-              'Jl Masjid Assurur No 59 J RT 09 RW 01 Kel kebon jeruk Kec Kebon Jeruk Kota Jakarta Barat 11530',
-            notes:
-              'DROP-OFF:\n\n(Van A) #3-C Outlet Ti Amo Thai Tea\n+ Telur Ayam Negeri 10kg(UNBRANDED) (Krat 10.0 kg); 1 Krat\n+ Minyak Goreng(BIMOLI KLASIK) (Jerigen 18.0 ltr); 2 Jerigen',
-            pic: 'Dadang',
-            contact: '+6282175438756',
-          },
-        ],
-      },
-    ];
+      const taskDriverResponse = await api.taskDriverGet();
+      const pemberianTaskResponse = await api.pemberianTaskGet();
 
-    dispatch(tasksLoaded(taskStructureTransformator(dummyTasks, employees)));
+      const driverTasks = !isEmpty(taskDriverResponse.body.data)
+        ? taskDriverResponse.body.data
+        : [];
+      const signedTasks = !isEmpty(pemberianTaskResponse.body.data)
+        ? pemberianTaskResponse.body.data
+        : [];
+
+      dispatch(tasksLoaded(taskStructurize(driverTasks, employees, signedTasks)));
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Menampilkan Data Tugas Logistik',
+        text: 'Terjadi kesalahan dalam penampilan data logistik',
+      });
+      console.log(e);
+    }
   };
 }
 
-export function addTask(task) {
-  return dispatch => {
-    // TODO: POST to Backend
-    const newTask = { ...task };
-    const randomScalingFactor = max => Math.floor(Math.random() * max);
-    newTask.delivery_id = `dummyeef-a75f-41fe-b64b-3e05413664e$${randomScalingFactor(5000)}`;
-    newTask.status = 'pending';
-    dispatch(addUnassignedTask(newTask));
+export function addTask(task, callback) {
+  return async (dispatch, getState) => {
+    try {
+      dispatch(loading());
+
+      const { username } = getState().auth.user;
+
+      let newDriverTask = {
+        nama: `[DRIVER] Pengiriman ${task.pick_up
+          .map(pickup => pickup.outlite)
+          .join('-')} ${task.drop_off.map(pickup => pickup.outlite).join('-')}`,
+        status: -2,
+        jenis: 1,
+        tanggal_dibuat: Moment().toISOString(),
+        username_manajer: username,
+      };
+
+      const newTaskResponse = await api.taskDriverPost(newDriverTask);
+      newDriverTask = newTaskResponse.body.data;
+
+      const pickUps = task.pick_up.map(async node => {
+        const { body } = await api.taskDriverPickUpPost(newDriverTask.id, {
+          ...node,
+          status: -1,
+          saran_tanggal_tiba: Moment().toISOString(),
+          id_task_driver: newDriverTask.id,
+        });
+        return body.data;
+      });
+
+      Promise.all(pickUps).then(newPickUps => {
+        newDriverTask.pick_up = newPickUps;
+
+        const dropOffs = task.drop_off.map(async node => {
+          const { body } = await api.taskDriverDropOffPost(newDriverTask.id, {
+            ...node,
+            status: -1,
+            id_task_driver: newDriverTask.id,
+          });
+          return body.data;
+        });
+
+        Promise.all(dropOffs).then(newDropOffs => {
+          newDriverTask.drop_off = newDropOffs;
+
+          dispatch(addUnassignedTask(newDriverTask));
+          swal({
+            icon: 'success',
+            title: 'Sukses Menambahkan Data Tugas Logistik',
+            text: 'Berhasil melakukan penambahan data logistik',
+          });
+          callback();
+        });
+      });
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Menambahkan Data Tugas Logistik',
+        text: 'Terjadi kesalahan dalam penambahan data logistik',
+      });
+      console.log(e);
+    }
   };
 }
 
 export function addTasks(tasks) {
-  return dispatch => {
-    // TODO: POST to Backend
-    // THIS IS A DUMMY DELIVERY_ID ASSIGNMENT, DELIVERY_ID SHOULD BE PROVIDED BY BACKEND
-    const dummyTasks = tasks.map((task, index) => {
-      const newTask = { ...task };
-      newTask.delivery_id = `dummyeef-a75f-41fe-b64b-3e05413664e${index}`;
-      newTask.status = 'pending';
+  return async (dispatch, getState) => {
+    try {
+      dispatch(loading());
 
-      return task;
-    });
+      const { username } = getState().auth.user;
 
-    dispatch(addUnassignedTasks(dummyTasks));
+      const newTasks = [];
+
+      const posts = tasks.map(async task => {
+        let newDriverTask = {
+          nama: `[DRIVER] Pengiriman ${task.pick_up
+            .map(pickup => pickup.outlite)
+            .join('-')} ${task.drop_off.map(pickup => pickup.outlite).join('-')}`,
+          status: -2,
+          jenis: 1,
+          tanggal_dibuat: Moment().toISOString(),
+          username_manajer: username,
+        };
+
+        const newTaskResponse = await api.taskDriverPost(newDriverTask);
+        newDriverTask = newTaskResponse.body.data;
+
+        const pickUps = task.pick_up.map(async node => {
+          const { body } = await api.taskDriverPickUpPost(newDriverTask.id, {
+            ...node,
+            status: -1,
+            saran_tanggal_tiba: Moment().toISOString(),
+            id_task_driver: newDriverTask.id,
+          });
+          return body.data;
+        });
+
+        return Promise.all(pickUps).then(newPickUps => {
+          newDriverTask.pick_up = newPickUps;
+
+          const dropOffs = task.drop_off.map(async node => {
+            const { body } = await api.taskDriverDropOffPost(newDriverTask.id, {
+              ...node,
+              status: -1,
+              id_task_driver: newDriverTask.id,
+            });
+            return body.data;
+          });
+
+          return Promise.all(dropOffs).then(newDropOffs => {
+            newDriverTask.drop_off = newDropOffs;
+
+            newTasks.push(newDriverTask);
+            return newTasks;
+          });
+        });
+      });
+
+      Promise.all(posts).then(() => {
+        dispatch(addUnassignedTasks(newTasks));
+        swal({
+          icon: 'success',
+          title: 'Sukses Menambahkan Tugas Logistik dari File CSV',
+          text:
+            'Berhasil melakukan penambahan semua data yang ada pada file CSV sebagai tugas logistik',
+        });
+      });
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Menambahkan Tugas Logistik dari File CSV',
+        text:
+          'Terjadi kesalahan dalam melakukan penambahan semua data yang ada pada file CSV sebagai tugas logistik',
+      });
+    }
   };
 }
 
 export function editTask(task, loc, idx) {
-  return dispatch => {
-    // TODO: POST to Backend
-    dispatch(setTask(task, loc, idx));
+  return async (dispatch, getState) => {
+    try {
+      dispatch(loading());
+
+      const oldTask =
+        loc === 'unassigned'
+          ? getState().logistic.tasks.unassigned[idx]
+          : getState().logistic.tasks[loc].local[idx];
+
+      let newDriverTask = { ...task };
+      delete newDriverTask.id;
+      delete newDriverTask.pick_up;
+      delete newDriverTask.drop_off;
+
+      const newTaskResponse = await api.taskDriverPut(task.id, newDriverTask);
+      newDriverTask = newTaskResponse.body.data;
+
+      const pickUpResponse = await api.taskDriverPickUpPut(
+        task.id,
+        task.pick_up[0].id,
+        task.pick_up[0]
+      );
+
+      newDriverTask.pick_up = [pickUpResponse.body.data];
+
+      const removedDropOffs = oldTask.drop_off.filter(node =>
+        isEmpty(task.drop_off.find(e => node.id === e.id)));
+
+      const removeDropOffs = removedDropOffs.map(async node => {
+        await api.taskDriverDropOffDelete(task.id, node.id);
+      });
+
+      Promise.all(removeDropOffs).then(() => {
+        const newDropOffs = task.drop_off.filter(e => e.id === null || e.id === undefined);
+
+        const postDropOffs = newDropOffs.map(async node => {
+          const { body } = await api.taskDriverDropOffPost(task.id, {
+            ...node,
+            status: -1,
+            id_task_driver: task.id,
+          });
+          return body.data;
+        });
+
+        Promise.all(postDropOffs).then(additionalDropOffs => {
+          const editedDropOffs = task.drop_off.filter(e => e.id !== null && e.id !== undefined);
+
+          const putDropOffs = editedDropOffs.map(async node => {
+            const { body } = await api.taskDriverDropOffPut(task.id, node.id, node);
+            return body.data;
+          });
+
+          Promise.all(putDropOffs).then(setDropOffs => {
+            const finalDropOffs = [...setDropOffs, ...additionalDropOffs];
+            newDriverTask.drop_off = finalDropOffs;
+
+            dispatch(setTask(newDriverTask, loc, idx));
+            swal({
+              icon: 'success',
+              title: 'Sukses Mengubah Data Tugas Logistik',
+              text: 'Berhasil melakukan pengubahan data logistik',
+            });
+          });
+        });
+      });
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Mengubah Data Tugas Logistik',
+        text: 'Terjadi kesalahan dalam pengubahan data logistik',
+      });
+      console.log(e);
+    }
+  };
+}
+
+export function assignTasks() {
+  return async (dispatch, getState) => {
+    dispatch(loading());
+
+    const { username } = getState().auth.user;
+    const tasks = { ...getState().logistic.tasks };
+    delete tasks.unassigned;
+
+    const parent = Object.keys(tasks).map(async key => {
+      const assigning = tasks[key].local.map(async task => {
+        const { body } = await api.pemberianTaskPost({
+          id_task: task.id,
+          username_manajer: username,
+          username_pegawai_lapangan: key,
+        });
+
+        return body;
+      });
+
+      return Promise.all(assigning).then(res => res);
+    });
+
+    Promise.all(parent).then(() => {
+      dispatch(assign());
+    });
   };
 }

@@ -21,6 +21,7 @@ import { modalBodyScroll } from 'commons/utils';
 
 import PurchaseList from 'components/PurchaseList';
 import PurchaseModal from 'components/PurchaseModal';
+import PurchaseConfirmation from 'components/PurchaseConfirmation';
 import PickerList from 'components/PickerList';
 import { Wrapper, ControlPanel, Controls, Control } from 'components/SharedElements';
 
@@ -84,6 +85,7 @@ export default class Purchasing extends Component {
       editModal: false,
       editCategory: '',
       editIndex: -1,
+      confirmationModal: false,
     };
   }
 
@@ -210,6 +212,11 @@ export default class Purchasing extends Component {
   closeEditModal = () => {
     this.setState({ editModal: false, editCategory: '', editIndex: -1 });
     modalBodyScroll(false);
+  };
+
+  toggleConfirmationModal = () => {
+    modalBodyScroll(!this.state.confirmationModal);
+    this.setState({ confirmationModal: !this.state.confirmationModal });
   };
 
   query = (tanggal, sesi) => {
@@ -341,6 +348,7 @@ export default class Purchasing extends Component {
         <PickerListWrapper>
           <PickerList
             editTask={this.openEditModal}
+            openConfirmation={this.toggleConfirmationModal}
             tasks={purchasing.tasks}
             dragFilter={purchasing.dragFilter}
             typeFilter={this.state.typeFilter}
@@ -378,6 +386,9 @@ export default class Purchasing extends Component {
             save={this.saveEdit}
             close={this.closeEditModal}
           />
+        )}
+        {this.state.confirmationModal && (
+          <PurchaseConfirmation close={this.toggleConfirmationModal} />
         )}
       </Wrapper>
     );

@@ -6,12 +6,13 @@ import { media } from 'commons/theme';
 
 import DriverCard from 'components/DriverCard';
 
-const DriverList = ({ editTask, tasks, dragFilter, employees }) => (
+const DriverList = ({ editTask, openConfirmation, tasks, dragFilter, employees }) => (
   <Wrapper>
     <div className="container">
       {employees.map(employee => (
         <DriverCard
           editTask={editTask}
+          openConfirmation={openConfirmation}
           key={`driver-${employee.username}`}
           tasks={tasks[employee.username]}
           dragFilter={dragFilter}
@@ -24,6 +25,7 @@ const DriverList = ({ editTask, tasks, dragFilter, employees }) => (
 
 DriverList.propTypes = {
   editTask: PropTypes.func.isRequired,
+  openConfirmation: PropTypes.func.isRequired,
   tasks: PropTypes.object.isRequired,
   employees: PropTypes.array.isRequired,
   dragFilter: PropTypes.string.isRequired,

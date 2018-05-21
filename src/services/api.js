@@ -1,6 +1,6 @@
 import defaults from 'superagent-defaults';
 
-const baseURL = 'http://35.198.250.145:8000/api';
+const baseURL = 'http://35.186.148.120:8080/api';
 const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dharmawan/image/upload';
 const cloudinaryPreset = 'm4hytxid';
 
@@ -14,6 +14,7 @@ const apiURLs = {
   batch: `${baseURL}/batch/`,
   task_picker: `${baseURL}/task_picker/`,
   task_driver: `${baseURL}/task_driver/`,
+  pemberian_task: `${baseURL}/pemberian_task/`,
 };
 
 const request = defaults();
@@ -59,6 +60,10 @@ export async function supplierPut(id, data) {
   return request.put(`${apiURLs.supplier}${id}/`).send(data);
 }
 
+export async function supplierDelete(id) {
+  return request.delete(`${apiURLs.supplier}${id}/`);
+}
+
 export async function ktpGet() {
   return request.get(apiURLs.ktp);
 }
@@ -93,6 +98,62 @@ export async function batchPost(data) {
 
 export async function batchPut(id, data) {
   return request.put(`${apiURLs.batch}${id}/`).send(data);
+}
+
+export async function taskPickerGet() {
+  return request.get(apiURLs.task_picker);
+}
+
+export async function taskPickerPost(data) {
+  return request.post(apiURLs.task_picker).send(data);
+}
+
+export async function taskPickerPut(id, data) {
+  return request.put(`${apiURLs.task_picker}${id}/`).send(data);
+}
+
+export async function taskDriverGet() {
+  return request.get(apiURLs.task_driver);
+}
+
+export async function taskDriverPost(data) {
+  return request.post(apiURLs.task_driver).send(data);
+}
+
+export async function taskDriverPut(id, data) {
+  return request.put(`${apiURLs.task_driver}${id}/`).send(data);
+}
+
+export async function taskDriverDetailGet(id) {
+  return request.get(`${apiURLs.task_driver}${id}/`);
+}
+
+export async function taskDriverPickUpPost(taskId, data) {
+  return request.post(`${baseURL}/${taskId}/pick_up/`).send(data);
+}
+
+export async function taskDriverPickUpPut(taskId, pickUpId, data) {
+  return request.put(`${baseURL}/${taskId}/pick_up/${pickUpId}/`).send(data);
+}
+
+export async function taskDriverDropOffPost(taskId, data) {
+  return request.post(`${baseURL}/${taskId}/drop_off/`).send(data);
+}
+
+export async function taskDriverDropOffPut(taskId, dropOffId, data) {
+  return request.put(`${baseURL}/${taskId}/drop_off/${dropOffId}/`).send(data);
+}
+
+export async function taskDriverDropOffDelete(taskId, dropOffId) {
+  return request.delete(`${baseURL}/${taskId}/drop_off/${dropOffId}/`);
+}
+
+export async function pemberianTaskGet() {
+  return request.get(apiURLs.pemberian_task);
+}
+
+export async function pemberianTaskPost(data) {
+  return request.post(apiURLs.pemberian_task).send(data);
 }
 
 export async function uploadImage(image, progress) {

@@ -22,11 +22,12 @@ import { modalBodyScroll } from 'commons/utils';
 
 import DeliveryList from 'components/DeliveryList';
 import DeliveryModal from 'components/DeliveryModal';
+import DeliveryConfirmation from 'components/DeliveryConfirmation';
 import DriverList from 'components/DriverList';
 import { Wrapper, ControlPanel, Controls, Control } from 'components/SharedElements';
 
 import { loadEmployee } from 'reducers/employee';
-import { setDate, loadTasks, addTask, addTasks, editTask } from 'reducers/logistic';
+import { setDate, loadTasks, addTask, addTasks, editTask, assignTasks } from 'reducers/logistic';
 
 import Navigation from '../Navigation';
 
@@ -37,6 +38,7 @@ import Navigation from '../Navigation';
   addTask,
   addTasks,
   editTask,
+  assignTasks,
 })
 export default class Logistic extends Component {
   static propTypes = {
@@ -49,6 +51,7 @@ export default class Logistic extends Component {
     addTask: PropTypes.func.isRequired,
     addTasks: PropTypes.func.isRequired,
     editTask: PropTypes.func.isRequired,
+    assignTasks: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -59,6 +62,7 @@ export default class Logistic extends Component {
       editModal: false,
       editCategory: '',
       editIndex: -1,
+      confirmationModal: false,
     };
   }
 
@@ -79,7 +83,11 @@ export default class Logistic extends Component {
   }
 
   componentDidUpdate() {
-    if (!isEmpty(this.props.employee.employee) && this.props.logistic.dry) {
+    if (
+      !isEmpty(this.props.employee.employee) &&
+      this.props.logistic.dry &&
+      !this.props.logistic.loading
+    ) {
       this.props.loadTasks();
     }
   }
@@ -148,8 +156,7 @@ export default class Logistic extends Component {
   };
 
   saveAdd = task => {
-    this.props.addTask(task);
-    this.toggleAddModal();
+    this.props.addTask(task, this.toggleAddModal);
   };
 
   saveEdit = task => {
@@ -172,8 +179,23 @@ export default class Logistic extends Component {
     modalBodyScroll(false);
   };
 
+  toggleConfirmationModal = () => {
+    modalBodyScroll(!this.state.confirmationModal);
+    this.setState({ confirmationModal: !this.state.confirmationModal });
+  };
+
   render() {
     const { logistic, employee } = this.props;
+
+    let isAssigningDisabled = true;
+
+    Object.keys(logistic.tasks).forEach(key => {
+      if (key !== 'unassigned') {
+        if (!isEmpty(logistic.tasks[key].local)) {
+          isAssigningDisabled = false;
+        }
+      }
+    });
 
     return (
       <Wrapper>
@@ -204,11 +226,15 @@ export default class Logistic extends Component {
               <button onClick={this.downloadTemplate} className="blue">
                 <img src={IconDownloadWhite} alt="upload" />Template
               </button>
-              <button onClick={this.downloadTemplate} className="blue">
+              <button onClick={this.downloadHistory} className="blue">
                 <img src={IconDownloadWhite} alt="upload" />Riwayat
               </button>
             </Control>
-            <button className="primary blue" disabled>
+            <button
+              className="primary blue"
+              onClick={this.props.assignTasks}
+              disabled={isAssigningDisabled}
+            >
               Assign Tugas
             </button>
           </Controls>
@@ -223,6 +249,7 @@ export default class Logistic extends Component {
         <DriverListWrapper>
           <DriverList
             editTask={this.openEditModal}
+            openConfirmation={this.toggleConfirmationModal}
             tasks={logistic.tasks}
             dragFilter={logistic.dragFilter}
             employees={employee.employee.filter(value => value.peran.toLowerCase() === 'driver')}
@@ -241,6 +268,9 @@ export default class Logistic extends Component {
             save={this.saveEdit}
             close={this.closeEditModal}
           />
+        )}
+        {this.state.confirmationModal && (
+          <DeliveryConfirmation close={this.toggleConfirmationModal} />
         )}
       </Wrapper>
     );
