@@ -8,7 +8,8 @@ export default class HelpCard extends Component {
   static propTypes = {
     data: PropTypes.object.isRequired,
     employees: PropTypes.object.isRequired,
-    supplier: PropTypes.object.isRequired,
+    supplier: PropTypes.array.isRequired,
+    respond: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -16,24 +17,29 @@ export default class HelpCard extends Component {
 
     this.state = {
       showResolve: false,
-      resolveMsg: '',
     };
   }
 
   render() {
-    const { showResolve, resolveMsg } = this.state;
+    const { showResolve } = this.state;
     const { data, employees } = this.props;
-    const supplier = this.props.supplier.find(el => el.id == employees[data.employee].id_supplier);
+    let supplier = null;
+
+    if (employees[data.username_pegawai_lapangan].peran.toLowerCase() === 'picker') {
+      supplier = this.props.supplier.find(el => el.id == employees[data.username_pegawai_lapangan].id_supplier);
+    }
 
     return (
       <Wrapper>
         <Profile expand={showResolve}>
-          <img src={employees[data.employee].foto} alt="profpic" />
+          <img src={employees[data.username_pegawai_lapangan].foto} alt="profpic" />
           <div>
-            <h1>{employees[data.employee].nama}</h1>
-            <h2>{employees[data.employee].username}</h2>
-            {employees[data.employee].peran.toLowerCase() === 'picker' && <h6>{supplier.nama}</h6>}
-            <h5>{employees[data.employee].peran}</h5>
+            <h1>{employees[data.username_pegawai_lapangan].nama}</h1>
+            <h2>{employees[data.username_pegawai_lapangan].username}</h2>
+            {employees[data.username_pegawai_lapangan].peran.toLowerCase() === 'picker' && (
+              <h6>{supplier.nama}</h6>
+            )}
+            <h5>{employees[data.username_pegawai_lapangan].peran}</h5>
           </div>
         </Profile>
         <HelpContext expand={showResolve}>
@@ -41,23 +47,11 @@ export default class HelpCard extends Component {
             <h6>Membutuhkan Bantuan pada tugas:</h6>
             <h3>Pembelian 20 Kantong Plastik Merah - L (500 g), OTO</h3>
             <h6>Memberikan pesan:</h6>
-            <p>
-              "Ullamcorper duis suspendisse potenti iaculis tempus id class diam cum ridiculus
-              ligula penatibus at a a per nec mollis nascetur sociosqu.A et eget vestibulum a
-              condimentum arcu ad scelerisque donec condimentum convallis curae nisl a eros in
-              aliquam neque a hendrerit.At quis duis cubilia dignissim nec vivamus consectetur."
-            </p>
+            <p>"{data.masalah}"</p>
           </div>
-          <div className="input">
-            <h6>Kirim Balasan</h6>
-            <textarea
-              type="text"
-              value={resolveMsg}
-              onChange={evt => this.setState({ resolveMsg: evt.target.value })}
-              placeholder="Ketik balasan disini"
-            />
-            <button>Kirim</button>
-          </div>
+          <button className="resolve" onClick={() => this.props.respond(data)}>
+            Hubungi Pegawai
+          </button>
           <button className="toggle" onClick={() => this.setState({ showResolve: !showResolve })}>
             <img src={IconChevronWhite} alt="chevron" />
           </button>
@@ -167,7 +161,7 @@ const HelpContext = styled.div`
     justify-content: flex-start;
     align-items: center;
     align-content: center;
-    padding: ${props => (props.expand ? '2rem' : '0 2rem')};
+    padding: ${props => (props.expand ? '2rem 2rem 1rem' : '0 2rem')};
     transition: 0.25s ease border-radius, 0.25s ease padding;
 
     h3,
@@ -201,6 +195,23 @@ const HelpContext = styled.div`
       -webkit-box-orient: vertical;
       overflow: ${props => (props.expand ? 'visible' : 'hidden')};
       text-overflow: ellipsis;
+      transition: 0.25s ease all;
+    }
+  }
+
+  .resolve {
+    display: ${props => (props.expand ? 'block' : 'none')};
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    background: ${props => props.theme.color.green};
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    transition: 0.25s ease all;
+
+    &:hover,
+    &:focus {
+      opacity: 0.95;
       transition: 0.25s ease all;
     }
   }

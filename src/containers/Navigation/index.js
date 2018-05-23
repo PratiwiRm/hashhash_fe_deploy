@@ -12,9 +12,15 @@ import SITEMAP from 'commons/sitemap';
 
 import { logout } from 'reducers/auth';
 
-@connect(null, { push, logout })
+@connect(
+  state => ({
+    help: state.help,
+  }),
+  { push, logout }
+)
 export default class Navigation extends Component {
   static propTypes = {
+    help: PropTypes.object.isRequired,
     push: PropTypes.func.isRequired,
     logout: PropTypes.func.isRequired,
   };
@@ -29,6 +35,8 @@ export default class Navigation extends Component {
     window.location.pathname === SITEMAP.pembelian || window.location.pathname === SITEMAP.logistik;
 
   render() {
+    const { help } = this.props;
+
     return (
       <Navbar>
         <button onClick={() => this.navigate('index')}>
@@ -40,6 +48,7 @@ export default class Navigation extends Component {
             disabled={this.matchCurrentRoute('bantuan')}
           >
             Bantuan
+            {help.help.length > 0 && <div className="notifAccent" />}
           </button>
           <button
             onClick={() => this.navigate('performa')}
@@ -105,6 +114,7 @@ const Navlinks = styled.div`
 
   a,
   button {
+    position: relative;
     color: ${props => props.theme.color.gray};
     font-size: 1rem;
     font-weight: 700;
@@ -129,6 +139,16 @@ const Navlinks = styled.div`
           color: ${props => props.theme.color.gray};
         }
       }
+    }
+
+    .notifAccent {
+      position: absolute;
+      top: 0;
+      right: -0.5rem;
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 1rem;
+      background: ${props => props.theme.color.green};
     }
   }
 `;

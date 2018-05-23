@@ -26,16 +26,7 @@ import PickerList from 'components/PickerList';
 import { Wrapper, ControlPanel, Controls, Control } from 'components/SharedElements';
 
 import { loadEmployee } from 'reducers/employee';
-import {
-  setDate,
-  setBatch,
-  queryBatch,
-  loadTasks,
-  addTask,
-  addTasks,
-  editTask,
-  assignTasks,
-} from 'reducers/purchasing';
+import { queryBatch, addTask, addTasks, editTask, assignTasks } from 'reducers/purchasing';
 import { loadSupplier } from 'reducers/supplier';
 
 import Navigation from '../Navigation';
@@ -48,12 +39,9 @@ import Navigation from '../Navigation';
     supplier: state.supplier,
   }),
   {
-    setDate,
-    setBatch,
     queryBatch,
     loadEmployee,
     loadSupplier,
-    loadTasks,
     addTask,
     addTasks,
     editTask,
@@ -67,11 +55,8 @@ export default class Purchasing extends Component {
     employee: PropTypes.object.isRequired,
     supplier: PropTypes.object.isRequired,
     queryBatch: PropTypes.func.isRequired,
-    setDate: PropTypes.func.isRequired,
-    setBatch: PropTypes.func.isRequired,
     loadEmployee: PropTypes.func.isRequired,
     loadSupplier: PropTypes.func.isRequired,
-    loadTasks: PropTypes.func.isRequired,
     addTask: PropTypes.func.isRequired,
     addTasks: PropTypes.func.isRequired,
     editTask: PropTypes.func.isRequired,
@@ -100,8 +85,6 @@ export default class Purchasing extends Component {
 
       if (this.props.employee.dry) {
         this.props.loadEmployee();
-      } else if (!isEmpty(this.props.employee.employee)) {
-        this.props.loadTasks();
       }
 
       this.props.queryBatch(

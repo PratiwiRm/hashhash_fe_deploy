@@ -15,6 +15,8 @@ const apiURLs = {
   task_picker: `${baseURL}/task_picker/`,
   task_driver: `${baseURL}/task_driver/`,
   pemberian_task: `${baseURL}/pemberian_task/`,
+  polling_bantuan: `${baseURL}/polling/bantuan/`,
+  rangkuman_tugas_per_hari: `${baseURL}/rangkuman_tugas_per_hari/`,
 };
 
 const request = defaults();
@@ -154,6 +156,26 @@ export async function pemberianTaskGet() {
 
 export async function pemberianTaskPost(data) {
   return request.post(apiURLs.pemberian_task).send(data);
+}
+
+export async function pemberianTaskPut(idTask, usernameManajer, usernamePegawai, data) {
+  return request
+    .put(`${
+        apiURLs.pemberian_task
+      }?id_task=${idTask}&username_manajer=${usernameManajer}&username_pegawai_lapangan=${usernamePegawai}`)
+    .send(data);
+}
+
+export async function pollingBantuanGet() {
+  return request.get(apiURLs.polling_bantuan);
+}
+
+export async function performanceGet() {
+  return request.get(apiURLs.rangkuman_tugas_per_hari);
+}
+
+export async function fotoPickUpGet() {
+  return request.get(`${baseURL}/foto/pick_up/paket/8/8/4/`);
 }
 
 export async function uploadImage(image, progress) {

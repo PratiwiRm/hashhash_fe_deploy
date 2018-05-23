@@ -18,6 +18,8 @@ import Spinner from 'components/Spinner';
 
 import { reloadAuth } from 'reducers/auth';
 
+import { refreshHelp } from 'reducers/help';
+
 import { swapTask as logisticSwapTask, moveTask as logisticMoveTask } from 'reducers/logistic';
 
 import {
@@ -32,6 +34,18 @@ import routes from '../../routes';
 const store = configureStore();
 
 export default class App extends Component {
+  constructor() {
+    super();
+
+    this.helpRefreshInterval = setInterval(() => {
+      const state = store.getState();
+
+      if (state.auth.login && state.auth.token) {
+        store.dispatch(refreshHelp());
+      }
+    }, 2500);
+  }
+
   componentDidMount() {
     store.dispatch(reloadAuth());
   }

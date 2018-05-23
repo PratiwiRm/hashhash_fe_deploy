@@ -2,48 +2,44 @@ import moment from 'moment';
 
 import theme from 'commons/theme';
 
-export const chartGradientBuilderPlugin = chart => {
+export const chartGradientBuilderPlugin = (chart, color) => {
   const { width, height, ctx } = chart;
 
   // initiate gradient object
-  const pickerGradient = ctx.createLinearGradient(width / 2, 0, width / 2, height);
-  const driverGradient = ctx.createLinearGradient(width / 2, 0, width / 2, height);
+  const gradient = ctx.createLinearGradient(width / 2, 0, width / 2, height);
+
+  const backgroundColor = [];
+  const borderColor = [];
 
   // Add colors
-  pickerGradient.addColorStop(0.5, 'rgba(0, 227, 174, 0.75)');
-  pickerGradient.addColorStop(1, 'rgba(155, 225, 93, 0.25)');
+  if (color === 'green') {
+    gradient.addColorStop(0.5, 'rgba(0, 227, 174, 0.75)');
+    gradient.addColorStop(1, 'rgba(155, 225, 93, 0.25)');
 
-  driverGradient.addColorStop(0.5, 'rgba(0, 198, 251, 0.75)');
-  driverGradient.addColorStop(1, 'rgba(0, 91, 234, 0.25)');
+    chart.data.datasets[0].data.forEach(() => {
+      backgroundColor.push('rgba(155, 225, 93, 1)');
+      borderColor.push('rgba(255, 255, 255, 1)');
+    });
 
-  const pickerPointBackgroundColor = [];
-  const pickerPointBorderColor = [];
+    chart.data.datasets[0].borderColor = 'rgba(155, 225, 93, 1)';
+    chart.legend.legendItems[0].fillStyle = 'rgba(155, 225, 93, 1)';
+  } else {
+    gradient.addColorStop(0.5, 'rgba(0, 198, 251, 0.75)');
+    gradient.addColorStop(1, 'rgba(0, 91, 234, 0.25)');
 
-  const driverPointBackgroundColor = [];
-  const driverPointBorderColor = [];
+    chart.data.datasets[0].data.forEach(() => {
+      backgroundColor.push('rgba(0, 91, 234, 1)');
+      borderColor.push('rgba(255, 255, 255, 1)');
+    });
 
-  chart.data.datasets[0].data.forEach(() => {
-    pickerPointBackgroundColor.push('rgba(155, 225, 93, 1)');
-    pickerPointBorderColor.push('rgba(255, 255, 255, 1)');
-  });
+    chart.data.datasets[0].borderColor = 'rgba(0, 91, 234, 1)';
+    chart.legend.legendItems[0].fillStyle = 'rgba(0, 91, 234, 1)';
+  }
 
-  chart.data.datasets[1].data.forEach(() => {
-    driverPointBackgroundColor.push('rgba(0, 91, 234, 1)');
-    driverPointBorderColor.push('rgba(255, 255, 255, 1)');
-  });
-
-  chart.data.datasets[0].backgroundColor = pickerGradient;
-  chart.data.datasets[0].borderColor = 'rgba(155, 225, 93, 1)';
-  chart.data.datasets[0].pointBackgroundColor = pickerPointBackgroundColor;
-  chart.data.datasets[0].pointBorderColor = pickerPointBorderColor;
-  chart.legend.legendItems[0].fillStyle = 'rgba(155, 225, 93, 1)';
+  chart.data.datasets[0].backgroundColor = gradient;
+  chart.data.datasets[0].pointBackgroundColor = backgroundColor;
+  chart.data.datasets[0].pointBorderColor = borderColor;
   chart.legend.legendItems[0].lineWidth = 0;
-  chart.data.datasets[1].backgroundColor = driverGradient;
-  chart.data.datasets[1].borderColor = 'rgba(0, 91, 234, 1)';
-  chart.data.datasets[1].pointBackgroundColor = driverPointBackgroundColor;
-  chart.data.datasets[1].pointBorderColor = driverPointBorderColor;
-  chart.legend.legendItems[1].fillStyle = 'rgba(0, 91, 234, 1)';
-  chart.legend.legendItems[1].lineWidth = 0;
 };
 
 export const lineChartOptionsBuilder = (xLabel, yLabel) => ({

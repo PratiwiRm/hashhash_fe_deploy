@@ -14,12 +14,13 @@ export default class Spinner extends Component {
   };
 
   render() {
-    const { auth, employee, logistic, purchasing, supplier } = this.props;
+    const { auth, employee, logistic, performance, purchasing, supplier } = this.props;
 
     const isLoading =
       auth.loading ||
       employee.loading ||
       logistic.loading ||
+      performance.loading ||
       purchasing.loading ||
       supplier.loading;
 
