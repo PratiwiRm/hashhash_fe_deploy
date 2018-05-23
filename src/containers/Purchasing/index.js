@@ -26,7 +26,15 @@ import PickerList from 'components/PickerList';
 import { Wrapper, ControlPanel, Controls, Control } from 'components/SharedElements';
 
 import { loadEmployee } from 'reducers/employee';
-import { queryBatch, addTask, addTasks, editTask, assignTasks } from 'reducers/purchasing';
+import {
+  queryBatch,
+  addTask,
+  addTasks,
+  editTask,
+  assignTasks,
+  getPemberianTasks,
+  beriRating,
+} from 'reducers/purchasing';
 import { loadSupplier } from 'reducers/supplier';
 
 import Navigation from '../Navigation';
@@ -46,6 +54,8 @@ import Navigation from '../Navigation';
     addTasks,
     editTask,
     assignTasks,
+    getPemberianTasks,
+    beriRating,
   }
 )
 export default class Purchasing extends Component {
@@ -61,6 +71,8 @@ export default class Purchasing extends Component {
     addTasks: PropTypes.func.isRequired,
     editTask: PropTypes.func.isRequired,
     assignTasks: PropTypes.func.isRequired,
+    getPemberianTasks: PropTypes.func.isRequired,
+    beriRating: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -91,6 +103,7 @@ export default class Purchasing extends Component {
         this.props.purchasing.batch.tanggal_dibuat,
         this.props.purchasing.batch.sesi
       );
+      this.props.getPemberianTasks();
     }
   }
 
@@ -98,6 +111,7 @@ export default class Purchasing extends Component {
     if (!this.props.auth.token && nextProps.auth.token) {
       this.props.loadSupplier();
       this.props.loadEmployee();
+      this.props.getPemberianTasks();
     }
   }
 
@@ -299,7 +313,7 @@ export default class Purchasing extends Component {
                 onChange={evt => this.setState({ supplierFilter: evt.target.value })}
               >
                 <option value="all">Semua Supplier</option>
-                {supplier.supplier.map(value => (
+                {supplier.supplier.filter(s => s.is_active).map(value => (
                   <option key={`${value.id}x${value.nama}`} value={value.id}>
                     {value.nama}
                   </option>
@@ -375,6 +389,8 @@ export default class Purchasing extends Component {
               return flag;
             })}
             supplier={supplier.supplier}
+            pemberianTasks={purchasing.pemberianTasks}
+            beriRating={this.props.beriRating}
           />
         </PickerListWrapper>
         {this.state.addModal && (

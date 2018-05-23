@@ -17,6 +17,7 @@ const SET_DRAG_FILTER = 'app/purchasing/SET_DRAG_FILTER';
 const ADD_UNASSIGNED_TASK = 'app/purchasing/ADD_UNASSIGNED_TASK';
 const ADD_UNASSIGNED_TASKS = 'app/purchasing/ADD_UNASSIGNED_TASKS';
 const SET_TASK = 'app/purchasing/SET_TASK';
+const SET_PEMBERIAN_TASKS = 'app/purchasing/SET_PEMBERIAN_TASKS';
 const ASSIGN_TASK = 'app/purchasing/ASSIGN_TASK';
 
 const initialState = {
@@ -36,6 +37,7 @@ const initialState = {
   },
   dragFilter: '',
   dry: true,
+  pemberianTasks: [],
 };
 
 export default function reducer(state = initialState, action) {
@@ -193,6 +195,12 @@ export default function reducer(state = initialState, action) {
         tasks,
         loading: false,
       };
+    case SET_PEMBERIAN_TASKS:
+      return {
+        ...state,
+        pemberianTasks: action.payload,
+        loading: false,
+      };
     default:
       return state;
   }
@@ -248,6 +256,10 @@ export function setTask(task, loc, idx) {
 
 export function assign() {
   return { type: ASSIGN_TASK };
+}
+
+export function setPemberianTasks(pemberianTasks) {
+  return { type: SET_PEMBERIAN_TASKS, payload: pemberianTasks };
 }
 
 export function queryBatch(tanggal, sesi) {
@@ -484,6 +496,65 @@ export function assignTasks() {
         icon: 'error',
         title: 'Error Mengassing Tugas Pembelian',
         text: 'Gagal membagikan tugas pembelian',
+      });
+    }
+  };
+}
+
+export function getPemberianTasks() {
+  return async dispatch => {
+    try {
+      dispatch(loading());
+
+      const { body } = await api.pemberianTaskGet();
+
+      dispatch(setPemberianTasks(body.data));
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Mendapatkan Pemberian Tasks',
+        text: 'Gagal mendapatkan pemberian tasks',
+      });
+    }
+  };
+}
+
+export function beriRating(idPegawaiLapangan, rating) {
+  return async (dispatch, getState) => {
+    try {
+      dispatch(loading());
+
+      const { tasks, pemberianTasks } = getState().purchasing;
+
+      const { signed } = tasks[idPegawaiLapangan];
+      const tasksDone = signed.filter(value => value.status >= 3);
+
+      const pemberianTasksFiltered = pemberianTasks.filter(value => !isEmpty(tasksDone.find(e => e.id === value.id_task)));
+
+      const assingRating = pemberianTasksFiltered.map(async pemTask => {
+        await api.pemberianTaskPut(
+          pemTask.id_task,
+          pemTask.username_manajer,
+          pemTask.username_pegawai_lapangan,
+          { ...pemTask, rating }
+        );
+      });
+
+      Promise.all(assingRating).then(async res => {
+        const { body } = await api.pemberianTaskGet();
+
+        dispatch(setPemberianTasks(body.data));
+        swal({
+          icon: 'success',
+          title: 'Berhasil Memberikan Rating',
+          text: 'Berhasil memberikan rating',
+        });
+      });
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Memberikan Rating',
+        text: 'Gagal memberikan rating',
       });
     }
   };

@@ -12,6 +12,8 @@ const PickerList = ({
   typeFilter,
   employees,
   supplier,
+  pemberianTasks,
+  beriRating,
 }) => (
   <Wrapper>
     <div className="container">
@@ -25,6 +27,8 @@ const PickerList = ({
           typeFilter={typeFilter}
           employee={employee}
           supplier={supplier.find(el => el.id == employee.id_supplier)}
+          pemberianTasks={pemberianTasks}
+          beriRating={beriRating}
         />
       ))}
     </div>
@@ -39,6 +43,8 @@ PickerList.propTypes = {
   supplier: PropTypes.array.isRequired,
   dragFilter: PropTypes.string.isRequired,
   typeFilter: PropTypes.string.isRequired,
+  pemberianTasks: PropTypes.array.isRequired,
+  beriRating: PropTypes.array.isRequired,
 };
 
 const Wrapper = styled.div`

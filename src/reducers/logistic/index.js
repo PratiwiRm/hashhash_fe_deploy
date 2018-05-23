@@ -21,6 +21,7 @@ const SET_DRAG_FILTER = 'app/logistic/SET_DRAG_FILTER';
 const ADD_UNASSIGNED_TASK = 'app/logistic/ADD_UNASSIGNED_TASK';
 const ADD_UNASSIGNED_TASKS = 'app/logistic/ADD_UNASSIGNED_TASKS';
 const SET_TASK = 'app/logistic/SET_TASK';
+const SET_PEMBERIAN_TASKS = 'app/logistic/SET_PEMBERIAN_TASKS';
 const ASSIGN_TASK = 'app/logistic/ASSIGN_TASK';
 
 const initialState = {
@@ -33,6 +34,7 @@ const initialState = {
   },
   dragFilter: '',
   dry: true,
+  pemberianTasks: [],
 };
 
 export default function reducer(state = initialState, action) {
@@ -187,6 +189,12 @@ export default function reducer(state = initialState, action) {
         tasks,
         loading: false,
       };
+    case SET_PEMBERIAN_TASKS:
+      return {
+        ...state,
+        pemberianTasks: action.payload,
+        loading: false,
+      };
     default:
       return state;
   }
@@ -240,17 +248,22 @@ export function assign() {
   return { type: ASSIGN_TASK };
 }
 
+export function setPemberianTasks(pemberianTasks) {
+  return { type: SET_PEMBERIAN_TASKS, payload: pemberianTasks };
+}
+
 export function loadTasks() {
   return async (dispatch, getState) => {
     try {
       const employees = getState().employee.employee.filter(employee => employee.peran.toLowerCase() === 'driver');
+      const date = Moment(getState().logistic.date);
       dispatch(loading());
 
       const taskDriverResponse = await api.taskDriverGet();
       const pemberianTaskResponse = await api.pemberianTaskGet();
 
       const driverTasks = !isEmpty(taskDriverResponse.body.data)
-        ? taskDriverResponse.body.data
+        ? taskDriverResponse.body.data.filter(e => date.isSame(e.tanggal_dibuat, 'day'))
         : [];
       const signedTasks = !isEmpty(pemberianTaskResponse.body.data)
         ? pemberianTaskResponse.body.data
@@ -520,6 +533,65 @@ export function assignTasks() {
         icon: 'error',
         title: 'Error Mengassing Tugas Logistik',
         text: 'Gagal membagikan tugas logistik',
+      });
+    }
+  };
+}
+
+export function getPemberianTasks() {
+  return async dispatch => {
+    try {
+      dispatch(loading());
+
+      const { body } = await api.pemberianTaskGet();
+
+      dispatch(setPemberianTasks(body.data));
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Mendapatkan Pemberian Tasks',
+        text: 'Gagal mendapatkan pemberian tasks',
+      });
+    }
+  };
+}
+
+export function beriRating(idPegawaiLapangan, rating) {
+  return async (dispatch, getState) => {
+    try {
+      dispatch(loading());
+
+      const { tasks, pemberianTasks } = getState().logistic;
+
+      const { signed } = tasks[idPegawaiLapangan];
+      const tasksDone = signed.filter(value => value.status >= value.drop_off.length + 1);
+
+      const pemberianTasksFiltered = pemberianTasks.filter(value => !isEmpty(tasksDone.find(e => e.id === value.id_task)));
+
+      const assingRating = pemberianTasksFiltered.map(async pemTask => {
+        await api.pemberianTaskPut(
+          pemTask.id_task,
+          pemTask.username_manajer,
+          pemTask.username_pegawai_lapangan,
+          { ...pemTask, rating }
+        );
+      });
+
+      Promise.all(assingRating).then(async res => {
+        const { body } = await api.pemberianTaskGet();
+
+        dispatch(setPemberianTasks(body.data));
+        swal({
+          icon: 'success',
+          title: 'Berhasil Memberikan Rating',
+          text: 'Berhasil memberikan rating',
+        });
+      });
+    } catch (e) {
+      swal({
+        icon: 'error',
+        title: 'Error Memberikan Rating',
+        text: 'Gagal memberikan rating',
       });
     }
   };

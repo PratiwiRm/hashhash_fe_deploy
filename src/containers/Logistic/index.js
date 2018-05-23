@@ -27,7 +27,16 @@ import DriverList from 'components/DriverList';
 import { Wrapper, ControlPanel, Controls, Control } from 'components/SharedElements';
 
 import { loadEmployee } from 'reducers/employee';
-import { setDate, loadTasks, addTask, addTasks, editTask, assignTasks } from 'reducers/logistic';
+import {
+  setDate,
+  loadTasks,
+  addTask,
+  addTasks,
+  editTask,
+  assignTasks,
+  getPemberianTasks,
+  beriRating,
+} from 'reducers/logistic';
 
 import Navigation from '../Navigation';
 
@@ -39,6 +48,8 @@ import Navigation from '../Navigation';
   addTasks,
   editTask,
   assignTasks,
+  getPemberianTasks,
+  beriRating,
 })
 export default class Logistic extends Component {
   static propTypes = {
@@ -52,6 +63,8 @@ export default class Logistic extends Component {
     addTasks: PropTypes.func.isRequired,
     editTask: PropTypes.func.isRequired,
     assignTasks: PropTypes.func.isRequired,
+    getPemberianTasks: PropTypes.func.isRequired,
+    beriRating: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -73,12 +86,15 @@ export default class Logistic extends Component {
       } else if (!isEmpty(this.props.employee.employee)) {
         this.props.loadTasks();
       }
+
+      this.props.getPemberianTasks();
     }
   }
 
   componentWillReceiveProps(nextProps) {
     if (!this.props.auth.token && nextProps.auth.token) {
       this.props.loadEmployee();
+      this.props.getPemberianTasks();
     }
   }
 
@@ -207,7 +223,10 @@ export default class Logistic extends Component {
               <input
                 type="date"
                 value={logistic.date}
-                onChange={evt => this.props.setDate(evt.target.value)}
+                onChange={evt => {
+                  this.props.setDate(evt.target.value);
+                  this.props.loadTasks();
+                }}
                 placeholder="tanggal pengaturan"
               />
             </Control>
@@ -253,6 +272,8 @@ export default class Logistic extends Component {
             tasks={logistic.tasks}
             dragFilter={logistic.dragFilter}
             employees={employee.employee.filter(value => value.peran.toLowerCase() === 'driver')}
+            pemberianTasks={logistic.pemberianTasks}
+            beriRating={this.props.beriRating}
           />
         </DriverListWrapper>
         {this.state.addModal && (

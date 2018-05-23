@@ -6,7 +6,15 @@ import { media } from 'commons/theme';
 
 import DriverCard from 'components/DriverCard';
 
-const DriverList = ({ editTask, openConfirmation, tasks, dragFilter, employees }) => (
+const DriverList = ({
+  editTask,
+  openConfirmation,
+  tasks,
+  dragFilter,
+  employees,
+  pemberianTasks,
+  beriRating,
+}) => (
   <Wrapper>
     <div className="container">
       {employees.map(employee => (
@@ -17,6 +25,8 @@ const DriverList = ({ editTask, openConfirmation, tasks, dragFilter, employees }
           tasks={tasks[employee.username]}
           dragFilter={dragFilter}
           employee={employee}
+          pemberianTasks={pemberianTasks}
+          beriRating={beriRating}
         />
       ))}
     </div>
@@ -29,6 +39,8 @@ DriverList.propTypes = {
   tasks: PropTypes.object.isRequired,
   employees: PropTypes.array.isRequired,
   dragFilter: PropTypes.string.isRequired,
+  pemberianTasks: PropTypes.array.isRequired,
+  beriRating: PropTypes.func.isRequired,
 };
 
 const Wrapper = styled.div`

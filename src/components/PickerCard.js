@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import { isEmpty } from 'lodash';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 
+import IconStarFill from 'assets/icon_star_fill.svg';
+import IconStarBlank from 'assets/icon_star_blank.svg';
+
 import PurchaseCard from 'components/PurchaseCard';
 
 export default class PickerCard extends Component {
@@ -13,6 +16,8 @@ export default class PickerCard extends Component {
     typeFilter: PropTypes.string.isRequired,
     editTask: PropTypes.func.isRequired,
     openConfirmation: PropTypes.func.isRequired,
+    beriRating: PropTypes.func.isRequired,
+    pemberianTasks: PropTypes.array.isRequired,
     supplier: PropTypes.object,
     tasks: PropTypes.object,
   };
@@ -36,6 +41,24 @@ export default class PickerCard extends Component {
   }
 
   switch = switcher => this.setState({ switcher });
+
+  calculateRating = tasks => {
+    if (tasks.length === 0) return 0;
+
+    let rating = 0;
+
+    tasks.forEach(task => {
+      const assign = this.props.pemberianTasks.find(e => e.id_task == task.id);
+
+      if (!isEmpty(assign)) {
+        rating += assign.rating;
+      }
+    });
+
+    rating /= tasks.length;
+
+    return rating;
+  };
 
   render() {
     const { editTask, tasks, dragFilter, typeFilter, employee, supplier } = this.props;
@@ -67,7 +90,23 @@ export default class PickerCard extends Component {
 
       return flag;
     });
+
     const locallyAssigned = tasks.local;
+
+    const rating = this.calculateRating(tasksDone);
+    const stars = Math.ceil(rating);
+    const starIterator = [];
+
+    for (let iter = 0; iter < stars; iter += 1) {
+      starIterator.push('x');
+    }
+
+    const blanks = 5 - stars;
+    const blankIterator = [];
+
+    for (let iter = 0; iter < blanks; iter += 1) {
+      blankIterator.push('y');
+    }
 
     return (
       <Droppable
@@ -91,6 +130,30 @@ export default class PickerCard extends Component {
                 <span>{supplier.nama}</span>
               </div>
             </Head>
+            <RatingStar disabled={tasksDone.length === 0}>
+              <h1>
+                {rating}
+                <span>dari 5</span>
+              </h1>
+              {starIterator.map((val, index) => (
+                <button
+                  key={`${employee.username}-fill-${val}-${index}`}
+                  disabled={tasksDone.length === 0}
+                  onClick={() => this.props.beriRating(employee.username, index + 1)}
+                >
+                  <img src={IconStarFill} alt="fill" />
+                </button>
+              ))}
+              {blankIterator.map((val, index) => (
+                <button
+                  key={`${employee.username}-blank-${val}-${index}`}
+                  disabled={tasksDone.length === 0}
+                  onClick={() => this.props.beriRating(employee.username, rating + index + 1)}
+                >
+                  <img src={IconStarBlank} alt="blank" />
+                </button>
+              ))}
+            </RatingStar>
             {taskDoing && (
               <Doing>
                 <h6>Sedang Melakukan</h6>
@@ -228,6 +291,50 @@ const Head = styled.div`
 
     span {
       font-size: 0.875rem;
+    }
+  }
+`;
+
+const RatingStar = styled.div`
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  padding: 0 2rem;
+  margin: -2rem 0 2rem;
+  opacity: ${props => (props.disabled ? '0.5' : '1')};
+
+  h1 {
+    width: 100%;
+    font-size: 3rem;
+    margin: 0 0 0.5rem;
+    text-align: center;
+    color: ${props => props.theme.color.pure};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+
+    span {
+      font-size: 1rem;
+      font-weight: 400;
+      opacity: 0.85;
+      margin: 0 0 0 0.5rem;
+    }
+  }
+
+  button {
+    margin: 0 1rem 0 0;
+
+    &:last-of-type {
+      margin: 0;
+    }
+
+    img {
+      width: 1.5rem;
+      height: 1.5rem;
     }
   }
 `;

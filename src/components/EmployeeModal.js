@@ -391,7 +391,7 @@ export default class EmployeeModal extends Component {
                 <option disabled value="">
                   Pilih Supplier
                 </option>
-                {supplier.map(value => (
+                {supplier.filter(s => s.is_active).map(value => (
                   <option key={`${value.nama}${value.address}`} value={value.id}>
                     {value.nama}
                   </option>
